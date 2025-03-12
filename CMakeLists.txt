@@ -9,7 +9,6 @@ project(App)
 set(CMAKE_CXX_STANDARD 17) #gán giá trị dữ liệu cho biến CMAKE_CXX_STANDARD
 set(CMAKE_CXX_STANDARD_REQUIRED ON) #gán giá trị dữ liệu cho biến CMAKE_CXX_STANDARD_REQUIRED
 
-
 # include(FetchContent)  # Include module FetchContent to download raylib
 # FetchContent_Declare(raylib
 #     GIT_REPOSITORY https://github.com/raysan5/raylib.git

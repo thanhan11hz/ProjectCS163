@@ -3,7 +3,7 @@
 #include "GlobalVar.hpp"
 
 void initBackGround() {
-
+    font = GetFontDefault();
 }
 
 void drawBackGround() {
@@ -14,6 +14,7 @@ Program::Program() {
     InitWindow(screenWidth,screenHeight,"My Raylib App");
     SetTargetFPS(60);
     initBackGround();
+    menu.init();
     mode = Mode::MENU;
 }
 
@@ -30,7 +31,7 @@ void Program::run() {
 
 void Program::eventProcessing() {
     if (mode == Mode::MENU) {
-        int x;
+        int x = menu.modePresson();
         if (x == 0) {
             mode = Mode::SLLIST;
             list.init();

@@ -17,4 +17,6 @@ enum class Mode {
 
 extern Mode mode;
 
+extern Font font;
+
 #endif

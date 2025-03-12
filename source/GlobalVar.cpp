@@ -5,4 +5,7 @@
 const int screenWidth = 1440;
 const int screenHeight = 810;
 
+// Determine the data structure to display
 Mode mode;
+
+Font font;
