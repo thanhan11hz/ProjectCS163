@@ -1,9 +1,13 @@
 #include "Graph.hpp"
 
-void Graph::init() {}
+void Graph::init() {
+    initView();
+}
 
 void Graph::draw() {
     drawView();
 }
 
-void Graph::run() {}
+void Graph::run() {
+    eventView();
+}

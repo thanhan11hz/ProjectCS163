@@ -10,8 +10,8 @@ class View {
     public:
         struct Panel {
             Rectangle rec;
-            Texture Play;
-            Texture Pause;
+            Texture2D Play;
+            Texture2D Pause;
             void draw();
         } panel;
         struct Log {
@@ -26,7 +26,7 @@ class View {
             void draw();
         } option;
         struct Home {
-            Texture2D button;
+            Texture2D icon;
             void draw();
             bool isReturnMenu();
         } home;

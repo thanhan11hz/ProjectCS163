@@ -1,9 +1,13 @@
 #include "HTable.hpp"
 
-void HTable::init() {}
+void HTable::init() {
+    initView();
+}
 
 void HTable::draw() {
     drawView();
 }
 
-void HTable::run() {}
+void HTable::run() {
+    eventView();
+}

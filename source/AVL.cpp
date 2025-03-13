@@ -1,9 +1,13 @@
 #include "AVL.hpp"
 
-void AVL::init() {}
+void AVL::init() {
+    initView();
+}
 
 void AVL::draw() {
     drawView();
 }
 
-void AVL::run() {}
+void AVL::run() {
+    eventView();
+}

@@ -29,8 +29,13 @@ include_directories(include) # Include the directory with your headers
 
 file(GLOB_RECURSE SOURCES "source/*.cpp")  # Get all .cpp files in src/ folder
 
+add_executable(main ${SOURCES}) 
 
-add_executable(main ${SOURCES}) # Tạo file thực thi từ file main.cpp
+add_custom_command(
+    TARGET main POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/resource
+            ${CMAKE_BINARY_DIR}/resource
+)
 
-
-target_link_libraries(main raylib -lopengl32 -lgdi32 -lwinmm) # Link the executable with raylib
+target_link_libraries(main raylib -lopengl32 -lgdi32 -lwinmm) 
