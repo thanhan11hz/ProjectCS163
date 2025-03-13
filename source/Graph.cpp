@@ -2,4 +2,8 @@
 
 void Graph::init() {}
 
-void Graph::draw() {}
+void Graph::draw() {
+    drawView();
+}
+
+void Graph::run() {}

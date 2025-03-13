@@ -2,8 +2,8 @@
 #include "GlobalVar.hpp"
 
 void Button::draw() {
-    Color colorDraw = isHovered ? Fade(color,0.3f) : color;
-    float roundness = 0.3f; 
+    Color colorDraw = isHovered ? Fade(color,0.6f) : color;
+    float roundness = 0.2f; 
     int segments = 10; 
     DrawRectangleRounded(rec, roundness, segments, colorDraw);
     float fontSize = 20;

@@ -46,6 +46,18 @@ void Program::eventProcessing() {
             graph.init();
         }
     }
+    if (mode == Mode::SLLIST) {
+        list.run();
+    }
+    if (mode == Mode::HTABLE) {
+        table.run();
+    } 
+    if (mode == Mode::AVL) {
+        tree.run();
+    } 
+    if (mode == Mode::GRAPH) {
+        graph.run();
+    } 
 }
 
 void Program::drawing() {

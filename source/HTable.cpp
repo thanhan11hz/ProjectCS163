@@ -2,4 +2,8 @@
 
 void HTable::init() {}
 
-void HTable::draw() {}
+void HTable::draw() {
+    drawView();
+}
+
+void HTable::run() {}

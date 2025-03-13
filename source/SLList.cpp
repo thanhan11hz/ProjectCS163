@@ -2,4 +2,8 @@
 
 void SLList::init() {}
 
-void SLList::draw() {}
+void SLList::draw() {
+    drawView();
+}
+
+void SLList::run() {}

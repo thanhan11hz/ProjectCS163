@@ -2,4 +2,8 @@
 
 void AVL::init() {}
 
-void AVL::draw() {}
+void AVL::draw() {
+    drawView();
+}
+
+void AVL::run() {}
