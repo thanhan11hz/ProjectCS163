@@ -2,6 +2,7 @@
 
 void SLList::init() {
     initView();
+    root = nullptr;
 }
 
 void SLList::draw() {
@@ -29,10 +30,10 @@ void SLList::run() {
 void SLList::exit() {
     code.codeline.clear();
     box.value.clear();
-    ListNode *curr = root, *prev = root;
-    while (!prev) {
-        delete prev;
-        prev = curr;
+    ListNode *curr = root;
+    while (curr) {
+        ListNode* nextNode = curr->next;
+        delete curr;
         curr = curr->next;
     }
 }
@@ -41,7 +42,7 @@ void SLList::initData() {
     if (box.value.size() == 0) return;
     root = new ListNode(box.value[0]);
     root->position = {480,640};
-    ListNode* curr = root -> next;
+    ListNode* curr = root;
     for (int i = 1; i < box.value.size(); ++i) {
         curr->next = new ListNode(box.value[i]);
         curr->next->position = {curr->position.x + 80, curr->position.y};
@@ -55,7 +56,7 @@ void SLList::insertData() {
         "   root = new Node;   ",
         "   root -> val = x;   ",
         "   return;        }   ",
-        "Node* curr = root;    "
+        "Node* curr = root;    ",
         "while (!curr->val)    ",
         "{ curr = curr->next; }",
         "curr->next = new Node;",

@@ -72,8 +72,12 @@ void View::Option::draw()
     
 }
 
-bool isAdd() {
+bool View::Option::isInitialize() {
+    return true;
+}
 
+bool View::Option::isAdd() {
+    return true;
 }
 
 bool View::Option::isDelete()
