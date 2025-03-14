@@ -11,3 +11,23 @@ void Graph::draw() {
 void Graph::run() {
     eventView();
 }
+
+void Graph::exit() {
+    
+}
+
+void Graph::initData() {
+
+}
+
+void Graph::insertData() {
+
+}
+
+void Graph::deleteData() {
+
+}
+
+void Graph::searchData() {
+    
+}

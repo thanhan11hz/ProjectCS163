@@ -54,6 +54,7 @@ void View::Option::draw()
     DrawText("Delete", DeleteButton.x + 10, DeleteButton.y + 10, 20, textColor);
 }
 
+
 bool View::Option::isInitialize()
 {   
     float buttonWidth = 120;
@@ -82,6 +83,9 @@ bool View::Option::isAdd()
     }
     return false;
 }
+
+
+
 
 bool View::Option::isDelete()
 {
@@ -174,6 +178,7 @@ void View::drawView()
     panel.draw();
     option.draw();
     home.draw();
+
 }
 
 void View::eventView()

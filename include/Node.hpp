@@ -12,7 +12,7 @@ class Node {
         Vector2 position;
         int isHighlighted;
         void drawNode();
-        void drawEdge(Node* x, Node* y);
+        void drawEdge(Node* x);
 };
 
 #endif 

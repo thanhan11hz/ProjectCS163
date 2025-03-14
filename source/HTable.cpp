@@ -11,3 +11,23 @@ void HTable::draw() {
 void HTable::run() {
     eventView();
 }
+
+void HTable::exit() {
+    
+}
+
+void HTable::initData() {
+
+}
+
+void HTable::insertData() {
+
+}
+
+void HTable::deleteData() {
+
+}
+
+void HTable::searchData() {
+    
+}
