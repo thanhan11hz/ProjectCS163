@@ -52,44 +52,65 @@ void View::Option::draw()
     Rectangle DeleteButton = {startX, startY + 135, buttonWidth, buttonHeight};
     DrawRectangleRec(DeleteButton, buttonColor);
     DrawText("Delete", DeleteButton.x + 10, DeleteButton.y + 10, 20, textColor);
-
-    if (CheckCollisionPointRec(GetMousePosition(), IniButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-    {
-        isInitialize();
-    }
-    if (CheckCollisionPointRec(GetMousePosition(), InsertButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-    {
-        isAdd();
-    }
-    if (CheckCollisionPointRec(GetMousePosition(), SearchButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-    {
-        isSearch();
-    }
-    if (CheckCollisionPointRec(GetMousePosition(), DeleteButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-    {
-        isDelete();
-    }  
-    
 }
 
 bool View::Option::isInitialize()
-{
-    return true;
+{   
+    float buttonWidth = 120;
+    float buttonHeight = 40;
+    float startX = 400;
+    float startY = 545;
+    Rectangle IniButton = {startX, startY, buttonWidth, buttonHeight};
+    if (CheckCollisionPointRec(GetMousePosition(), IniButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+    {
+        return true;
+    }
+    return false;
 }
 
 bool View::Option::isAdd()
 {
-    return true;
+    float buttonWidth = 120;
+    float buttonHeight = 40;
+    float startX = 400;
+    float startY = 545;
+    Rectangle InsertButton = {startX, startY + 45, buttonWidth, buttonHeight};
+
+    if (CheckCollisionPointRec(GetMousePosition(), InsertButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+    {
+        return true;
+    }
+    return false;
 }
 
 bool View::Option::isDelete()
 {
-    return true;
+    float buttonWidth = 120;
+    float buttonHeight = 40;
+    float startX = 400;
+    float startY = 545;
+    Rectangle DeleteButton = {startX, startY + 135, buttonWidth, buttonHeight};
+
+    if (CheckCollisionPointRec(GetMousePosition(), DeleteButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+    {
+        return true;
+    }
+    return false;
 }
 
 bool View::Option::isSearch()
 {
-    return true;
+    float buttonWidth = 120;
+    float buttonHeight = 40;
+    float startX = 400;
+    float startY = 545;
+    Rectangle SearchButton = {startX, startY + 90, buttonWidth, buttonHeight};
+
+    if (CheckCollisionPointRec(GetMousePosition(), SearchButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+    {
+        return true;
+    }
+    return false;
 }
 
 void View::Log::draw()

@@ -40,6 +40,11 @@ class View {
         void drawView();
         void eventView();
         //virtual void exit() = 0;
+
+        struct TextBox{
+            std::vector<int> value;
+            void draw();
+        } box; 
 };
 
 #endif
