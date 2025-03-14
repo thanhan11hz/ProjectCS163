@@ -8,6 +8,7 @@ class SLList: public Logic, public View {
         void init();
         void draw();
         void run();
+        void exit();
 };
 
 #endif

@@ -11,3 +11,7 @@ void SLList::draw() {
 void SLList::run() {
     eventView();
 }
+
+void SLList::exit() {
+    
+}

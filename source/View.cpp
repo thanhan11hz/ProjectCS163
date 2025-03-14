@@ -20,11 +20,28 @@ void View::CodeBlock::draw() {
 
 void View::Panel::draw() {
     rec = {0,720,1440,90};
-    DrawRectangleRec(rec,RED);
+    DrawRectangleRec(rec,GREEN);
 }
 
 void View::Option::draw() {
     
+}
+
+
+bool isInitialize() {
+
+}
+
+bool isAdd() {
+
+}
+
+bool isDelete() {
+
+}
+
+bool isSearch() {
+
 }
 
 void View::Log::draw() {
@@ -33,9 +50,9 @@ void View::Log::draw() {
 
 void View::initView() {
     home.icon = LoadTexture("resource\\Texture\\home.png");
+    code.codeline.clear();
     code.codeline.push_back("#include <iostream>");
     code.codeline.push_back("using namespace std");
-
 }
 
 void View::Home::draw() {
@@ -66,7 +83,7 @@ void View::drawView() {
         break;
         case Mode::GRAPH: name = "Shortest Path";
     }
-    int fontSize = 80;
+    int fontSize = 60;
     int spacing = 10;
     Vector2 textSize = MeasureTextEx(font,name.c_str(),fontSize,spacing);
     Vector2 textPos = {
@@ -83,5 +100,6 @@ void View::drawView() {
 void View::eventView() {
     if (home.isReturnMenu()) {
         mode = Mode::MENU;
+        exit();
     }
 }

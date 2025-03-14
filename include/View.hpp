@@ -23,6 +23,10 @@ class View {
             void draw();
         } code;
         struct Option {
+            bool isInitialize();
+            bool isAdd();
+            bool isDelete();
+            bool isSearch();
             void draw();
         } option;
         struct Home {
@@ -34,6 +38,7 @@ class View {
         void initView();
         void drawView();
         void eventView();
+        virtual void exit() = 0;
 };
 
 #endif
