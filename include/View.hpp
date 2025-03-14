@@ -36,9 +36,7 @@ class View {
             void draw();
             bool isReturnMenu();
         } home;
-        struct textBox {
-            std::vector<int> value;
-        } box;
+        
         virtual ~View() = default;
         void initView();
         void drawView();
