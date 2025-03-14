@@ -5,6 +5,7 @@
 #include <vector>
 #include "raylib.h"
 #include "GlobalVar.hpp"
+#include "Node.hpp"
 
 class View {
     public:
@@ -34,6 +35,9 @@ class View {
             void draw();
             bool isReturnMenu();
         } home;
+        struct textBox {
+            std::vector<int> value;
+        } box;
         virtual ~View() = default;
         void initView();
         void drawView();

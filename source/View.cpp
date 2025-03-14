@@ -28,20 +28,20 @@ void View::Option::draw() {
 }
 
 
-bool isInitialize() {
-
+bool View::Option::isInitialize() {
+    return true;
 }
 
-bool isAdd() {
-
+bool View::Option::isAdd() {
+    return true;
 }
 
-bool isDelete() {
-
+bool View::Option::isDelete() {
+    return true;
 }
 
-bool isSearch() {
-
+bool View::Option::isSearch() {
+    return true;
 }
 
 void View::Log::draw() {
@@ -95,6 +95,7 @@ void View::drawView() {
     panel.draw();
     option.draw();
     home.draw();
+
 }
 
 void View::eventView() {
