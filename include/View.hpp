@@ -28,6 +28,7 @@ class View {
             bool isDelete();
             bool isSearch();
             void draw();
+            Vector2 postion = {400, 545};
         } option;
         struct Home {
             Texture2D icon;
@@ -38,7 +39,7 @@ class View {
         void initView();
         void drawView();
         void eventView();
-        virtual void exit() = 0;
+        //virtual void exit() = 0;
 };
 
 #endif
