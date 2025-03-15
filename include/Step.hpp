@@ -22,7 +22,6 @@ class StepManager {
         StepManager(): currentStep(-1), speed(1.0f), isPlaying(false) {};
         void nextStep();
         void prevStep();
-        void goToFinal();
         void playAll();
 };
 

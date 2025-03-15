@@ -15,7 +15,17 @@ enum class Mode {
     GRAPH
 };
 
+enum class Function {
+    NONE,
+    INIT,
+    INSERT,
+    DELETE,
+    SEARCH
+};
+
 extern Mode mode;
+
+extern Function func;
 
 extern Font font;
 

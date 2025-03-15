@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <sstream>
 #include "raylib.h"
 #include "GlobalVar.hpp"
 #include "Node.hpp"
@@ -24,10 +25,9 @@ class View {
             Texture2D Forward;
             Texture2D Final;
 
+            void update();
             void draw();
-
             bool isPlaying = false;
-            bool isAutoPlaying = false;
             bool isPlayPressed();
             bool isPausePressed();
             bool isRewindPressed();
@@ -51,31 +51,25 @@ class View {
             void update();
         } code;
         struct Option {
+            Vector2 postion = {400, 545};
             bool isInitialize();
             bool isAdd();
             bool isDelete();
             bool isSearch();
             void draw();
-            Vector2 postion = {400, 545};
         } option;
         struct Home {
             Texture2D icon;
             void draw();
             bool isReturnMenu();
         } home;
-        
-        virtual ~View() = default;
-        void initView();
-        void drawView();
-        void eventView();
-        virtual void exit() = 0;
-
         struct TextBox{
             std::string value;
-            void draw();
+            std::vector<int> someList;
             bool isOpen = false;
+            void update();
+            void draw();
         } box;
-        std::vector<int> someList;
 
         struct Slider {
             Rectangle bound = {50,757.5,300,15};
@@ -84,6 +78,13 @@ class View {
             void update();
             void draw();
         } slider;
+
+        virtual ~View() = default;
+        void initView();
+        void drawView();
+        void eventView();
+        virtual void exit() = 0;
+
 };
 
 #endif

@@ -1,5 +1,6 @@
 #include "View.hpp"
-#include <sstream>
+
+// Code Block
 
 void View::CodeBlock::draw()
 {
@@ -33,14 +34,12 @@ void View::CodeBlock::update() {
     }
 }
 
+// Panel
+
 void View::Panel::draw()
 {
     
     DrawRectangleRec(rec, GREEN);
-
-    // Positon and size of each button is declared at View.hpp
-    
-
     // Draw Rewind button
     Rectangle rewindButton = {startX, startY, buttonSize, buttonSize};
     DrawTexturePro(Rewind, {0, 0, (float)Rewind.width, (float)Rewind.height}, rewindButton, {0, 0}, 0.0f, WHITE);
@@ -60,6 +59,34 @@ void View::Panel::draw()
     if (CheckCollisionPointRec(GetMousePosition(), playPauseButton) && IsKeyPressed(MOUSE_LEFT_BUTTON)){
         isPlaying = !isPlaying;
     }
+}
+
+void View::Panel::update() {
+    
+    if (isPlayPressed()){
+        isPlaying = true;
+    }
+    else if (isPausePressed() || isRewindPressed() || isForwardPressed()){
+        isPlaying = false;
+    }
+
+//     if (isRewindPressed()){
+
+//     }
+
+//     if (isForwardPressed()){
+
+//         if (!isPlaying){
+//             // logic run step by step
+//         }
+//     }
+// // Chỗ này ông thêm điều kiện chỗ chạy đến cuối ở if
+//     // if (panel.isPlaying){
+//     //     if () {
+//     //         panel.isPlaying = false;
+//     //         panel.isAutoPlaying = false;
+//     //     }
+//     // }
 }
 
 bool View::Panel::isRewindPressed(){
@@ -82,6 +109,7 @@ bool View::Panel::isForwardPressed(){
     return CheckCollisionPointRec(GetMousePosition(), forwardButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
 }
 
+// Option
 
 void View::Option::draw()
 {
@@ -108,27 +136,6 @@ void View::Option::draw()
     Rectangle DeleteButton = {startX, startY + 135, buttonWidth, buttonHeight};
     DrawRectangleRec(DeleteButton, buttonColor);
     DrawText("Delete", DeleteButton.x + 10, DeleteButton.y + 10, 20, textColor);
-}
-
-void View::TextBox::draw(){
-    if (!isOpen) return;
-
-    Rectangle textBoxRec = {500, 300, 400, 100};
-    DrawRectangleRec(textBoxRec, LIGHTGRAY);
-    DrawRectangleLinesEx(textBoxRec, 2, DARKGRAY);
-
-    Rectangle closeButton = {textBoxRec.x + textBoxRec.width - 30, textBoxRec.y + 10, 20, 20};
-    DrawRectangleRec(closeButton, RED);
-    DrawText("X", closeButton.x + 5, closeButton.y + 2, 20, WHITE);
-
-    if (CheckCollisionPointRec(GetMousePosition(), closeButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
-        isOpen = false;
-        value.clear();
-    }
-    std::string inputText = "Enter value: " + value;
-
-    // Display value entered from keyboard on textBox
-    DrawText(inputText.c_str(), textBoxRec.x + 10, textBoxRec.y + 40, 20, DARKGRAY);
 }
 
 bool View::Option::isInitialize()
@@ -190,6 +197,72 @@ bool View::Option::isSearch()
     return false;
 }
 
+// Text Box
+
+void View::TextBox::draw(){
+    if (!isOpen) return;
+
+    Rectangle textBoxRec = {500, 300, 400, 100};
+    DrawRectangleRec(textBoxRec, LIGHTGRAY);
+    DrawRectangleLinesEx(textBoxRec, 2, DARKGRAY);
+
+    Rectangle closeButton = {textBoxRec.x + textBoxRec.width - 30, textBoxRec.y + 10, 20, 20};
+    DrawRectangleRec(closeButton, RED);
+    DrawText("X", closeButton.x + 5, closeButton.y + 2, 20, WHITE);
+
+    if (CheckCollisionPointRec(GetMousePosition(), closeButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
+        isOpen = false;
+        value.clear();
+    }
+    std::string inputText = "Enter value: " + value;
+
+    // Display value entered from keyboard on textBox
+    DrawText(inputText.c_str(), textBoxRec.x + 10, textBoxRec.y + 40, 20, DARKGRAY);
+}
+
+void View::TextBox::update() {
+    // Handle entering value from Textbox
+    if (isOpen) {
+        // Handle entering value from keyboard
+        int key = GetCharPressed();
+        while (key > 0) {
+            // Allow numbers and space only
+            if ((key >= '0' && key <= '9') || key == ' ') {
+                value += static_cast<char>(key); // Add char to string
+            }
+            key = GetCharPressed();
+        }
+
+        if (IsKeyPressed(KEY_BACKSPACE)) {
+            if (!value.empty()) {
+                value.pop_back(); 
+            }
+        }
+
+        if (IsKeyPressed(KEY_ENTER)) {
+            std::vector<int> numbers; 
+            std::stringstream ss(value); 
+            std::string token;
+
+            while (ss >> token) {
+                try {
+                    int num = std::stoi(token); 
+                    numbers.push_back(num);   
+                } catch (const std::invalid_argument&) {
+
+                }
+            }
+            
+            someList.insert(someList.end(), numbers.begin(), numbers.end());
+
+            value.clear();
+            isOpen = false;
+        }
+    }
+}
+
+// Log
+
 void View::Log::draw()
 {
     rec = {0, 400, 400, 320};
@@ -209,6 +282,8 @@ void View::Log::draw()
         DrawTextEx(font, infor[i].c_str(), textPos, fontSize, spacing, WHITE);
     }
 }
+
+// slider
 
 void View::Slider::update() {
     Vector2 mousePos = GetMousePosition();
@@ -232,16 +307,7 @@ void View::Slider::draw() {
     DrawCircle(buttonX,bound.y + bound.height/2.0f, bound.height, BLACK);
 }
 
-void View::initView()
-{
-    home.icon = LoadTexture("resource\\Texture\\home.png");
-    code.codeline.clear();
-    panel.Play = LoadTexture("resource\\Texture\\Play.png");
-    panel.Pause = LoadTexture("resource\\Texture\\Pause.png");
-    panel.Rewind = LoadTexture("resource\\Texture\\Rewind.png");
-    panel.Forward = LoadTexture("resource\\Texture\\Forward.png");
-    panel.Final = LoadTexture("resource\\Texture\\Final.png");
-}
+// Home
 
 void View::Home::draw()
 {
@@ -261,6 +327,21 @@ bool View::Home::isReturnMenu()
     }
     return false;
 }
+
+// View
+
+void View::initView()
+{
+    func = Function::NONE;
+    home.icon = LoadTexture("resource\\Texture\\home.png");
+    code.codeline.clear();
+    panel.Play = LoadTexture("resource\\Texture\\Play.png");
+    panel.Pause = LoadTexture("resource\\Texture\\Pause.png");
+    panel.Rewind = LoadTexture("resource\\Texture\\Rewind.png");
+    panel.Forward = LoadTexture("resource\\Texture\\Forward.png");
+    panel.Final = LoadTexture("resource\\Texture\\Final.png");
+}
+
 
 void View::drawView()
 {
@@ -293,11 +374,6 @@ void View::drawView()
     option.draw();
     home.draw();
     log.draw();
-    // biến isOpen, khi true thì hiện textbox, khi nhấn dấu x thì trả về false và tắt textbox
-    if (option.isAdd() || option.isDelete() || option.isInitialize() || option.isSearch()){
-        box.isOpen = true;
-    }
-
     if (box.isOpen){
         box.draw();
     }
@@ -305,83 +381,18 @@ void View::drawView()
 }
 
 void View::eventView() {
-    // Xử lý sự kiện trở về menu
+
     if (home.isReturnMenu()) {
         mode = Mode::MENU;
         exit();
     }
 
-    // Handle entering value from Textbox
-    if (box.isOpen) {
-        // Handle entering value from keyboard
-        int key = GetCharPressed();
-        while (key > 0) {
-            // Allow numbers and space only
-            if ((key >= '0' && key <= '9') || key == ' ') {
-                box.value += static_cast<char>(key); // Add char to string
-            }
-            key = GetCharPressed();
-        }
-
-        // Xử lý xóa ký tự nếu nhấn phím Backspace
-        if (IsKeyPressed(KEY_BACKSPACE)) {
-            if (!box.value.empty()) {
-                box.value.pop_back(); // Xóa ký tự cuối cùng
-            }
-        }
-
-        // Xử lý khi nhấn phím Enter
-        if (IsKeyPressed(KEY_ENTER)) {
-            std::vector<int> numbers; 
-            std::stringstream ss(box.value); 
-            std::string token;
-
-            // Tách chuỗi dựa trên dấu cách
-            while (ss >> token) {
-                try {
-                    int num = std::stoi(token); // Chuyển đổi từ chuỗi sang số
-                    numbers.push_back(num);    // Thêm số vào danh sách
-                } catch (const std::invalid_argument&) {
-                    // Bỏ qua nếu không thể chuyển đổi thành số
-                }
-            }
-
-            // Thêm danh sách số vào someList
-            someList.insert(someList.end(), numbers.begin(), numbers.end());
-
-            // Xóa giá trị trong TextBox sau khi xử lý
-            box.value.clear();
-            box.isOpen = false;
-        }
+    if (option.isAdd() || option.isDelete() || option.isInitialize() || option.isSearch()) {
+        if (option.isInitialize()) exit();
+        box.isOpen = true;
     }
-    // Cap nhat toc do
+    box.update();
     slider.update();
     code.update();
-    // Handle when click a button
-    if (panel.isPlayPressed()){
-        panel.isPlaying = true;
-        panel.isAutoPlaying = true;
-    }
-    else if (panel.isPausePressed()){
-        panel.isPlaying = false;
-        panel.isAutoPlaying = false;
-    }
-
-    if (panel.isRewindPressed()){
-
-    }
-
-    if (panel.isForwardPressed()){
-
-        if (!panel.isAutoPlaying){
-            // logic run step by step
-        }
-    }
-// Chỗ này ông thêm điều kiện chỗ chạy đến cuối ở if
-    // if (panel.isAutoPlaying){
-    //     if () {
-    //         panel.isPlaying = false;
-    //         panel.isAutoPlaying = false;
-    //     }
-    // }
+    panel.update();
 }

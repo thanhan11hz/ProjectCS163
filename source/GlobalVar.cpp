@@ -8,4 +8,6 @@ const int screenHeight = 810;
 // Determine the data structure to display
 Mode mode;
 
+Function func;
+
 Font font;
