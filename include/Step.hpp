@@ -3,9 +3,9 @@
 
 #include <iostream>
 #include <vector>
+#include <thread>
 #include "raylib.h"
 #include "Node.hpp"
-
 struct Step {
     public:
         int highlightedLine;
