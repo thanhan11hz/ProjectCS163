@@ -11,7 +11,6 @@ void SLList::draw() {
     Step currStep = stepmanager.step[stepmanager.currentStep];
     log.infor = currStep.description;
     code.lineHighlighted = currStep.highlightedLine;
-    drawView();
     if (!root) return;
     ListNode* curr = root, *prev = nullptr;
     while (curr) {
@@ -39,11 +38,12 @@ void SLList::run() {
         code.codeline.clear();
         searchData();
     }
+    
 }
 
 void SLList::exit() {
     code.codeline.clear();
-    box.value.clear();
+    someList.clear();
     ListNode *curr = root;
     while (curr) {
         ListNode* nextNode = curr->next;
@@ -54,18 +54,18 @@ void SLList::exit() {
 }
 
 void SLList::initData() {
-    if (box.value.size() == 0) return;
-    root = new ListNode(box.value[0]);
+    if (someList.size() == 0) return;
+    root = new ListNode(someList[0]);
     root->position = {480,640};
     ListNode* curr = root;
-    for (int i = 1; i < box.value.size(); ++i) {
-        curr->next = new ListNode(box.value[i]);
+    for (int i = 1; i < someList.size(); ++i) {
+        curr->next = new ListNode(someList[i]);
         curr->next->position = {curr->position.x + 80, curr->position.y};
         curr = curr->next;
     }
 }
 void SLList::insertData() {
-    if (box.value.size() == 0) return;
+    if (someList.size() == 0) return;
     code.codeline = {
         "if (!root) {          ",
         "   root = new Node;   ",
@@ -78,12 +78,12 @@ void SLList::insertData() {
         "curr->next->val = x;  ",
     };
     Step step;
-    for (int i = 0; i < box.value.size(); ++i) {
+    for (int i = 0; i < someList.size(); ++i) {
         step.highlightedNode = nullptr;
         step.highlightedLine = 0;
         stepmanager.step.push_back(step);
         if (!root) {
-            root = new ListNode(box.value[i]);
+            root = new ListNode(someList[i]);
             step.highlightedLine = 1;
             stepmanager.step.push_back(step);
             step.highlightedLine = 2;
@@ -108,11 +108,11 @@ void SLList::insertData() {
         stepmanager.step.push_back(step);
         step.highlightedLine = 8;
         stepmanager.step.push_back(step);
-        curr->next = new ListNode(box.value[i]);
+        curr->next = new ListNode(someList[i]);
     }
 }
 void SLList::deleteData() {
-    if (box.value.size() == 0) return;
+    if (someList.size() == 0) return;
     code.codeline = {
         "if (!root) return;                     ",
         "ListNode *curr = root, *prev = nullptr;",
@@ -126,7 +126,7 @@ void SLList::deleteData() {
         "else prev->next = prev->next->next;    "
     };
     Step step;
-    for (int i = 0; i < box.value.size(); ++i) {
+    for (int i = 0; i < someList.size(); ++i) {
         if (!root) {
             step.highlightedNode = nullptr;
             step.highlightedLine = 0;
@@ -138,7 +138,7 @@ void SLList::deleteData() {
         step.highlightedLine = 2;
         stepmanager.step.push_back(step);
         ListNode *curr = root, *prev = nullptr;
-        while (curr && curr->val != box.value[i]) {
+        while (curr && curr->val != someList[i]) {
             step.highlightedNode = curr;
             step.highlightedLine = 3;
             stepmanager.step.push_back(step);
@@ -150,7 +150,7 @@ void SLList::deleteData() {
         if (!curr) {
             step.highlightedLine = 5;
             stepmanager.step.push_back(step);
-            step.description.push_back("Number " + std::to_string(box.value[i]) + " isn't belong to the Linked List");
+            step.description.push_back("Number " + std::to_string(someList[i]) + " isn't belong to the Linked List");
             break;
         }
         if (!prev) {
@@ -169,7 +169,7 @@ void SLList::deleteData() {
     }
 }
 void SLList::searchData() {
-    if (box.value.size() == 0) return;
+    if (someList.size() == 0) return;
     code.codeline = {
         "if (!root) return;            ",
         "ListNode* curr = root;        ",
@@ -178,7 +178,7 @@ void SLList::searchData() {
         "return (!curr) ? false : true;"
     };
     Step step;
-    for (int i = 0; i < box.value.size(); ++i) {
+    for (int i = 0; i < someList.size(); ++i) {
         if (!root) {
             step.highlightedNode = nullptr;
             step.highlightedLine = 0;
@@ -190,15 +190,15 @@ void SLList::searchData() {
         ListNode* curr = root;
         step.highlightedLine = 2;
         stepmanager.step.push_back(step);
-        while (curr && curr->val!=box.value[i]) {
+        while (curr && curr->val!=someList[i]) {
             step.highlightedNode = curr;
             step.highlightedLine = 3;
             stepmanager.step.push_back(step);
             curr = curr->next;
         }
         step.highlightedLine = 4;
-        if (!curr) step.description.push_back("Number " + std::to_string(box.value[i]) + " isn't belong to the Linked List");
-        else step.description.push_back("Number " + std::to_string(box.value[i]) + " has found in the Linked List");
+        if (!curr) step.description.push_back("Number " + std::to_string(someList[i]) + " isn't belong to the Linked List");
+        else step.description.push_back("Number " + std::to_string(someList[i]) + " has found in the Linked List");
         stepmanager.step.push_back(step);
     }
 }

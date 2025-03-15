@@ -3,23 +3,33 @@
 
 void View::CodeBlock::draw()
 {
-    rec = {0, 80, 400, 640};
+    rec = {0, 80, 400, 320};
     DrawRectangleRec(rec, PINK);
-    if (codeline.size() > 30)
-    {
-        codeline.erase(codeline.begin(), codeline.end() - 4);
-    }
-    for (int i = 0; i < codeline.size(); ++i)
+    int startLine = scrollOffset/lineHeight;
+
+    for (int i = 0; i < visibleLines && (startLine + i < codeline.size()); ++i)
     {
         float fontSize;
-        if (i == lineHighlighted) fontSize = 40;
+        if (startLine + i == lineHighlighted) fontSize = 40;
         else fontSize = 20;
         float spacing = 5;
-        Vector2 textSize = MeasureTextEx(font, codeline[i].c_str(), fontSize, spacing);
+        Vector2 textSize = MeasureTextEx(font, codeline[startLine + i].c_str(), fontSize, spacing);
         Vector2 textPos = {
             (400 - textSize.x) / 2.0f,
             80 + 26 * i + (26 - textSize.y) / 2.0f};
-        DrawTextEx(font, codeline[i].c_str(), textPos, fontSize, spacing, WHITE);
+        DrawTextEx(font, codeline[startLine + i].c_str(), textPos, fontSize, spacing, WHITE);
+    }
+    float scrollHeight = (visibleLines/(float)codeline.size())*rec.height;
+    float scrollY = rec.y + scrollOffset/(float) (codeline.size() - visibleLines)*lineHeight;
+    DrawRectangleRec(scrollBar,DARKGRAY);
+    DrawRectangle(scrollBar.x,scrollY,scrollBar.width,screenHeight,BLACK);
+}
+
+void View::CodeBlock::update() {
+    float mouseWheel = GetMouseWheelMove();
+    if (mouseWheel != 0) {
+        scrollOffset -= mouseWheel*lineHeight;
+        scrollOffset = std::max(0.0f,std::min(scrollOffset,(float)(codeline.size() - visibleLines)*lineHeight));
     }
 }
 
@@ -160,12 +170,32 @@ void View::Log::draw()
     }
 }
 
+void View::Slider::update() {
+    Vector2 mousePos = GetMousePosition();
+    if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(mousePos,bound)) {
+        isDragging = true;
+    }
+    if (!IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+        isDragging = false;
+    }
+    if (isDragging) {
+        float value = min + (mousePos.x - bound.x)/bound.width*(max - min);
+        speed = std::max(min,std::min(max,value));
+    }
+}
+
+void View::Slider::draw() {
+    float roundness = 1.0f; 
+    int segments = 10; 
+    DrawRectangleRounded(bound, roundness, segments, GRAY);
+    float buttonX = bound.x + (speed - min)/(max - min)*bound.width;
+    DrawCircle(buttonX,bound.y + bound.height/2.0f, bound.height, BLACK);
+}
+
 void View::initView()
 {
     home.icon = LoadTexture("resource\\Texture\\home.png");
     code.codeline.clear();
-    code.codeline.push_back("#include <iostream>");
-    code.codeline.push_back("using namespace std");
     panel.Play = LoadTexture("resource\\Texture\\Play.png");
     panel.Pause = LoadTexture("resource\\Texture\\Pause.png");
     panel.Rewind = LoadTexture("resource\\Texture\\Rewind.png");
@@ -231,13 +261,14 @@ void View::drawView()
     if (box.isOpen){
         box.draw();
     }
+    slider.draw();
 }
 
 void View::eventView() {
     // Xử lý sự kiện trở về menu
     if (home.isReturnMenu()) {
         mode = Mode::MENU;
-        // exit();
+        exit();
     }
 
     // Handle entering value from Textbox
@@ -283,4 +314,7 @@ void View::eventView() {
             box.isOpen = false;
         }
     }
+    // Cap nhat toc do
+    slider.update();
+    code.update();
 }

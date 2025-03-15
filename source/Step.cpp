@@ -14,4 +14,8 @@ void StepManager::goToFinal() {
     
 void StepManager::playAll() { 
     isPlaying = true;
+    while (isPlaying && currentStep < (int)step.size() - 1) {
+        nextStep();
+        std::this_thread::sleep_for(std::chrono::milliseconds((int)(1000 / speed)));  
+    }       
 }     
