@@ -44,9 +44,11 @@ class View {
         //virtual void exit() = 0;
 
         struct TextBox{
-            std::vector<int> value;
+            std::string value;
             void draw();
-        } box; 
+            bool isOpen = false;
+        } box;
+        std::vector<int> someList;
 };
 
 #endif
