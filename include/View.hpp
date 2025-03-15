@@ -10,13 +10,28 @@
 class View {
     public:
         struct Panel {
-            Rectangle rec;
+            Rectangle rec = {0, 720, 1440, 90};
+            float buttonSize = 50;
+            float spacing = 20;
+            float totalWidth = 3 * buttonSize + 2 * spacing;
+            float startX = 920 - totalWidth / 2;
+            float startY = rec.y + (rec.height - buttonSize) / 2;
+
             Texture2D Play;
             Texture2D Pause;
             Texture2D Rewind;
             Texture2D Forward;
             Texture2D Final;
+
             void draw();
+
+            bool isPlaying = false;
+            bool isAutoPlaying = false;
+            bool isPlayPressed();
+            bool isPausePressed();
+            bool isRewindPressed();
+            bool isForwardPressed();
+            
         } panel;
         struct Log {
             Rectangle rec;

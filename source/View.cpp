@@ -25,12 +25,54 @@ void View::CodeBlock::draw()
 
 void View::Panel::draw()
 {
-    rec = {0, 720, 1440, 90};
+    
     DrawRectangleRec(rec, GREEN);
 
+    // Positon and size of each button is declared at View.hpp
+    
+
+    // Draw Rewind button
+    Rectangle rewindButton = {startX, startY, buttonSize, buttonSize};
+    DrawTexturePro(Rewind, {0, 0, (float)Rewind.width, (float)Rewind.height}, rewindButton, {0, 0}, 0.0f, WHITE);
+
+    // Draw Play/Pause button
+    Rectangle playPauseButton = {startX + buttonSize + spacing, startY, buttonSize, buttonSize};
+    if (isPlaying) {
+        DrawTexturePro(Pause, {0, 0, (float)Pause.width, (float)Pause.height}, playPauseButton, {0, 0}, 0.0f, WHITE);
+    } else {
+        DrawTexturePro(Play, {0, 0, (float)Play.width, (float)Play.height}, playPauseButton, {0, 0}, 0.0f, WHITE);
+    }
+
+    // Draw Forward button
+    Rectangle forwardButton = {startX + 2 * (buttonSize + spacing), startY, buttonSize, buttonSize};
+    DrawTexturePro(Forward, {0, 0, (float)Forward.width, (float)Forward.height}, forwardButton, {0, 0}, 0.0f, WHITE);
+
+    if (CheckCollisionPointRec(GetMousePosition(), playPauseButton) && IsKeyPressed(MOUSE_LEFT_BUTTON)){
+        isPlaying = !isPlaying;
+    }
 }
 
-//
+bool View::Panel::isRewindPressed(){
+    Rectangle rewindButton = {startX, startY, buttonSize, buttonSize};
+    return (CheckCollisionPointRec(GetMousePosition(), rewindButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON));
+}
+
+bool View::Panel::isPlayPressed(){
+    Rectangle playPauseButton = {startX + buttonSize + spacing, startY, buttonSize, buttonSize};
+    return CheckCollisionPointRec(GetMousePosition(), playPauseButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && !isPlaying;
+}
+
+bool View::Panel::isPausePressed(){
+    Rectangle playPauseButton = {startX + buttonSize + spacing, startY, buttonSize, buttonSize};
+    return CheckCollisionPointRec(GetMousePosition(), playPauseButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && isPlaying;
+}
+
+bool View::Panel::isForwardPressed(){
+    Rectangle forwardButton = {startX + 2 * (buttonSize + spacing), startY, buttonSize, buttonSize};
+    return CheckCollisionPointRec(GetMousePosition(), forwardButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
+}
+
+
 void View::Option::draw()
 {
     float buttonWidth = 120;
@@ -56,8 +98,6 @@ void View::Option::draw()
     Rectangle DeleteButton = {startX, startY + 135, buttonWidth, buttonHeight};
     DrawRectangleRec(DeleteButton, buttonColor);
     DrawText("Delete", DeleteButton.x + 10, DeleteButton.y + 10, 20, textColor);
-
-  
 }
 
 void View::TextBox::draw(){
@@ -283,4 +323,33 @@ void View::eventView() {
             box.isOpen = false;
         }
     }
+    
+    // Handle when click a button
+    if (panel.isPlayPressed()){
+        panel.isPlaying = true;
+        panel.isAutoPlaying = true;
+    }
+    else if (panel.isPausePressed()){
+        panel.isPlaying = false;
+        panel.isAutoPlaying = false;
+    }
+
+    if (panel.isRewindPressed()){
+
+    }
+
+    if (panel.isForwardPressed()){
+
+        if (!panel.isAutoPlaying){
+            // logic run step by step
+        }
+    }
+// Chỗ này ông thêm điều kiện chỗ chạy đến cuối ở if
+    // if (panel.isAutoPlaying){
+    //     if () {
+    //         panel.isPlaying = false;
+    //         panel.isAutoPlaying = false;
+    //     }
+    // }
+
 }
