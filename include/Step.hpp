@@ -4,12 +4,13 @@
 #include <iostream>
 #include <vector>
 #include "raylib.h"
+#include "Node.hpp"
 
 struct Step {
     public:
         int highlightedLine;
-        std::string description;
-        int highlightedNode;
+        std::vector<std::string> description;
+        Node* highlightedNode;
 };
 
 class StepManager {

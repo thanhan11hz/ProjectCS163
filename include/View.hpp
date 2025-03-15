@@ -13,14 +13,20 @@ class View {
             Rectangle rec;
             Texture2D Play;
             Texture2D Pause;
+            Texture2D Rewind;
+            Texture2D Forward;
+            Texture2D Final;
             void draw();
         } panel;
         struct Log {
+            Rectangle rec;
+            std::vector<std::string> infor;
             void draw();
         } log;
         struct CodeBlock {
             Rectangle rec;
             std::vector<std::string> codeline;
+            int lineHighlighted = -1;
             void draw();
         } code;
         struct Option {

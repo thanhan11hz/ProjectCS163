@@ -10,11 +10,13 @@ void View::CodeBlock::draw()
     }
     for (int i = 0; i < codeline.size(); ++i)
     {
-        float fontSize = 20;
+        float fontSize;
+        if (i == lineHighlighted) fontSize = 40;
+        else fontSize = 20;
         float spacing = 5;
         Vector2 textSize = MeasureTextEx(font, codeline[i].c_str(), fontSize, spacing);
         Vector2 textPos = {
-            (480 - textSize.x) / 2.0f,
+            (400 - textSize.x) / 2.0f,
             80 + 26 * i + (26 - textSize.y) / 2.0f};
         DrawTextEx(font, codeline[i].c_str(), textPos, fontSize, spacing, WHITE);
     }
@@ -24,6 +26,7 @@ void View::Panel::draw()
 {
     rec = {0, 720, 1440, 90};
     DrawRectangleRec(rec, GREEN);
+
 }
 
 //
@@ -119,6 +122,22 @@ bool View::Option::isSearch()
 
 void View::Log::draw()
 {
+    rec = {0, 400, 400, 320};
+    DrawRectangleRec(rec, BLUE);
+    if (infor.size() > 30)
+    {
+        infor.erase(infor.begin(), infor.end() - 4);
+    }
+    for (int i = 0; i < infor.size(); ++i)
+    {
+        float fontSize = 20;
+        float spacing = 5;
+        Vector2 textSize = MeasureTextEx(font, infor[i].c_str(), fontSize, spacing);
+        Vector2 textPos = {
+            (400 - textSize.x) / 2.0f,
+            400 + 26 * i + (26 - textSize.y) / 2.0f};
+        DrawTextEx(font, infor[i].c_str(), textPos, fontSize, spacing, WHITE);
+    }
 }
 
 void View::initView()
@@ -127,6 +146,11 @@ void View::initView()
     code.codeline.clear();
     code.codeline.push_back("#include <iostream>");
     code.codeline.push_back("using namespace std");
+    panel.Play = LoadTexture("resource\\Texture\\Play.png");
+    panel.Pause = LoadTexture("resource\\Texture\\Pause.png");
+    panel.Rewind = LoadTexture("resource\\Texture\\Rewind.png");
+    panel.Forward = LoadTexture("resource\\Texture\\Forward.png");
+    panel.Final = LoadTexture("resource\\Texture\\Final.png");
 }
 
 void View::Home::draw()
@@ -178,7 +202,7 @@ void View::drawView()
     panel.draw();
     option.draw();
     home.draw();
-
+    log.draw();
 }
 
 void View::eventView()
