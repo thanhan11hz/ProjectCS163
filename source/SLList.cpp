@@ -38,7 +38,15 @@ void SLList::run() {
         code.codeline.clear();
         searchData();
     }
-    
+    if (panel.isForwardPressed()) {
+        stepmanager.nextStep();
+    }
+    if (panel.isPausePressed()) {
+        stepmanager.isPlaying = false;
+    }
+    if (panel.isRewindPressed()) {
+        stepmanager.prevStep();
+    }
 }
 
 void SLList::exit() {
@@ -54,7 +62,9 @@ void SLList::exit() {
 }
 
 void SLList::initData() {
+    //Gia tri bang 0
     if (someList.size() == 0) return;
+    std::cout<<1;
     root = new ListNode(someList[0]);
     root->position = {480,640};
     ListNode* curr = root;
