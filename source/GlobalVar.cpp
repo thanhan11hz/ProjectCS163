@@ -11,3 +11,5 @@ Mode mode;
 Function func;
 
 Font font;
+
+int globalID = 0;

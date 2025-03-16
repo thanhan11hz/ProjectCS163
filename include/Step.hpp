@@ -10,7 +10,8 @@ struct Step {
     public:
         int highlightedLine;
         std::vector<std::string> description;
-        Node* highlightedNode;
+        Node* tempRoot;
+        int highlightedNode = -1;
 };
 
 class StepManager {

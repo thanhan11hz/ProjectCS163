@@ -45,7 +45,7 @@ class View {
             std::vector<std::string> codeline;
             int lineHighlighted = -1;
             const int lineHeight = 26;
-            const int visibleLines = 12;  
+            const int visibleLines = 10;  
             float scrollOffset = 0.0f;
             void draw();
             void update();
@@ -72,7 +72,7 @@ class View {
         } box;
 
         struct Slider {
-            Rectangle bound = {50,757.5,300,15};
+            Rectangle bound = {50,780,300,15};
             float min = 0.25f, max = 4.0f, speed = 1.0f;
             bool isDragging = false;
             void update();

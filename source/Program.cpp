@@ -7,7 +7,7 @@ void initBackGround() {
 }
 
 void drawBackGround() {
-    DrawRectangle(0,0,screenWidth,screenHeight,PINK);
+    DrawRectangle(0,0,screenWidth,screenHeight,(Color){144,12,63,255});
 }
 
 Program::Program() {

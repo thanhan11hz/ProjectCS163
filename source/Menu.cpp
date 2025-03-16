@@ -3,10 +3,10 @@
 
 void Menu::init() {
     button.resize(4);
-    button[0] = Button({415,405,200,100},VIOLET,false,"Singly Linked List");
-    button[1] = Button({825,405,200,100},VIOLET,false,"Hash Table");
-    button[2] = Button({415,605,200,100},VIOLET,false,"AVL Tree");
-    button[3] = Button({825,605,200,100},VIOLET,false, "Graph");
+    button[0] = Button({415,405,200,100},(Color){199,0,57,255},false,"Singly Linked List");
+    button[1] = Button({825,405,200,100},(Color){199,0,57,255},false,"Hash Table");
+    button[2] = Button({415,605,200,100},(Color){199,0,57,255},false,"AVL Tree");
+    button[3] = Button({825,605,200,100},(Color){199,0,57,255},false, "Graph");
 }
 
 void Menu::draw() {
@@ -17,7 +17,7 @@ void Menu::draw() {
         (screenWidth - textSize.x)/2.0f,
         (405 - textSize.y)/2.0f
     };
-    DrawTextEx(font, title.c_str(), textPos, fontSize, spacing, WHITE);
+    DrawTextEx(font, title.c_str(), textPos, fontSize, spacing, (Color){248,222,34,255});
     for (auto v: button) {
         Vector2 mousePosition = GetMousePosition();
         v.checkHovered(mousePosition);

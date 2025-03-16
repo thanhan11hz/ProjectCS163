@@ -29,4 +29,6 @@ extern Function func;
 
 extern Font font;
 
+extern int globalID;
+
 #endif

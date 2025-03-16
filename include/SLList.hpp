@@ -7,17 +7,19 @@ class SLList: public Logic, public View {
     public:
         class ListNode: public Node {
             public:
-                ListNode* next;
+                ListNode* next = nullptr;
                 ListNode(int val) {
                     this->val = val;
                     next = nullptr;
                 }
         };
-        ListNode *root;        
+        ListNode *root = nullptr;        
         void init();
         void draw();
         void run();
+        void remove();
         void exit();
+        void copy(ListNode* source, ListNode* &des);
         void initData();
         void insertData();
         void deleteData();

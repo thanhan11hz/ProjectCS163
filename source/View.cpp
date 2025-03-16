@@ -5,25 +5,29 @@
 void View::CodeBlock::draw()
 {
     rec = {0, 80, 400, 320};
-    DrawRectangleRec(rec, PINK);
+    DrawRectangleRec(rec, (Color){199,0,57,255});
+    Vector2 textSize = MeasureTextEx(font, "Code Block", 20, 5);
+    Vector2 textPos = {
+        (400 - textSize.x) / 2.0f,
+        80 + (26*2 - textSize.y) / 2.0f};
+    DrawTextEx(font, "Code Block", textPos, 20, 5, (Color){248,222,34,255});        
     int startLine = scrollOffset/lineHeight;
 
     for (int i = 0; i < visibleLines && (startLine + i < codeline.size()); ++i)
     {
+        Color color = WHITE;
         float fontSize;
-        if (startLine + i == lineHighlighted) fontSize = 40;
+        if (startLine + i == lineHighlighted) color = BLACK;
         else fontSize = 20;
         float spacing = 5;
         Vector2 textSize = MeasureTextEx(font, codeline[startLine + i].c_str(), fontSize, spacing);
         Vector2 textPos = {
             (400 - textSize.x) / 2.0f,
-            80 + 26 * i + (26 - textSize.y) / 2.0f};
-        DrawTextEx(font, codeline[startLine + i].c_str(), textPos, fontSize, spacing, WHITE);
+            132 + 26 * i + (26 - textSize.y) / 2.0f};
+        DrawTextEx(font, codeline[startLine + i].c_str(), textPos, fontSize, spacing, color);
     }
     float scrollHeight = (visibleLines/(float)codeline.size())*rec.height;
     float scrollY = rec.y + scrollOffset/(float) (codeline.size() - visibleLines)*lineHeight;
-    DrawRectangleRec(scrollBar,DARKGRAY);
-    DrawRectangle(scrollBar.x,scrollY,scrollBar.width,screenHeight,BLACK);
 }
 
 void View::CodeBlock::update() {
@@ -39,22 +43,22 @@ void View::CodeBlock::update() {
 void View::Panel::draw()
 {
     
-    DrawRectangleRec(rec, GREEN);
+    DrawRectangleRec(rec, (Color){144,12,63,255});
     // Draw Rewind button
     Rectangle rewindButton = {startX, startY, buttonSize, buttonSize};
-    DrawTexturePro(Rewind, {0, 0, (float)Rewind.width, (float)Rewind.height}, rewindButton, {0, 0}, 0.0f, WHITE);
+    DrawTexturePro(Rewind, {0, 0, (float)Rewind.width, (float)Rewind.height}, rewindButton, {0, 0}, 0.0f, LIGHTGRAY);
 
     // Draw Play/Pause button
     Rectangle playPauseButton = {startX + buttonSize + spacing, startY, buttonSize, buttonSize};
     if (isPlaying) {
-        DrawTexturePro(Pause, {0, 0, (float)Pause.width, (float)Pause.height}, playPauseButton, {0, 0}, 0.0f, WHITE);
+        DrawTexturePro(Pause, {0, 0, (float)Pause.width, (float)Pause.height}, playPauseButton, {0, 0}, 0.0f, LIGHTGRAY);
     } else {
-        DrawTexturePro(Play, {0, 0, (float)Play.width, (float)Play.height}, playPauseButton, {0, 0}, 0.0f, WHITE);
+        DrawTexturePro(Play, {0, 0, (float)Play.width, (float)Play.height}, playPauseButton, {0, 0}, 0.0f, LIGHTGRAY);
     }
 
     // Draw Forward button
     Rectangle forwardButton = {startX + 2 * (buttonSize + spacing), startY, buttonSize, buttonSize};
-    DrawTexturePro(Forward, {0, 0, (float)Forward.width, (float)Forward.height}, forwardButton, {0, 0}, 0.0f, WHITE);
+    DrawTexturePro(Forward, {0, 0, (float)Forward.width, (float)Forward.height}, forwardButton, {0, 0}, 0.0f, LIGHTGRAY);
 
     if (CheckCollisionPointRec(GetMousePosition(), playPauseButton) && IsKeyPressed(MOUSE_LEFT_BUTTON)){
         isPlaying = !isPlaying;
@@ -69,24 +73,6 @@ void View::Panel::update() {
     else if (isPausePressed() || isRewindPressed() || isForwardPressed()){
         isPlaying = false;
     }
-
-//     if (isRewindPressed()){
-
-//     }
-
-//     if (isForwardPressed()){
-
-//         if (!isPlaying){
-//             // logic run step by step
-//         }
-//     }
-// // Chỗ này ông thêm điều kiện chỗ chạy đến cuối ở if
-//     // if (panel.isPlaying){
-//     //     if () {
-//     //         panel.isPlaying = false;
-//     //         panel.isAutoPlaying = false;
-//     //     }
-//     // }
 }
 
 bool View::Panel::isRewindPressed(){
@@ -202,7 +188,7 @@ bool View::Option::isSearch()
 void View::TextBox::draw(){
     if (!isOpen) return;
 
-    Rectangle textBoxRec = {500, 300, 400, 100};
+    Rectangle textBoxRec = {400, 80, 400, 100};
     DrawRectangleRec(textBoxRec, LIGHTGRAY);
     DrawRectangleLinesEx(textBoxRec, 2, DARKGRAY);
 
@@ -266,10 +252,15 @@ void View::TextBox::update() {
 void View::Log::draw()
 {
     rec = {0, 400, 400, 320};
-    DrawRectangleRec(rec, BLUE);
-    if (infor.size() > 30)
+    DrawRectangleRec(rec, (Color){249,76,16,255}); 
+    Vector2 textSize = MeasureTextEx(font, "Log", 20, 5);
+    Vector2 textPos = {
+        (400 - textSize.x) / 2.0f,
+        400 + (26*2 - textSize.y) / 2.0f};
+    DrawTextEx(font, "Log", textPos, 20, 5, (Color){248,222,34,255});
+    if (infor.size() > 10)
     {
-        infor.erase(infor.begin(), infor.end() - 4);
+        infor.erase(infor.begin(), infor.end() - 11);
     }
     for (int i = 0; i < infor.size(); ++i)
     {
@@ -278,7 +269,7 @@ void View::Log::draw()
         Vector2 textSize = MeasureTextEx(font, infor[i].c_str(), fontSize, spacing);
         Vector2 textPos = {
             (400 - textSize.x) / 2.0f,
-            400 + 26 * i + (26 - textSize.y) / 2.0f};
+            452 + 26 * i + (26 - textSize.y) / 2.0f};
         DrawTextEx(font, infor[i].c_str(), textPos, fontSize, spacing, WHITE);
     }
 }
@@ -304,23 +295,35 @@ void View::Slider::draw() {
     int segments = 10; 
     DrawRectangleRounded(bound, roundness, segments, GRAY);
     float buttonX = bound.x + (speed - min)/(max - min)*bound.width;
-    DrawCircle(buttonX,bound.y + bound.height/2.0f, bound.height, BLACK);
-}
+    DrawCircle(buttonX,bound.y + bound.height/2.0f, bound.height*3/4.0f, BLACK);
+    Vector2 textSize = MeasureTextEx(font, "Speed: ", 20, 5);
+    Vector2 textPos = {
+        50 + (150 - textSize.x) / 2.0f,
+        720 + (45 - textSize.y) / 2.0f
+    };
+    DrawTextEx(font, "Speed: ", textPos, 20, 5, (Color){248,222,34,255});
+    textSize = MeasureTextEx(font, std::to_string(speed).c_str(), 20, 5);
+    textPos = {
+        200 + (150 - textSize.x) / 2.0f,
+        720 + (45 - textSize.y) / 2.0f
+    };
+    DrawTextEx(font, std::to_string(speed).c_str(), textPos, 20, 5, (Color){248,222,34,255});
+}       
 
 // Home
 
 void View::Home::draw()
 {
     Rectangle sourceRec = {0, 0, (float)icon.width, (float)icon.height};
-    Rectangle destRec = {1400, 120, 40, 40};
+    Rectangle destRec = {1380, 20, 40, 40};
     Vector2 origin = {0, 0};
-    DrawTexturePro(icon, sourceRec, destRec, origin, 0.0f, WHITE);
+    DrawTexturePro(icon, sourceRec, destRec, origin, 0.0f, (Color){144,12,63,255});
 }
 
 bool View::Home::isReturnMenu()
 {
     Vector2 mousePos = GetMousePosition();
-    Rectangle recTexture = {1400, 120, 40, 40};
+    Rectangle recTexture = {1380, 20, 40, 40};
     if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(mousePos, recTexture))
     {
         return true;
@@ -346,7 +349,7 @@ void View::initView()
 void View::drawView()
 {
     Rectangle title = {0, 0, 1440, 80};
-    DrawRectangleRec(title, GREEN);
+    DrawRectangleRec(title, (Color){144,12,63,255} );
     std::string name;
     switch (mode)
     {
@@ -368,7 +371,7 @@ void View::drawView()
     Vector2 textPos = {
         (screenWidth - textSize.x) / 2.0f,
         (80 - textSize.y) / 2.0f};
-    DrawTextEx(font, name.c_str(), textPos, fontSize, spacing, WHITE);
+    DrawTextEx(font, name.c_str(), textPos, fontSize, spacing, (Color){248,222,34,255});
     code.draw();
     panel.draw();
     option.draw();

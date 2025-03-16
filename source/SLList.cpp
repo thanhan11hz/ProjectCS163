@@ -3,35 +3,47 @@
 void SLList::init() {
     initView();
     root = nullptr;
+    stepmanager.currentStep = 0;
 }
 
 void SLList::draw() {
     drawView();
     if (!root) return;
-    Step currStep;
     if (!stepmanager.step.empty() && stepmanager.currentStep >= 0) {
+        Step currStep;
         currStep = stepmanager.step[stepmanager.currentStep];
+        std::cout << "Current Step: " << stepmanager.currentStep<< " Highlighted Node: " << currStep.highlightedNode << std::endl;
         log.infor = currStep.description;
         code.lineHighlighted = currStep.highlightedLine;
+        drawView();
+        ListNode* curr = (ListNode*)currStep.tempRoot;
+        ListNode* prev = nullptr;
+        while (curr) {
+            if (curr->ID == currStep.highlightedNode) {
+                curr->drawHighlightNode();
+            } else {
+                curr->drawNode();
+            }
+            //std::cout<<stepmanager.currentStep;
+            if (prev) {
+                curr->drawEdge(prev);
+            }
+            prev = curr;
+            curr = curr->next;
+        }
+        code.lineHighlighted = -1; // Reset highlighted line after drawing
     } else {
-        currStep.highlightedNode = nullptr;
-    }
-
-    ListNode* curr = root;
-    ListNode* prev = nullptr;
-    while (curr) {
-        if (curr != currStep.highlightedNode) {
+        ListNode* curr = root;
+        ListNode* prev = nullptr;
+        while (curr) {
             curr->drawNode();
-        } else {
-            curr->drawHighlightNode();
+            if (prev) {
+                curr->drawEdge(prev);
+            }
+            prev = curr;
+            curr = curr->next;
         }
-        if (prev) {
-            curr->drawEdge(prev);
-        }
-        prev = curr;
-        curr = curr->next;
     }
-    code.lineHighlighted = -1; // Reset highlighted line after drawing
 }
 
 void SLList::run() {
@@ -45,18 +57,22 @@ void SLList::run() {
     if (!box.isOpen && func != Function::NONE) {
         switch (func) {
             case Function::INIT:
+                remove();
                 initData();
                 func = Function::NONE;
                 break;
             case Function::INSERT:
+                remove();
                 insertData();
                 func = Function::NONE;
                 break;
             case Function::DELETE:
+                remove();
                 deleteData();
                 func = Function::NONE;
                 break;
             case Function::SEARCH:
+                remove();
                 searchData();
                 func = Function::NONE;
                 break;
@@ -72,14 +88,35 @@ void SLList::run() {
     if (panel.isPausePressed()) {
         stepmanager.isPlaying = false;
     }
-    if (panel.isRewindPressed()) {
+     if (panel.isRewindPressed()) {
         stepmanager.isPlaying = false;
         stepmanager.prevStep();
+        
     }
     if (panel.isPlayPressed()) {
         stepmanager.isPlaying = true;
-        stepmanager.playAll();
+        stepmanager.speed = slider.speed;
+        while (stepmanager.isPlaying && stepmanager.currentStep < stepmanager.step.size() - 1) {
+            stepmanager.nextStep();
+            draw();
+            std::this_thread::sleep_for(std::chrono::milliseconds((int)(100 / stepmanager.speed)));
+        }
+        stepmanager.isPlaying = false;
     }
+}
+
+void SLList::remove() {
+    code.codeline.clear();
+    for (int i = 0; i < stepmanager.step.size(); ++i) {
+        ListNode* curr = (ListNode*)stepmanager.step[i].tempRoot;
+        while (curr) {
+            ListNode* nextNode = curr->next;
+            delete curr;
+            curr = nextNode;
+        }
+    }
+    stepmanager.step.clear();
+    stepmanager.currentStep = 0;
 }
 
 void SLList::exit() {
@@ -91,17 +128,50 @@ void SLList::exit() {
         delete curr;
         curr = nextNode;
     }
+    for (int i = 0; i < stepmanager.step.size(); ++i) {
+        ListNode* curr = (ListNode*)stepmanager.step[i].tempRoot;
+        while (curr) {
+            ListNode* nextNode = curr->next;
+            delete curr;
+            curr = nextNode;
+        }
+    }
+    stepmanager.step.clear();
     root = nullptr;
+}
+
+void SLList::copy(ListNode* source, ListNode* &des) {
+    if (!source) {
+        des = nullptr;
+        return;
+    }
+    des = new ListNode(source->val);
+    des->position = source->position;
+    des->ID = source->ID;
+    ListNode* currSource = source->next;
+    ListNode* currDes = des;
+    while (currSource) {
+        currDes->next = new ListNode(currSource->val);  
+        currDes = currDes->next; 
+        currDes->position = currSource->position;
+        currDes->ID = currSource->ID;
+        currSource = currSource->next;
+    }
+    currDes->next = nullptr;
 }
 
 void SLList::initData() {
     if (box.someList.empty()) return;
     root = new ListNode(box.someList[0]);
     root->position = {480, 400};
+    root->ID = globalID;
+    globalID++;
     ListNode* curr = root;
     for (int i = 1; i < box.someList.size(); ++i) {
         curr->next = new ListNode(box.someList[i]);
         curr->next->position = {curr->position.x + 80, curr->position.y};
+        curr->ID = globalID;
+        globalID++;
         curr = curr->next;
     }
     box.someList.clear();
@@ -120,50 +190,77 @@ void SLList::insertData() {
         "curr->next = new Node;",
         "curr->next->val = x;  ",
     };
-
+    ListNode* tmp = nullptr;
     for (int i = 0; i < box.someList.size(); ++i) {
         Step step;
-        step.highlightedNode = nullptr;
+        step.highlightedNode = -1;
         step.highlightedLine = 0;
+        copy(root,tmp);
+        step.tempRoot = tmp;
+        tmp = nullptr;
         stepmanager.step.push_back(step);
-
+        std::cout<<2;
         if (!root) {
+            std::cout<<1;
             root = new ListNode(box.someList[i]);
             root->position = {480,400};
+            root->ID = globalID;
+            globalID++;
             step.highlightedLine = 1;
+            step.highlightedNode = root->ID;
+            copy(root,tmp);
+            step.tempRoot = tmp;
+            tmp = nullptr;
             stepmanager.step.push_back(step);
             step.highlightedLine = 2;
+            copy(root,tmp);
+            step.tempRoot = tmp;
+            tmp = nullptr;
             stepmanager.step.push_back(step);
             step.highlightedLine = 3;
+            copy(root,tmp);
+            step.tempRoot = tmp;
+            tmp = nullptr;
             stepmanager.step.push_back(step);
             continue;
         }
 
+        step.highlightedNode = root->ID;
         step.highlightedLine = 4;
+        copy(root,tmp);
+        step.tempRoot = tmp;
+        tmp = nullptr;
         stepmanager.step.push_back(step);
 
         ListNode* curr = root;
-        while (curr->next) {
-            step.highlightedNode = curr;
-            step.highlightedLine = 6;
-            stepmanager.step.push_back(step);
+        while (curr && curr->next) {
             curr = curr->next;
+            step.highlightedNode = curr->ID;
+            step.highlightedLine = 6;
+            copy(root,tmp);
+            step.tempRoot = tmp;
+            tmp = nullptr;
+            stepmanager.step.push_back(step);
         }
 
-        step.highlightedNode = curr;
-        step.highlightedLine = 7;
-        stepmanager.step.push_back(step);
+        if (curr) {
+            curr->next = new ListNode(box.someList[i]);
+            curr->next->position = {curr->position.x + 80, curr->position.y};
+            curr->next->ID = globalID;
+            globalID++;
+            step.highlightedNode = curr->next->ID;
+            step.highlightedLine = 7;
+            copy(root,tmp);
+            std::cout<<3;
+            step.tempRoot = tmp;
+            tmp = nullptr;
+            stepmanager.step.push_back(step);
+            step.highlightedLine = 8;
+            stepmanager.step.push_back(step);
+        }
 
-        curr->next = new ListNode(box.someList[i]);
-        curr->next->position = {curr->position.x + 80, curr->position.y};
     }
     box.someList.clear();
-    std::cout<<std::endl;
-    ListNode *curr = root;
-    while (curr) {
-        std::cout<<curr->val<<" ";
-        curr = curr->next;
-    }
 }
 
 void SLList::deleteData() {
@@ -181,50 +278,96 @@ void SLList::deleteData() {
         "    delete curr;}                      ",
         "else prev->next = prev->next->next;    "
     };
-
+    ListNode* tmp = nullptr;
     for (int i = 0; i < box.someList.size(); ++i) {
         Step step;
         if (!root) {
-            step.highlightedNode = nullptr;
+            step.highlightedNode = -1;
             step.highlightedLine = 0;
+            copy(root,tmp);
+            step.tempRoot = tmp;
+            tmp = nullptr;
             stepmanager.step.push_back(step);
             continue;
         }
-
+        copy(root,tmp);
+        step.tempRoot = tmp;
+        tmp = nullptr;
         step.highlightedLine = 1;
+        step.highlightedNode = root->ID;
         stepmanager.step.push_back(step);
 
         ListNode* curr = root;
         ListNode* prev = nullptr;
         while (curr && curr->val != box.someList[i]) {
-            step.highlightedNode = curr;
+            step.highlightedNode = curr->ID;
+            step.highlightedLine = 2;
+            copy(root,tmp);
+            step.tempRoot = tmp;
+            tmp = nullptr;
+            stepmanager.step.push_back(step);
+            step.highlightedNode = curr->ID;
             step.highlightedLine = 3;
+            copy(root,tmp);
+            step.tempRoot = tmp;
+            tmp = nullptr;
             stepmanager.step.push_back(step);
             prev = curr;
             step.highlightedLine = 4;
+            copy(root,tmp);
+            step.tempRoot = tmp;
+            tmp = nullptr;
             stepmanager.step.push_back(step);
             curr = curr->next;
         }
 
         if (!curr) {
+            copy(root,tmp);
+            step.tempRoot = tmp;
+            tmp = nullptr;
             step.highlightedLine = 5;
-            stepmanager.step.push_back(step);
+            copy(root,tmp);
+            step.tempRoot = tmp;
+            tmp = nullptr;
             step.description.push_back("Number " + std::to_string(box.someList[i]) + " isn't in the list");
+            stepmanager.step.push_back(step);
             continue;
         }
 
         if (!prev) {
-            step.highlightedLine = 6;
-            stepmanager.step.push_back(step);
             root = root->next;
             delete curr;
-        } else {
-            step.highlightedLine = 8;
+            root->position = {480,400};
+            curr = root;
+            while (curr->next) {
+                curr->next->position = {curr->position.x + 80, curr->position.y};
+                curr = curr->next;
+            }
+            step.highlightedLine = 6;
+            copy(root,tmp);
+            step.tempRoot = tmp;
+            tmp = nullptr;
+            step.highlightedLine = 7;
+            copy(root,tmp);
+            step.tempRoot = tmp;
+            tmp = nullptr;
             stepmanager.step.push_back(step);
+        } else {
             prev->next = curr->next;
             delete curr;
+            curr = prev;
+            while (curr->next) {
+                curr->next->position = {curr->position.x + 80, curr->position.y};
+                curr = curr->next;
+            }
+            step.highlightedLine = 8;
+            copy(root,tmp);
+            step.tempRoot = tmp;
+            tmp = nullptr;
+            stepmanager.step.push_back(step);
         }
     }
+    box.someList.clear();
 }
 
 void SLList::searchData() {
@@ -237,33 +380,53 @@ void SLList::searchData() {
         "    {curr = curr->next;}      ",
         "return (!curr) ? false : true;"
     };
-
+    ListNode *tmp = nullptr;
     for (int i = 0; i < box.someList.size(); ++i) {
         Step step;
         if (!root) {
-            step.highlightedNode = nullptr;
+            step.highlightedNode = -1;
             step.highlightedLine = 0;
+            copy(root,tmp);
+            step.tempRoot = tmp;
+            tmp = nullptr;
             stepmanager.step.push_back(step);
             continue;
         }
 
+        copy(root,tmp);
+        step.tempRoot = tmp;
+        tmp = nullptr;
         step.highlightedLine = 1;
         stepmanager.step.push_back(step);
 
         ListNode* curr = root;
         while (curr && curr->val != box.someList[i]) {
-            step.highlightedNode = curr;
+            step.highlightedNode = curr->ID;
+            step.highlightedLine = 2;
+            copy(root,tmp);
+            step.tempRoot = tmp;
+            tmp = nullptr;
+            stepmanager.step.push_back(step);
+            step.highlightedNode = curr->ID;
             step.highlightedLine = 3;
+            copy(root,tmp);
+            step.tempRoot = tmp;
+            tmp = nullptr;
             stepmanager.step.push_back(step);
             curr = curr->next;
         }
-
+        
         step.highlightedLine = 4;
+        copy(root,tmp);
+        step.tempRoot = tmp;
+        tmp = nullptr;
         if (!curr) {
             step.description.push_back("Number " + std::to_string(box.someList[i]) + " not found");
         } else {
+            step.highlightedNode = curr->ID;
             step.description.push_back("Number " + std::to_string(box.someList[i]) + " found");
         }
         stepmanager.step.push_back(step);
     }
+    box.someList.clear();
 }

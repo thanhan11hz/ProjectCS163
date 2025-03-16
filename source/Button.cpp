@@ -13,7 +13,7 @@ void Button::draw() {
         rec.x + rec.width / 2.0f - textSize.x / 2.0f,
         rec.y + rec.height / 2.0f - textSize.y / 2.0f
     };
-    DrawTextEx(font, text.c_str(), textPos, fontSize, spacing, WHITE);
+    DrawTextEx(font, text.c_str(), textPos, fontSize, spacing, (Color){248,222,34,255});
 }
 
 void Button::checkHovered(Vector2 mousePosition) {
