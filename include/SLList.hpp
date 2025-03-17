@@ -11,6 +11,8 @@ class SLList: public Logic, public View {
                 ListNode(int val) {
                     this->val = val;
                     next = nullptr;
+                    ID = globalID;
+                    globalID++;
                 }
         };
         ListNode *root = nullptr;        

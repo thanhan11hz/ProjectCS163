@@ -51,6 +51,7 @@ void View::Panel::draw()
     // Draw Play/Pause button
     Rectangle playPauseButton = {startX + buttonSize + spacing, startY, buttonSize, buttonSize};
     if (isPlaying) {
+        std::cout<<"a";
         DrawTexturePro(Pause, {0, 0, (float)Pause.width, (float)Pause.height}, playPauseButton, {0, 0}, 0.0f, LIGHTGRAY);
     } else {
         DrawTexturePro(Play, {0, 0, (float)Play.width, (float)Play.height}, playPauseButton, {0, 0}, 0.0f, LIGHTGRAY);
@@ -58,20 +59,18 @@ void View::Panel::draw()
 
     // Draw Forward button
     Rectangle forwardButton = {startX + 2 * (buttonSize + spacing), startY, buttonSize, buttonSize};
-    DrawTexturePro(Forward, {0, 0, (float)Forward.width, (float)Forward.height}, forwardButton, {0, 0}, 0.0f, LIGHTGRAY);
+    DrawTexturePro(Forward, {0, 0, (float)Forward.width, (float)Forward.height}, forwardButton, {0, 0}, 0.0f, LIGHTGRAY); 
 
-    if (CheckCollisionPointRec(GetMousePosition(), playPauseButton) && IsKeyPressed(MOUSE_LEFT_BUTTON)){
-        isPlaying = !isPlaying;
-    }
+    // if (CheckCollisionPointRec(GetMousePosition(), playPauseButton) && IsKeyPressed(MOUSE_LEFT_BUTTON)){
+    //     isPlaying = !isPlaying;
+    // }
 }
 
 void View::Panel::update() {
-    
-    if (isPlayPressed()){
-        isPlaying = true;
-    }
-    else if (isPausePressed() || isRewindPressed() || isForwardPressed()){
-        isPlaying = false;
+    if (isPlayPressed()) {
+        isPlaying = true; 
+    } else if (isPausePressed()) {
+        isPlaying = false; 
     }
 }
 

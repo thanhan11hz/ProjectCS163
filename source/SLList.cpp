@@ -12,7 +12,6 @@ void SLList::draw() {
     if (!stepmanager.step.empty() && stepmanager.currentStep >= 0) {
         Step currStep;
         currStep = stepmanager.step[stepmanager.currentStep];
-        std::cout << "Current Step: " << stepmanager.currentStep<< " Highlighted Node: " << currStep.highlightedNode << std::endl;
         log.infor = currStep.description;
         code.lineHighlighted = currStep.highlightedLine;
         drawView();
@@ -31,7 +30,7 @@ void SLList::draw() {
             prev = curr;
             curr = curr->next;
         }
-        code.lineHighlighted = -1; // Reset highlighted line after drawing
+        code.lineHighlighted = -1; 
     } else {
         ListNode* curr = root;
         ListNode* prev = nullptr;
@@ -83,26 +82,32 @@ void SLList::run() {
 
     if (panel.isForwardPressed()) {
         stepmanager.isPlaying = false;
+        panel.isPlaying = false;
         stepmanager.nextStep();
-    }
-    if (panel.isPausePressed()) {
-        stepmanager.isPlaying = false;
     }
      if (panel.isRewindPressed()) {
         stepmanager.isPlaying = false;
+        panel.isPlaying = false;
         stepmanager.prevStep();
-        
+    }
+    if (panel.isPausePressed()) {
+        stepmanager.isPlaying = false;
+        panel.isPlaying = false;
     }
     if (panel.isPlayPressed()) {
         stepmanager.isPlaying = true;
-        stepmanager.speed = slider.speed;
-        while (stepmanager.isPlaying && stepmanager.currentStep < stepmanager.step.size() - 1) {
-            stepmanager.nextStep();
-            draw();
-            std::this_thread::sleep_for(std::chrono::milliseconds((int)(100 / stepmanager.speed)));
-        }
-        stepmanager.isPlaying = false;
+        panel.isPlaying = true;
     }
+    if (stepmanager.isPlaying && stepmanager.currentStep < stepmanager.step.size() - 1) {
+        std::cout<<1;
+        stepmanager.nextStep();
+        draw();
+        std::this_thread::sleep_for(std::chrono::milliseconds((int)(800 / stepmanager.speed)));
+    } else {
+        stepmanager.isPlaying = false;
+        panel.isPlaying = false; 
+    }
+    
 }
 
 void SLList::remove() {
@@ -130,6 +135,7 @@ void SLList::exit() {
     }
     for (int i = 0; i < stepmanager.step.size(); ++i) {
         ListNode* curr = (ListNode*)stepmanager.step[i].tempRoot;
+        stepmanager.step[i].tempRoot = nullptr;
         while (curr) {
             ListNode* nextNode = curr->next;
             delete curr;
@@ -137,6 +143,7 @@ void SLList::exit() {
         }
     }
     stepmanager.step.clear();
+    stepmanager.currentStep = 0;
     root = nullptr;
 }
 
@@ -164,14 +171,10 @@ void SLList::initData() {
     if (box.someList.empty()) return;
     root = new ListNode(box.someList[0]);
     root->position = {480, 400};
-    root->ID = globalID;
-    globalID++;
     ListNode* curr = root;
     for (int i = 1; i < box.someList.size(); ++i) {
         curr->next = new ListNode(box.someList[i]);
         curr->next->position = {curr->position.x + 80, curr->position.y};
-        curr->ID = globalID;
-        globalID++;
         curr = curr->next;
     }
     box.someList.clear();
@@ -199,13 +202,10 @@ void SLList::insertData() {
         step.tempRoot = tmp;
         tmp = nullptr;
         stepmanager.step.push_back(step);
-        std::cout<<2;
         if (!root) {
             std::cout<<1;
             root = new ListNode(box.someList[i]);
             root->position = {480,400};
-            root->ID = globalID;
-            globalID++;
             step.highlightedLine = 1;
             step.highlightedNode = root->ID;
             copy(root,tmp);
@@ -246,15 +246,16 @@ void SLList::insertData() {
         if (curr) {
             curr->next = new ListNode(box.someList[i]);
             curr->next->position = {curr->position.x + 80, curr->position.y};
-            curr->next->ID = globalID;
-            globalID++;
             step.highlightedNode = curr->next->ID;
             step.highlightedLine = 7;
+            step.description.push_back("Insert number " + std::to_string(box.someList[i]) + " successfully");
             copy(root,tmp);
-            std::cout<<3;
             step.tempRoot = tmp;
             tmp = nullptr;
             stepmanager.step.push_back(step);
+            copy(root,tmp);
+            step.tempRoot = tmp;
+            tmp = nullptr;
             step.highlightedLine = 8;
             stepmanager.step.push_back(step);
         }
@@ -348,6 +349,7 @@ void SLList::deleteData() {
             step.tempRoot = tmp;
             tmp = nullptr;
             step.highlightedLine = 7;
+            step.description.push_back("Delete number " + std::to_string(box.someList[i]) + " successfully");
             copy(root,tmp);
             step.tempRoot = tmp;
             tmp = nullptr;
@@ -421,10 +423,10 @@ void SLList::searchData() {
         step.tempRoot = tmp;
         tmp = nullptr;
         if (!curr) {
-            step.description.push_back("Number " + std::to_string(box.someList[i]) + " not found");
+            step.description.push_back("Number " + std::to_string(box.someList[i]) + " hasn't found");
         } else {
             step.highlightedNode = curr->ID;
-            step.description.push_back("Number " + std::to_string(box.someList[i]) + " found");
+            step.description.push_back("Number " + std::to_string(box.someList[i]) + " has found");
         }
         stepmanager.step.push_back(step);
     }
