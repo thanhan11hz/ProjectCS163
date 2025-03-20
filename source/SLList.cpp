@@ -4,43 +4,44 @@ void SLList::init() {
     initView();
     root = nullptr;
     stepmanager.currentStep = 0;
+    SetMousePosition(780,400);
 }
 
 void SLList::draw() {
     drawView();
-    if (!root) return;
-    if (!stepmanager.step.empty() && stepmanager.currentStep >= 0) {
-        Step currStep;
-        currStep = stepmanager.step[stepmanager.currentStep];
-        log.infor = currStep.description;
-        code.lineHighlighted = currStep.highlightedLine;
-        drawView();
-        ListNode* curr = (ListNode*)currStep.tempRoot;
-        ListNode* prev = nullptr;
-        while (curr) {
-            if (curr->ID == currStep.highlightedNode) {
-                curr->drawHighlightNode();
-            } else {
+    if (root) {
+        if (!stepmanager.step.empty() && stepmanager.currentStep >= 0) {
+            Step currStep = stepmanager.step[stepmanager.currentStep];
+            log.infor = currStep.description;
+            code.lineHighlighted = currStep.highlightedLine;
+            drawView();
+            ListNode* curr = (ListNode*)currStep.tempRoot;
+            ListNode* prev = nullptr;
+            while (curr) {
+                if (curr->ID == currStep.highlightedNode) {
+                    curr->drawHighlightNode();
+                } else {
+                    curr->drawNode();
+                }
+                //std::cout<<stepmanager.currentStep;
+                if (prev) {
+                    curr->drawEdge(prev);
+                }
+                prev = curr;
+                curr = curr->next;
+            }
+            code.lineHighlighted = -1; 
+        } else {
+            ListNode* curr = root;
+            ListNode* prev = nullptr;
+            while (curr) {
                 curr->drawNode();
+                if (prev) {
+                    curr->drawEdge(prev);
+                }
+                prev = curr;
+                curr = curr->next;
             }
-            //std::cout<<stepmanager.currentStep;
-            if (prev) {
-                curr->drawEdge(prev);
-            }
-            prev = curr;
-            curr = curr->next;
-        }
-        code.lineHighlighted = -1; 
-    } else {
-        ListNode* curr = root;
-        ListNode* prev = nullptr;
-        while (curr) {
-            curr->drawNode();
-            if (prev) {
-                curr->drawEdge(prev);
-            }
-            prev = curr;
-            curr = curr->next;
         }
     }
 }
@@ -99,10 +100,9 @@ void SLList::run() {
         panel.isPlaying = true;
     }
     if (stepmanager.isPlaying && stepmanager.currentStep < stepmanager.step.size() - 1) {
-        std::cout<<1;
         stepmanager.nextStep();
         draw();
-        std::this_thread::sleep_for(std::chrono::milliseconds((int)(800 / stepmanager.speed)));
+        std::this_thread::sleep_for(std::chrono::milliseconds((int)(500 / stepmanager.speed)));
     } else {
         stepmanager.isPlaying = false;
         panel.isPlaying = false; 
@@ -127,6 +127,7 @@ void SLList::remove() {
 void SLList::exit() {
     code.codeline.clear();
     box.someList.clear();
+    log.infor.clear();
     ListNode* curr = root;
     while (curr) {
         ListNode* nextNode = curr->next;
@@ -203,7 +204,6 @@ void SLList::insertData() {
         tmp = nullptr;
         stepmanager.step.push_back(step);
         if (!root) {
-            std::cout<<1;
             root = new ListNode(box.someList[i]);
             root->position = {480,400};
             step.highlightedLine = 1;

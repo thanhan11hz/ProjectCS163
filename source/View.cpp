@@ -10,7 +10,8 @@ void View::CodeBlock::draw()
     Vector2 textPos = {
         (400 - textSize.x) / 2.0f,
         80 + (26*2 - textSize.y) / 2.0f};
-    DrawTextEx(font, "Code Block", textPos, 20, 5, (Color){248,222,34,255});        
+    DrawTextEx(font, "Code Block", textPos, 20, 5, (Color){248,222,34,255}); 
+    if (codeline.empty()) return;       
     int startLine = scrollOffset/lineHeight;
 
     for (int i = 0; i < visibleLines && (startLine + i < codeline.size()); ++i)
@@ -51,7 +52,6 @@ void View::Panel::draw()
     // Draw Play/Pause button
     Rectangle playPauseButton = {startX + buttonSize + spacing, startY, buttonSize, buttonSize};
     if (isPlaying) {
-        std::cout<<"a";
         DrawTexturePro(Pause, {0, 0, (float)Pause.width, (float)Pause.height}, playPauseButton, {0, 0}, 0.0f, LIGHTGRAY);
     } else {
         DrawTexturePro(Play, {0, 0, (float)Play.width, (float)Play.height}, playPauseButton, {0, 0}, 0.0f, LIGHTGRAY);
