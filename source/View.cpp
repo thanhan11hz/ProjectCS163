@@ -1,6 +1,6 @@
 #include "View.hpp"
 
-// Code Block
+// =========================== CODE BLOCK ========================================
 
 void View::CodeBlock::draw()
 {
@@ -38,7 +38,7 @@ void View::CodeBlock::update() {
     }
 }
 
-// Panel
+//=================================== PANEL ==========================================================
 
 void View::Panel::draw()
 {
@@ -94,7 +94,7 @@ bool View::Panel::isForwardPressed(){
     return CheckCollisionPointRec(GetMousePosition(), forwardButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
 }
 
-// Option
+//================================= OPTION ===============================================
 
 void View::Option::draw()
 {
@@ -182,9 +182,9 @@ bool View::Option::isSearch()
     return false;
 }
 
-// Text Box
+//================================ TEXT BOX ===========================================
 
-void View::TextBox::draw(){
+void View::TextBox::draw() {
     if (!isOpen) return;
 
     Rectangle textBoxRec = {400, 80, 400, 100};
@@ -195,58 +195,88 @@ void View::TextBox::draw(){
     DrawRectangleRec(closeButton, RED);
     DrawText("X", closeButton.x + 5, closeButton.y + 2, 20, WHITE);
 
-    if (CheckCollisionPointRec(GetMousePosition(), closeButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
+    if (CheckCollisionPointRec(GetMousePosition(), closeButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
         isOpen = false;
         value.clear();
+        enteredValues = false;
+        enteredPrime = false;
     }
-    std::string inputText = "Enter value: " + value;
 
-    // Display value entered from keyboard on textBox
+    std::string inputText;
+    if (mode == Mode::HTABLE) {
+        if (!enteredValues) {
+            inputText = "Enter values: " + value;
+        } else if (!enteredPrime) {
+            inputText = "Enter prime number: " + value;
+        }
+    } else {
+        inputText = "Enter value: " + value;
+    }
+
     DrawText(inputText.c_str(), textBoxRec.x + 10, textBoxRec.y + 40, 20, DARKGRAY);
 }
 
 void View::TextBox::update() {
-    // Handle entering value from Textbox
     if (isOpen) {
-        // Handle entering value from keyboard
         int key = GetCharPressed();
         while (key > 0) {
-            // Allow numbers and space only
             if ((key >= '0' && key <= '9') || key == ' ') {
-                value += static_cast<char>(key); // Add char to string
+                value += static_cast<char>(key);
             }
             key = GetCharPressed();
         }
 
-        if (IsKeyPressed(KEY_BACKSPACE)) {
-            if (!value.empty()) {
-                value.pop_back(); 
-            }
+        if (IsKeyPressed(KEY_BACKSPACE) && !value.empty()) {
+            value.pop_back();
         }
 
         if (IsKeyPressed(KEY_ENTER)) {
-            std::vector<int> numbers; 
-            std::stringstream ss(value); 
-            std::string token;
-
-            while (ss >> token) {
-                try {
-                    int num = std::stoi(token); 
-                    numbers.push_back(num);   
-                } catch (const std::invalid_argument&) {
-
+            if (mode == Mode::HTABLE) {
+                if (!enteredValues) {
+                    std::vector<int> numbers;
+                    std::stringstream ss(value);
+                    std::string token;
+                    while (ss >> token) {
+                        try {
+                            int num = std::stoi(token);
+                            numbers.push_back(num);
+                        } catch (const std::invalid_argument&) {
+                        }
+                    }
+                    someList.insert(someList.end(), numbers.begin(), numbers.end());
+                    value.clear();
+                    enteredValues = true;
+                    if (enteredPrime){
+                        isOpen = false;
+                    }
+                } else if (!enteredPrime) {
+                    try {
+                        primeNumber = std::stoi(value);
+                        enteredPrime = true;
+                        value.clear();
+                        isOpen = false;
+                    } catch (const std::invalid_argument&) {
+                    }
                 }
+            } else {
+                std::vector<int> numbers;
+                std::stringstream ss(value);
+                std::string token;
+                while (ss >> token) {
+                    try {
+                        int num = std::stoi(token);
+                        someList.push_back(num);
+                    } catch (const std::invalid_argument&) {
+                    }
+                }
+                value.clear();
+                isOpen = false;
             }
-            
-            someList.insert(someList.end(), numbers.begin(), numbers.end());
-
-            value.clear();
-            isOpen = false;
         }
     }
 }
 
-// Log
+//==================================== LOG =================================================
 
 void View::Log::draw()
 {
@@ -273,7 +303,7 @@ void View::Log::draw()
     }
 }
 
-// slider
+// ======================================== SLIDER ======================================================
 
 void View::Slider::update() {
     Vector2 mousePos = GetMousePosition();
@@ -309,7 +339,7 @@ void View::Slider::draw() {
     DrawTextEx(font, std::to_string(speed).c_str(), textPos, 20, 5, (Color){248,222,34,255});
 }       
 
-// Home
+//=========================================== HOME =======================================
 
 void View::Home::draw()
 {
@@ -330,7 +360,7 @@ bool View::Home::isReturnMenu()
     return false;
 }
 
-// View
+//=================================== VIEW ======================================
 
 void View::initView()
 {

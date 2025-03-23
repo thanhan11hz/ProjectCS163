@@ -69,6 +69,9 @@ class View {
             bool isOpen = false;
             void update();
             void draw();
+            int primeNumber = 0;
+            bool enteredPrime = false;
+            bool enteredValues = false;
         } box;
 
         struct Slider {

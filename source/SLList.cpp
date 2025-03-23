@@ -5,7 +5,7 @@ void SLList::init() {
     root = nullptr;
     stepmanager.currentStep = 0;
 }
-
+// 
 void SLList::draw() {
     drawView();
     if (!root) return;
