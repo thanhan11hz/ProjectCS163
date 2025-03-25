@@ -12,6 +12,9 @@ struct Step {
         std::vector<std::string> description;
         Node* tempRoot;
         int highlightedNode = -1;
+
+        std::vector<Node *> tempTable;
+
 };
 
 class StepManager {
@@ -24,6 +27,8 @@ class StepManager {
         void nextStep();
         void prevStep();
         void playAll();
+
+        
 };
 
 #endif
