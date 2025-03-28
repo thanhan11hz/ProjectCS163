@@ -1,7 +1,6 @@
 #include "Node.hpp"
 
 void Node::drawNode() {
-    //std::cout<<"a";
     DrawCircleV(position,20,ORANGE);
     int fontSize = 20;
     int spacing = 5;

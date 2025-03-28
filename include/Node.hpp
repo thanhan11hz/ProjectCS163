@@ -10,7 +10,6 @@ class Node {
     public:
         int val;
         Vector2 position;
-        //int isHighlighted;
         int ID;
         void drawNode();
         void drawHighlightNode();
