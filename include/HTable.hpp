@@ -6,7 +6,6 @@
 class HTable: public Logic, public View {
 
     public:
-
         class ListNode: public Node {
             public:
                 ListNode* next = nullptr;
@@ -16,23 +15,20 @@ class HTable: public Logic, public View {
                     ID = globalID;
                     globalID++;
                 }
-
         };
+        std::vector<ListNode*> HSvalue;
         void init();
         void draw();
         void run();
         void exit();
+        void remove();
         void initData();
         void insertData();
         void deleteData();
         void searchData();
-        void remove();
-
-        void copyList(ListNode *source, ListNode *&des);
-        void copy(std::vector<ListNode*> source, std::vector<ListNode*> &des);
-
-        std::vector<ListNode*> HSvalue;
-        
+        void copy(std::vector<ListNode*> source, std::vector<Node*> &des);   
+        void printHTable(std::vector<Node*> table); 
+        void printHTable(std::vector<ListNode*> table); 
 };
 
 #endif
