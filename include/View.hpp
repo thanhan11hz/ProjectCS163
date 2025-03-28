@@ -66,12 +66,27 @@ class View {
         struct TextBox{
             std::string value;
             std::vector<int> someList;
+
             bool isOpen = false;
+            bool isSelected = false;
+            bool isFile = false;
+            bool isURL = false;
+
+            bool isFileMode = false;
+            bool isURLMode = false;
+            bool isTextboxMode = false;
+            bool showInputOptions = false;
+            bool isClosed = false;
+
             void update();
             void draw();
+
             int primeNumber = 0;
             bool enteredPrime = false;
             bool enteredValues = false;
+            bool showFileButtons = false;
+            bool readFileData(const std::string &filePath);
+            bool readURLData(const std::string &url);
         } box;
 
         struct Slider {
@@ -82,12 +97,36 @@ class View {
             void draw();
         } slider;
 
+        struct InputPanel{
+            bool isOpen = false;
+
+            float buttonWidth = 120;
+            float buttonHeight = 40;
+            float startX = 40;
+            float startY = 574;
+
+            Rectangle panelRec = {0, 500, 400, 220};
+            Rectangle textboxButton = {startX, startY, buttonWidth, buttonHeight};
+            Rectangle fileButton = {startX, startY + 62, buttonWidth, buttonHeight};
+            Rectangle urlButton = {startX + 200, startY, buttonWidth, buttonHeight};
+            Rectangle closeButton = {startX + 200, startY + 62, buttonWidth, buttonHeight};
+
+            void draw();
+            bool isTextboxPressed();
+            bool isFilePressed();
+            bool isURLPressed();
+            bool isClosePressed();
+
+        } inputPanel;
+        bool showInputButtons = false;
+        
         virtual ~View() = default;
         void initView();
         void drawView();
         void eventView();
         virtual void exit() = 0;
 
+        
 };
 
 #endif

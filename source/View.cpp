@@ -100,9 +100,16 @@ void View::Option::draw()
 {
     float buttonWidth = 120;
     float buttonHeight = 40;
-    float startX = 400;
-    float startY = 545;
+    float startX = 40;
+    float startY = 574;
 
+    DrawRectangle(0,500,400,220,(Color){199,0,57,255});
+    Vector2 textSize = MeasureTextEx(font,"Option",20,5);
+    Vector2 textPos = {
+        (400 - textSize.x)/2.0f,
+        500 + (52 - textSize.y)/2.0f
+    };
+    DrawTextEx(font,"Option",textPos,20,5,(Color){248,222,34,255});
     Color buttonColor = LIGHTGRAY;
     Color textColor = DARKGRAY;
 
@@ -110,15 +117,15 @@ void View::Option::draw()
     DrawRectangleRec(IniButton, buttonColor);
     DrawText("Initialize", IniButton.x + 10, IniButton.y + 10, 20, textColor);
 
-    Rectangle InsertButton = {startX, startY + 45, buttonWidth, buttonHeight};
+    Rectangle InsertButton = {startX, startY + 62, buttonWidth, buttonHeight};
     DrawRectangleRec(InsertButton, buttonColor);
     DrawText("Insert", InsertButton.x + 10, InsertButton.y + 10, 20, textColor);
 
-    Rectangle SearchButton = {startX, startY + 90, buttonWidth, buttonHeight};
+    Rectangle SearchButton = {startX + 200, startY, buttonWidth, buttonHeight};
     DrawRectangleRec(SearchButton, buttonColor);
     DrawText("Search", SearchButton.x + 10, SearchButton.y + 10, 20, textColor);
 
-    Rectangle DeleteButton = {startX, startY + 135, buttonWidth, buttonHeight};
+    Rectangle DeleteButton = {startX + 200, startY + 62, buttonWidth, buttonHeight};
     DrawRectangleRec(DeleteButton, buttonColor);
     DrawText("Delete", DeleteButton.x + 10, DeleteButton.y + 10, 20, textColor);
 }
@@ -127,8 +134,8 @@ bool View::Option::isInitialize()
 {   
     float buttonWidth = 120;
     float buttonHeight = 40;
-    float startX = 400;
-    float startY = 545;
+    float startX = 40;
+    float startY = 574;
     Rectangle IniButton = {startX, startY, buttonWidth, buttonHeight};
     if (CheckCollisionPointRec(GetMousePosition(), IniButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
     {
@@ -141,9 +148,9 @@ bool View::Option::isAdd()
 {
     float buttonWidth = 120;
     float buttonHeight = 40;
-    float startX = 400;
-    float startY = 545;
-    Rectangle InsertButton = {startX, startY + 45, buttonWidth, buttonHeight};
+    float startX = 40;
+    float startY = 574;
+    Rectangle InsertButton = {startX, startY + 62, buttonWidth, buttonHeight};
 
     if (CheckCollisionPointRec(GetMousePosition(), InsertButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
     {
@@ -156,9 +163,9 @@ bool View::Option::isDelete()
 {
     float buttonWidth = 120;
     float buttonHeight = 40;
-    float startX = 400;
-    float startY = 545;
-    Rectangle DeleteButton = {startX, startY + 135, buttonWidth, buttonHeight};
+    float startX = 40;
+    float startY = 574;
+    Rectangle DeleteButton = {startX + 200, startY + 0, buttonWidth, buttonHeight};
 
     if (CheckCollisionPointRec(GetMousePosition(), DeleteButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
     {
@@ -171,9 +178,9 @@ bool View::Option::isSearch()
 {
     float buttonWidth = 120;
     float buttonHeight = 40;
-    float startX = 400;
-    float startY = 545;
-    Rectangle SearchButton = {startX, startY + 90, buttonWidth, buttonHeight};
+    float startX = 40;
+    float startY = 574;
+    Rectangle SearchButton = {startX + 200, startY + 62, buttonWidth, buttonHeight};
 
     if (CheckCollisionPointRec(GetMousePosition(), SearchButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
     {
@@ -182,27 +189,27 @@ bool View::Option::isSearch()
     return false;
 }
 
-//================================ TEXT BOX ===========================================
+// Text Box
 
-void View::TextBox::draw() {
+void View::TextBox::draw(){
     if (!isOpen) return;
+    if (isOpen) {
+        Rectangle textBoxRec = {0, 500, 400, 220};
+        DrawRectangleRec(textBoxRec, LIGHTGRAY);
+        DrawRectangleLinesEx(textBoxRec, 2, DARKGRAY);
 
-    Rectangle textBoxRec = {400, 80, 400, 100};
-    DrawRectangleRec(textBoxRec, LIGHTGRAY);
-    DrawRectangleLinesEx(textBoxRec, 2, DARKGRAY);
+        Rectangle closeButton = {textBoxRec.x + textBoxRec.width - 30, textBoxRec.y + 10, 20, 20};
+        DrawRectangleRec(closeButton, RED);
+        DrawText("X", closeButton.x + 5, closeButton.y + 2, 20, WHITE);
 
-    Rectangle closeButton = {textBoxRec.x + textBoxRec.width - 30, textBoxRec.y + 10, 20, 20};
-    DrawRectangleRec(closeButton, RED);
-    DrawText("X", closeButton.x + 5, closeButton.y + 2, 20, WHITE);
-
-    if (CheckCollisionPointRec(GetMousePosition(), closeButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-        isOpen = false;
-        value.clear();
-        enteredValues = false;
-        enteredPrime = false;
-    }
-
-    std::string inputText;
+        if (CheckCollisionPointRec(GetMousePosition(), closeButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
+            isOpen = false;
+            value.clear();
+            enteredValues = false;
+            enteredPrime = false;
+        }
+        
+        std::string inputText;
     if (mode == Mode::HTABLE) {
         if (!enteredValues) {
             inputText = "Enter values: " + value;
@@ -212,8 +219,9 @@ void View::TextBox::draw() {
     } else {
         inputText = "Enter value: " + value;
     }
-
     DrawText(inputText.c_str(), textBoxRec.x + 10, textBoxRec.y + 40, 20, DARKGRAY);
+    } 
+    
 }
 
 void View::TextBox::update() {
@@ -276,11 +284,11 @@ void View::TextBox::update() {
     }
 }
 
-//==================================== LOG =================================================
+// Log
 
 void View::Log::draw()
 {
-    rec = {0, 400, 400, 320};
+    rec = {0, 400, 400, 100};
     DrawRectangleRec(rec, (Color){249,76,16,255}); 
     Vector2 textSize = MeasureTextEx(font, "Log", 20, 5);
     Vector2 textPos = {
@@ -360,10 +368,63 @@ bool View::Home::isReturnMenu()
     return false;
 }
 
+//=================================== INPUT PANEL ======================================
+
+void View::InputPanel::draw() {
+    if (!isOpen) return;
+    
+    DrawRectangleRec(panelRec, (Color){199,0,57,255});
+    Vector2 textSize = MeasureTextEx(font, "Input Method", 20, 5);
+    Vector2 textPos = {
+        (panelRec.width - textSize.x) / 2.0f,
+        panelRec.y + (52 - textSize.y) / 2.0f
+    };
+    DrawTextEx(font, "Input Method", textPos, 20, 5, (Color){248,222,34,255});
+
+    // Draw buttons
+    Color buttonColor = LIGHTGRAY;
+    Color textColor = DARKGRAY;
+
+    DrawRectangleRec(textboxButton, buttonColor);
+    DrawText("Textbox", textboxButton.x + 10, textboxButton.y + 10, 20, textColor);
+
+    DrawRectangleRec(fileButton, buttonColor);
+    DrawText("File", fileButton.x + 10, fileButton.y + 10, 20, textColor);
+
+    DrawRectangleRec(urlButton, buttonColor);
+    DrawText("URL", urlButton.x + 10, urlButton.y + 10, 20, textColor);
+
+    DrawRectangleRec(closeButton, buttonColor);
+    DrawText("Close", closeButton.x + 10, closeButton.y + 10, 20, textColor);
+}
+
+bool View::InputPanel::isTextboxPressed() {
+    return CheckCollisionPointRec(GetMousePosition(), textboxButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
+}
+
+bool View::InputPanel::isFilePressed() {
+    return CheckCollisionPointRec(GetMousePosition(), fileButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
+}
+
+bool View::InputPanel::isURLPressed() {
+    return CheckCollisionPointRec(GetMousePosition(), urlButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
+}
+
+bool View::InputPanel::isClosePressed() {
+    return CheckCollisionPointRec(GetMousePosition(), closeButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
+}
+
 //=================================== VIEW ======================================
 
 void View::initView()
 {
+    if (mode == Mode::SLLIST || mode == Mode::HTABLE || mode == Mode::AVL){
+        if (option.isInitialize()) {
+            inputPanel.isOpen = true;
+            box.isOpen = false; // Đảm bảo textbox đóng khi mở inputPanel
+        }
+    }
+
     func = Function::NONE;
     home.icon = LoadTexture("resource\\Texture\\home.png");
     code.codeline.clear();
@@ -406,9 +467,15 @@ void View::drawView()
     option.draw();
     home.draw();
     log.draw();
-    if (box.isOpen){
+
+    if (inputPanel.isOpen){
+        inputPanel.draw();
+    }
+
+    else if (box.isOpen){
         box.draw();
     }
+
     slider.draw();
 }
 
@@ -419,12 +486,41 @@ void View::eventView() {
         exit();
     }
 
-    if (option.isAdd() || option.isDelete() || option.isInitialize() || option.isSearch()) {
-        if (option.isInitialize()) exit();
-        box.isOpen = true;
+    if (inputPanel.isOpen){
+        if (inputPanel.isTextboxPressed()){
+            inputPanel.isOpen = false;
+            box.isOpen = true;
+            box.isTextboxMode = true;
+        }
+        else if (inputPanel.isFilePressed()){
+            inputPanel.isOpen = false;
+            box.isOpen = true;
+            box.isFileMode = true;
+        }
+        else if (inputPanel.isURLPressed()){
+            inputPanel.isOpen = false;
+            box.isOpen = true;
+            box.isURLMode = true;
+        }
+        else if (inputPanel.isClosePressed()){
+            inputPanel.isOpen = false;
+        }
     }
+
+    else {
+        if (option.isInitialize()){
+            box.isOpen = false;
+            inputPanel.isOpen = true;
+        }
+        else if (option.isAdd() || option.isDelete() || option.isSearch()){
+            box.isOpen = true;
+            inputPanel.isOpen = false;
+        }
+    }
+
     box.update();
     slider.update();
     code.update();
-    panel.update();
+   
 }
+
