@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <cmath>
 #include "raylib.h"
 #include "GlobalVar.hpp"
 
@@ -14,6 +15,7 @@ class Node {
         void drawNode();
         void drawHighlightNode();
         void drawEdge(Node* x);
+        void drawHighlightedEdge(Node* x);
 };
 
 #endif 

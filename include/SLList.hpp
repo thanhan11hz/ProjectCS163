@@ -18,10 +18,11 @@ class SLList: public Logic, public View {
         ListNode *root = nullptr;        
         void init();
         void draw();
+        void calculatePosition(ListNode* head);
         void run();
         void remove();
         void exit();
-        void copy(ListNode* source, ListNode* &des);
+        void copy(ListNode* source, Node* &des);
         void initData();
         void insertData();
         void deleteData();
