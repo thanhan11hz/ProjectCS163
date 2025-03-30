@@ -63,7 +63,14 @@ class View {
             void draw();
             bool isReturnMenu();
         } home;
+
+        View() {
+            box.parent = this; // Gán con trỏ parent cho box
+        }
         struct TextBox{
+
+            View* parent;
+
             std::string value;
             std::vector<int> someList;
 
@@ -75,9 +82,13 @@ class View {
             bool isTextboxMode = false;
             bool showInputOptions = false;
             bool isClosed = false;
+            // For URL MODE
 
-            std::vector<int> readFromFile(const std::string &filePath);
-            void handleFileInput();
+            bool processFileData(const std::string &filePath);
+            
+            void handleFileDrop();
+            bool isDragDropMode = false;
+            bool readFileData(const std::string &filePath);
 
             void update();
             void draw();
@@ -86,7 +97,7 @@ class View {
             bool enteredPrime = false;
             bool enteredValues = false;
             bool showFileButtons = false;
-            bool readFileData(const std::string &filePath);
+            
             bool readURLData(const std::string &url);
         } box;
 
@@ -123,11 +134,14 @@ class View {
         } inputPanel;
 
         virtual ~View() = default;
+    
         void initView();
         void drawView();
         void eventView();
         virtual void exit() = 0;
 
+        
+    private:
         
 };
 

@@ -193,39 +193,172 @@ bool View::Option::isSearch()
 
 void View::TextBox::draw(){
     if (!isOpen) return;
-    if (isOpen) {
-        Rectangle textBoxRec = {0, 500, 400, 220};
-        DrawRectangleRec(textBoxRec, LIGHTGRAY);
-        DrawRectangleLinesEx(textBoxRec, 2, DARKGRAY);
-
-        Rectangle closeButton = {textBoxRec.x + textBoxRec.width - 30, textBoxRec.y + 10, 20, 20};
-        DrawRectangleRec(closeButton, RED);
-        DrawText("X", closeButton.x + 5, closeButton.y + 2, 20, WHITE);
-
-        if (CheckCollisionPointRec(GetMousePosition(), closeButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
-            isOpen = false;
-            value.clear();
-            enteredValues = false;
-            enteredPrime = false;
-        }
-        
-        std::string inputText;
-    if (mode == Mode::HTABLE) {
-        if (!enteredValues) {
-            inputText = "Enter values: " + value;
-        } else if (!enteredPrime) {
-            inputText = "Enter prime number: " + value;
-        }
-    } else {
-        inputText = "Enter value: " + value;
-    }
-    DrawText(inputText.c_str(), textBoxRec.x + 10, textBoxRec.y + 40, 20, DARKGRAY);
-    } 
     
+    Rectangle textBoxRec = {0, 500, 400, 220};
+    DrawRectangleRec(textBoxRec, LIGHTGRAY);
+    DrawRectangleLinesEx(textBoxRec, 2, DARKGRAY);
+
+    Rectangle closeButton = {textBoxRec.x + textBoxRec.width - 30, textBoxRec.y + 10, 20, 20};
+    DrawRectangleRec(closeButton, RED);
+    DrawText("X", closeButton.x + 5, closeButton.y + 2, 20, WHITE);
+
+    if (CheckCollisionPointRec(GetMousePosition(), closeButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
+        isOpen = false;
+        value.clear();
+        enteredValues = false;
+        enteredPrime = false;
+        isDragDropMode = false;
+    }
+    
+    if (isDragDropMode) {
+        // Hiển thị hướng dẫn kéo thả file
+        DrawText("Drag & drop file here", textBoxRec.x + 10, textBoxRec.y + 40, 20, DARKGRAY);
+        DrawText("Supported format:", textBoxRec.x + 10, textBoxRec.y + 70, 16, GRAY);
+        if (mode == Mode::HTABLE) {
+            DrawText("Line 1: Values, Line 2: Prime", textBoxRec.x + 10, textBoxRec.y + 90, 16, GRAY);
+        } else {
+            DrawText("One value per line", textBoxRec.x + 10, textBoxRec.y + 90, 16, GRAY);
+        }
+    }
+    else {
+        std::string inputText;
+        if (mode == Mode::HTABLE) {
+            if (!enteredValues) {
+                inputText = "Enter values: " + value;
+            } else if (!enteredPrime) {
+                inputText = "Enter prime number: " + value;
+            }
+        } else {
+            inputText = "Enter value: " + value;
+        }
+        DrawText(inputText.c_str(), textBoxRec.x + 10, textBoxRec.y + 40, 20, DARKGRAY);
+    }
+}
+
+void View::TextBox::handleFileDrop() {
+    if (!IsFileDropped()) {
+        return;
+    }
+
+    FilePathList droppedFiles = LoadDroppedFiles();
+    if (droppedFiles.count == 0 || droppedFiles.paths == nullptr) {
+        UnloadDroppedFiles(droppedFiles);
+        return;
+    }
+
+    std::string filePath = droppedFiles.paths[0];
+    if (filePath.empty()) {
+        UnloadDroppedFiles(droppedFiles);
+        return;
+    }
+
+    if (processFileData(filePath)) {
+        isOpen = false;
+        isDragDropMode = false;
+    }
+
+    UnloadDroppedFiles(droppedFiles);
+}
+
+bool View::TextBox::processFileData(const std::string& filePath) {
+    if (filePath.empty()) {
+        parent->log.infor.push_back("Error: File path is empty");
+        return false;
+    }
+
+    char* fileData = LoadFileText(filePath.c_str());
+    if (!fileData) {
+        parent->log.infor.push_back("Failed to load file: " + filePath);
+        return false;
+    }
+
+    std::stringstream ss(fileData);
+    std::string line;
+    someList.clear();
+
+    if (mode == Mode::HTABLE) {
+        if (std::getline(ss, line)) {
+            std::stringstream valuesStream(line);
+            std::string token;
+            while (valuesStream >> token) {
+                try {
+                    someList.push_back(std::stoi(token));
+                } catch (const std::invalid_argument&) {
+                    parent->log.infor.push_back("Invalid value in file: " + token);
+                }
+            }
+        }
+
+        if (std::getline(ss, line)) {
+            try {
+                primeNumber = std::stoi(line);
+                enteredPrime = true;
+            } catch (const std::invalid_argument&) {
+                parent->log.infor.push_back("Invalid prime number in file: " + line);
+            }
+        }
+        enteredValues = true;
+    } else {
+        while (std::getline(ss, line)) {
+            std::stringstream lineStream(line);
+            std::string token;
+            while (lineStream >> token) {
+                try {
+                    someList.push_back(std::stoi(token));
+                    enteredValues = true;
+                    if (mode != Mode::HTABLE) enteredPrime = true;
+                } catch (const std::invalid_argument&) {
+                    parent->log.infor.push_back("Invalid value in file: " + token);
+                }
+            }
+        }
+    }
+
+    UnloadFileText(fileData);
+    parent->log.infor.push_back("Loaded data from: " + filePath);
+
+    // DEBUG
+    if (mode == Mode::HTABLE){
+        parent->log.infor.push_back("Prime number: " + std::to_string(primeNumber));
+    }
+    parent->log.infor.push_back("Values count: " + std::to_string(someList.size()));
+
+    return true;
 }
 
 void View::TextBox::update() {
     if (isOpen) {
+
+        if (isDragDropMode) {
+            // Chỉ xử lý kéo thả file trong mode này
+            // if (IsFileDropped()) {
+            //     FilePathList files = LoadDroppedFiles();
+            //     if (files.count > 0) {
+            //         // Xử lý file ở đây
+            //         std::string filePath = files.paths[0];
+
+            //         std::vector<std::string> tempFiles;
+            //         for (int i = 0; i < files.count; i++) {
+            //             tempFiles.push_back(files.paths[i]);
+            //         }
+            //         UnloadDroppedFiles(files);
+
+            //         if (readFileData(filePath)){
+            //             std::cout << "Successfully " << someList.size() << std::endl;
+            //             isOpen = false;
+            //         }
+                        
+            //         // ... (đọc file)
+                    
+            //         showFileButtons = true;
+            //     }
+            // }
+            handleFileDrop();
+            if (!someList.empty()) { // Nếu dữ liệu đã được tải thành công
+                isOpen = false; // Đóng TextBox
+            }
+            return; 
+        }
         int key = GetCharPressed();
         while (key > 0) {
             if ((key >= '0' && key <= '9') || key == ' ') {
@@ -284,8 +417,69 @@ void View::TextBox::update() {
     }
 }
 
-// Log
+bool View::TextBox::readFileData(const std::string &filePath) {
 
+    long fileSize = GetFileLength(filePath.c_str());
+    if (fileSize > 1000000) { 
+        std::cout << "ERROR: File too large" << std::endl;
+        return false;
+    }
+
+    try {
+        char* fileData = LoadFileText(filePath.c_str());
+        if (!fileData) {
+            //log.infor.push_back("ERROR: Failed to load file: " + filePath);
+            std::cout << "Failed to load" << std::endl;
+            return false;
+        }
+
+        std::stringstream ss(fileData);
+        std::string line;
+        someList.clear();
+
+        // Xử lý nội dung file trong try-catch
+        try {
+            if (mode == Mode::HTABLE) {
+                // Xử lý HTABLE
+                if (std::getline(ss, line)) {
+                    std::stringstream valuesStream(line);
+                    std::string token;
+                    while (valuesStream >> token) {
+                        someList.push_back(std::stoi(token));
+                    }
+                }
+                if (std::getline(ss, line)) {
+                    primeNumber = std::stoi(line);
+                    enteredPrime = true;
+                }
+                enteredValues = true;
+            } else {
+                // Xử lý các mode khác
+                while (std::getline(ss, line)) {
+                    std::stringstream lineStream(line);
+                    std::string token;
+                    while (lineStream >> token) {
+                        someList.push_back(std::stoi(token));
+                    }
+                }
+                enteredValues = true;
+                if (mode != Mode::HTABLE) enteredPrime = true;
+            }
+        } catch (const std::exception& e) {
+            //log.infor.push_back("ERROR: Invalid file format: " + std::string(e.what()));
+            UnloadFileText(fileData);
+            return false;
+        }
+
+        UnloadFileText(fileData);
+        return true;
+    } catch (...) {
+        //log.infor.push_back("CRITICAL ERROR: Failed to process file");
+        std::cout << "Failed to process file" << std::endl;
+        return false;
+    }
+}
+// =================================== LOG ==============================================
 void View::Log::draw()
 {
     rec = {0, 400, 400, 100};
@@ -529,6 +723,8 @@ void View::eventView() {
                 inputPanel.isOpen = false;
                 box.isOpen = true;
                 box.isTextboxMode = true;
+                box.isURLMode = false;
+                box.value.clear();
             }
 
             else if (inputPanel.isFilePressed()){
@@ -540,6 +736,10 @@ void View::eventView() {
                 inputPanel.isOpen = false;
                 box.isOpen = true;
                 box.isURLMode = true;
+                box.isTextboxMode = false;
+                box.isDragDropMode = true; 
+                box.value.clear();
+                box.isFileMode = false;
             }
             else if (inputPanel.isClosePressed()){
                 inputPanel.isOpen = false;
@@ -555,12 +755,28 @@ void View::eventView() {
         else if (option.isAdd() || option.isDelete() || option.isSearch()){
             box.isOpen = true;
             inputPanel.isOpen = false;
+            box.isTextboxMode = true;
+            box.isURLMode = false;
+            box.value.clear();
+            
         }
     }
-
+    if (box.isOpen && box.isDragDropMode) {
+        box.handleFileDrop(); // Xử lý kéo thả file
+        if (!box.isOpen) { // Sau khi xử lý file thành công
+            // Cập nhật giao diện hoặc dữ liệu
+            func = Function::INIT;   // Cần dòng này để sau khi textbox đóng, kéo thả file xong thì chuyển về mode INIT
+            code.codeline.clear();
+            for (int val : box.someList) {
+                code.codeline.push_back(std::to_string(val));
+            }
+            if (mode == Mode::HTABLE) {
+                code.codeline.push_back("Prime: " + std::to_string(box.primeNumber));
+            }
+        }
+    }
     box.update();
     slider.update();
     code.update();
-   
 }
 
