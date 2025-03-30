@@ -385,9 +385,6 @@ void View::InputPanel::draw() {
     Color buttonColor = LIGHTGRAY;
     Color textColor = DARKGRAY;
 
-    DrawRectangleRec(textboxButton, buttonColor);
-    DrawText("Textbox", textboxButton.x + 10, textboxButton.y + 10, 20, textColor);
-
     DrawRectangleRec(fileButton, buttonColor);
     DrawText("File", fileButton.x + 10, fileButton.y + 10, 20, textColor);
 
@@ -396,6 +393,17 @@ void View::InputPanel::draw() {
 
     DrawRectangleRec(closeButton, buttonColor);
     DrawText("Close", closeButton.x + 10, closeButton.y + 10, 20, textColor);
+
+    if (mode == Mode::GRAPH){
+        DrawRectangleRec(randomButton, buttonColor);
+        DrawText("Random", randomButton.x + 10, randomButton.y + 10, 20, textColor);
+    }
+
+    else{
+        DrawRectangleRec(textboxButton, buttonColor);
+        DrawText("Textbox", textboxButton.x + 10, textboxButton.y + 10, 20, textColor);
+    }
+    
 }
 
 bool View::InputPanel::isTextboxPressed() {
@@ -412,6 +420,11 @@ bool View::InputPanel::isURLPressed() {
 
 bool View::InputPanel::isClosePressed() {
     return CheckCollisionPointRec(GetMousePosition(), closeButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
+}
+
+bool View::InputPanel::isRandomPressed(){
+    if (mode != Mode::GRAPH) return false;
+    return CheckCollisionPointRec(GetMousePosition(), randomButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
 }
 
 //=================================== VIEW ======================================
@@ -487,24 +500,51 @@ void View::eventView() {
     }
 
     if (inputPanel.isOpen){
-        if (inputPanel.isTextboxPressed()){
-            inputPanel.isOpen = false;
-            box.isOpen = true;
-            box.isTextboxMode = true;
+
+        if (mode == Mode::GRAPH){
+
+            if (inputPanel.isRandomPressed()){
+                inputPanel.isOpen = false;
+                // Xử lí phần còn lại ở đây
+            }
+
+            else if (inputPanel.isFilePressed()){
+                inputPanel.isOpen = false;
+                box.isOpen = true;
+                box.isFileMode = true;
+            }
+
+            else if (inputPanel.isURLPressed()){
+                inputPanel.isOpen = false;
+                box.isOpen = true;
+                box.isURLMode = true;
+            }
+
+            else if (inputPanel.isClosePressed()){
+                inputPanel.isOpen = false;
+            }
         }
-        else if (inputPanel.isFilePressed()){
-            inputPanel.isOpen = false;
-            box.isOpen = true;
-            box.isFileMode = true;
-        }
-        else if (inputPanel.isURLPressed()){
-            inputPanel.isOpen = false;
-            box.isOpen = true;
-            box.isURLMode = true;
-        }
-        else if (inputPanel.isClosePressed()){
-            inputPanel.isOpen = false;
-        }
+        else {
+            if (inputPanel.isTextboxPressed()){
+                inputPanel.isOpen = false;
+                box.isOpen = true;
+                box.isTextboxMode = true;
+            }
+
+            else if (inputPanel.isFilePressed()){
+                inputPanel.isOpen = false;
+                box.isOpen = true;
+                box.isFileMode = true;
+            }
+            else if (inputPanel.isURLPressed()){
+                inputPanel.isOpen = false;
+                box.isOpen = true;
+                box.isURLMode = true;
+            }
+            else if (inputPanel.isClosePressed()){
+                inputPanel.isOpen = false;
+            }
+        } 
     }
 
     else {

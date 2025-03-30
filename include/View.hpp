@@ -69,14 +69,15 @@ class View {
 
             bool isOpen = false;
             bool isSelected = false;
-            bool isFile = false;
-            bool isURL = false;
 
             bool isFileMode = false;
             bool isURLMode = false;
             bool isTextboxMode = false;
             bool showInputOptions = false;
             bool isClosed = false;
+
+            std::vector<int> readFromFile(const std::string &filePath);
+            void handleFileInput();
 
             void update();
             void draw();
@@ -109,6 +110,7 @@ class View {
             Rectangle textboxButton = {startX, startY, buttonWidth, buttonHeight};
             Rectangle fileButton = {startX, startY + 62, buttonWidth, buttonHeight};
             Rectangle urlButton = {startX + 200, startY, buttonWidth, buttonHeight};
+            Rectangle randomButton = {startX, startY, buttonWidth, buttonHeight};
             Rectangle closeButton = {startX + 200, startY + 62, buttonWidth, buttonHeight};
 
             void draw();
@@ -116,10 +118,10 @@ class View {
             bool isFilePressed();
             bool isURLPressed();
             bool isClosePressed();
+            bool isRandomPressed();
 
         } inputPanel;
-        bool showInputButtons = false;
-        
+
         virtual ~View() = default;
         void initView();
         void drawView();
