@@ -1,6 +1,8 @@
 #ifndef AVL_hpp
 #define AVL_hpp
 
+#include <unordered_map>
+#include <algorithm>
 #include "Logic.hpp"
 #include "View.hpp"
 
@@ -19,15 +21,23 @@ class AVL : public Logic, public View {
             }
         };
         TreeNode* root = nullptr;
+        std::vector<Edge*> edge;   
         void init();
         void draw();
-        void calculatePositions(TreeNode* node, int x, int y, int offsetX);
-        void drawEdges(TreeNode* node);
-        void drawTree(TreeNode* node, int highlightNode);
+        void calculatePositions(TreeNode* node, int x, int y, int level);
+        void drawEdge(std::vector<Edge*> edge);
+        void drawNode(TreeNode* node, int highlightNode);
         void run();
         void remove();
         void exit();
-        void copy(TreeNode* source, TreeNode* &des);
+        void copyNode(TreeNode* source, TreeNode* &des);
+        void copyEdge(std::vector<Edge*> source, std::vector<Edge*> &des, TreeNode* head);
+        TreeNode* findNodebyID(TreeNode* head, int ID);
+        Edge* findEdgebyEndPoint(std::vector<Edge*> list, int endPoint2ID);
+        void prepareTransition();
+        void scanNode(TreeNode* root, std::unordered_map<int,TreeNode*> &node);
+        TreeNode* findParent(TreeNode* node, int ID);
+        void safeRemoveEdge(int nodeID);
         void deleteTree(TreeNode* root);
         int getHeight(TreeNode* node);
         TreeNode* getSuccessor(TreeNode* root);

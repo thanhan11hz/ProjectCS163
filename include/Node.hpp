@@ -12,10 +12,9 @@ class Node {
         int val;
         Vector2 position;
         int ID;
-        void drawNode();
-        void drawHighlightNode();
-        void drawEdge(Node* x);
-        void drawHighlightedEdge(Node* x);
+        float alpha = 1.0f;
+        void draw();
+        void drawHighlight();
 };
 
 #endif 

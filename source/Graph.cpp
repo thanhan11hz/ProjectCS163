@@ -95,28 +95,28 @@ void Graph::init() {
 
 void Graph::draw() {
     drawView();
-    if (vertex.size() == 0) return;
-    if (!stepmanager.step.empty() && stepmanager.currentStep >= 0) {
-        Step currStep = stepmanager.step[stepmanager.currentStep];
-        log.infor = currStep.description;
-        code.lineHighlighted = currStep.highlightedLine;
-        drawView();
-        for (int i = 0; i < edge.size(); ++i) {
-            // if (edge[i]->ID == currStep.highlightedEdge) edge[i]->endPoint1->drawHighlightedEdge(edge[i]->endPoint2);
-            // else edge[i]->endPoint1->drawEdge(edge[i]->endPoint2);
-        }
-        for (int i = 0; i < vertex.size(); ++i) {
-            if (vertex[i]->ID == currStep.highlightedNode) vertex[i]->drawHighlightNode();
-            else vertex[i]->drawNode();
-        }
-    } else {
-        for (int i = 0; i < edge.size(); ++i) {
-            edge[i]->endPoint1->drawEdge(edge[i]->endPoint2);
-        }
-        for (int i = 0; i < vertex.size(); ++i) {
-            vertex[i]->drawNode();
-        }
-    }
+    // if (vertex.size() == 0) return;
+    // if (!stepmanager.step.empty() && stepmanager.currentStep >= 0) {
+    //     Step currStep = stepmanager.step[stepmanager.currentStep];
+    //     log.infor = currStep.description;
+    //     code.lineHighlighted = currStep.highlightedLine;
+    //     drawView();
+    //     for (int i = 0; i < edge.size(); ++i) {
+    //         // if (edge[i]->ID == currStep.highlightedEdge) edge[i]->endPoint1->drawHighlightedEdge(edge[i]->endPoint2);
+    //         // else edge[i]->endPoint1->drawEdge(edge[i]->endPoint2);
+    //     }
+    //     for (int i = 0; i < vertex.size(); ++i) {
+    //         if (vertex[i]->ID == currStep.highlightedNode) vertex[i]->drawHighlightNode();
+    //         else vertex[i]->drawNode();
+    //     }
+    // } else {
+    //     for (int i = 0; i < edge.size(); ++i) {
+    //         edge[i]->endPoint1->drawEdge(edge[i]->endPoint2);
+    //     }
+    //     for (int i = 0; i < vertex.size(); ++i) {
+    //         vertex[i]->drawNode();
+    //     }
+    // }
 }
 
 void Graph::run() {
