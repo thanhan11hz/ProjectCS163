@@ -74,6 +74,10 @@ class View {
             std::string value;
             std::vector<int> someList;
 
+            // for graph
+            std::vector<std::vector<int>> ADJmatrix;
+            int startedVertex = 0;
+
             bool isOpen = false;
             bool isSelected = false;
 

@@ -9,10 +9,6 @@ class Logic {
     public:
         virtual ~Logic() = default;
         std::vector<int> value;
-        virtual void initData() = 0;
-        virtual void insertData() = 0;
-        virtual void deleteData() = 0;
-        virtual void searchData() = 0;
 };
 
 #endif

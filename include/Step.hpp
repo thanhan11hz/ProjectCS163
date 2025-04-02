@@ -6,15 +6,17 @@
 #include <thread>
 #include "raylib.h"
 #include "Node.hpp"
+#include "Edge.hpp"
+#include "Animation.hpp"
 struct Step {
     public:
-        int highlightedLine;
+        int highlightedLine = -1;
+        int highlightedNode = -1;
         std::vector<std::string> description;
         Node* tempRoot;
-        int highlightedNode = -1;
-
         std::vector<Node *> tempTable;
-
+        std::vector<Edge*> tempEdge;
+        AnimationQueue animQueue;
 };
 
 class StepManager {
@@ -27,8 +29,12 @@ class StepManager {
         void nextStep();
         void prevStep();
         void playAll();
-
-        
+        bool isTransitioning = false;
+        float transitionDuration = 0.5f;
+        void startTransition();
+        void updateTransitionProgress();
+        bool isTransitionComplete();
+        void finishTransition();
 };
 
 #endif

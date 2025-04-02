@@ -240,13 +240,13 @@ void View::TextBox::handleFileDrop() {
         return;
     }
 
-    FilePathList droppedFiles = LoadDroppedFiles();
+    FilePathList droppedFiles = LoadDroppedFiles();  // List of file paths
     if (droppedFiles.count == 0 || droppedFiles.paths == nullptr) {
         UnloadDroppedFiles(droppedFiles);
         return;
     }
 
-    std::string filePath = droppedFiles.paths[0];
+    std::string filePath = droppedFiles.paths[0];  // take the first one
     if (filePath.empty()) {
         UnloadDroppedFiles(droppedFiles);
         return;
@@ -272,7 +272,7 @@ bool View::TextBox::processFileData(const std::string& filePath) {
         return false;
     }
 
-    std::stringstream ss(fileData);
+    std::stringstream ss(fileData); 
     std::string line;
     someList.clear();
 
@@ -289,7 +289,7 @@ bool View::TextBox::processFileData(const std::string& filePath) {
             }
         }
 
-        if (std::getline(ss, line)) {
+        if (std::getline(ss, line)) {  // for the prime number
             try {
                 primeNumber = std::stoi(line);
                 enteredPrime = true;
@@ -330,38 +330,15 @@ void View::TextBox::update() {
     if (isOpen) {
 
         if (isDragDropMode) {
-            // Chỉ xử lý kéo thả file trong mode này
-            // if (IsFileDropped()) {
-            //     FilePathList files = LoadDroppedFiles();
-            //     if (files.count > 0) {
-            //         // Xử lý file ở đây
-            //         std::string filePath = files.paths[0];
-
-            //         std::vector<std::string> tempFiles;
-            //         for (int i = 0; i < files.count; i++) {
-            //             tempFiles.push_back(files.paths[i]);
-            //         }
-            //         UnloadDroppedFiles(files);
-
-            //         if (readFileData(filePath)){
-            //             std::cout << "Successfully " << someList.size() << std::endl;
-            //             isOpen = false;
-            //         }
-                        
-            //         // ... (đọc file)
-                    
-            //         showFileButtons = true;
-            //     }
-            // }
             handleFileDrop();
-            if (!someList.empty()) { // Nếu dữ liệu đã được tải thành công
-                isOpen = false; // Đóng TextBox
+            if (!someList.empty()) { // if loaded successfully
+                isOpen = false; // Close TextBox
             }
             return; 
         }
         int key = GetCharPressed();
         while (key > 0) {
-            if ((key >= '0' && key <= '9') || key == ' ') {
+            if ((key >= '0' && key <= '9') || key == ' ') { // allow numbers and space only
                 value += static_cast<char>(key);
             }
             key = GetCharPressed();
@@ -375,7 +352,7 @@ void View::TextBox::update() {
             if (mode == Mode::HTABLE) {
                 if (!enteredValues) {
                     std::vector<int> numbers;
-                    std::stringstream ss(value);
+                    std::stringstream ss(value);  // tách từ value cho vào token
                     std::string token;
                     while (ss >> token) {
                         try {

@@ -23,6 +23,13 @@ enum class Function {
     SEARCH
 };
 
+enum class AnimateType {
+    INSERTION,
+    DELETION,
+    MOVEMENT,
+    HIGHLIGHT
+};
+
 extern Mode mode;
 
 extern Function func;
