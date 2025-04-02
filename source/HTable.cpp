@@ -91,6 +91,14 @@ void HTable::draw() {
     // }
 }
 
+void HTable::calculatePosition(std::vector<ListNode*> table) {
+    
+}
+
+void HTable::calculatePosition(std::vector<Node*> table) {
+    
+}
+
 void HTable::run() {
     eventView();
 
@@ -142,12 +150,15 @@ void HTable::run() {
         }
     }
 
-    if (panel.isForwardPressed()) {
+    if (stepmanager.isTransitioning) {
+        stepmanager.updateTransitionProgress();
+        if (stepmanager.isTransitionComplete()) stepmanager.finishTransition();
+    } else if (panel.isForwardPressed()) {
         stepmanager.isPlaying = false;
         panel.isPlaying = false;
         stepmanager.nextStep();
-    }
-     if (panel.isRewindPressed()) {
+        prepareTransition();
+    } else if (panel.isRewindPressed()) {
         stepmanager.isPlaying = false;
         panel.isPlaying = false;
         stepmanager.prevStep();
@@ -155,15 +166,28 @@ void HTable::run() {
     if (panel.isPausePressed()) {
         stepmanager.isPlaying = false;
         panel.isPlaying = false;
+        accumulatedTime = 0.0f; 
     }
     if (panel.isPlayPressed()) {
         stepmanager.isPlaying = true;
         panel.isPlaying = true;
     }
+    auto now = std::chrono::steady_clock::now();
+    float deltaTime = std::chrono::duration<float>(now - lastUpdateTime).count();
+    lastUpdateTime = now;
     if (stepmanager.isPlaying && stepmanager.currentStep < stepmanager.step.size() - 1) {
-        stepmanager.nextStep();
+        accumulatedTime += deltaTime * stepmanager.speed;
+        while (accumulatedTime >= stepDuration && stepmanager.isPlaying) {
+            accumulatedTime -= stepDuration;
+            if (stepmanager.isTransitioning) {
+                stepmanager.updateTransitionProgress();
+                if (stepmanager.isTransitionComplete()) stepmanager.finishTransition();
+            } else {
+                stepmanager.nextStep();
+                prepareTransition();
+            }
+        }
         draw();
-        std::this_thread::sleep_for(std::chrono::milliseconds((int)(800 / stepmanager.speed)));
     } else {
         stepmanager.isPlaying = false;
         panel.isPlaying = false; 
@@ -218,7 +242,7 @@ void HTable::remove(){
     stepmanager.currentStep = 0;
 }
 
-void HTable::copy(std::vector<ListNode*> source, std::vector<Node*> &des) {
+void HTable::copyNode(std::vector<ListNode*> source, std::vector<Node*> &des) {
     if (source.size() == 0) {
         des.clear();
         return;
@@ -306,7 +330,7 @@ void HTable::insertData() {
     for (int i = 0; i < box.someList.size(); ++i) {
         step.highlightedNode = -1;
         step.highlightedLine = 0;
-        copy(HSvalue,step.tempTable);
+        copyNode(HSvalue,step.tempTable);
         stepmanager.step.push_back(step);
         int index = box.someList[i] % box.primeNumber;
         ListNode* newNode = new ListNode(box.someList[i]);
@@ -314,7 +338,7 @@ void HTable::insertData() {
             HSvalue[index] = newNode;
             step.highlightedNode = HSvalue[index]->ID;
             step.highlightedLine = 2;
-            copy(HSvalue,step.tempTable);
+            copyNode(HSvalue,step.tempTable);
             stepmanager.step.push_back(step);
             continue;
         }
@@ -322,14 +346,14 @@ void HTable::insertData() {
         while (curr->next) {
             step.highlightedNode = curr->ID;
             step.highlightedLine = 5;
-            copy(HSvalue,step.tempTable);
+            copyNode(HSvalue,step.tempTable);
             stepmanager.step.push_back(step);
             curr = curr->next;
         }
         curr->next = newNode;
         step.highlightedNode = curr->next->ID;
         step.highlightedLine = 6;
-        copy(HSvalue,step.tempTable);
+        copyNode(HSvalue,step.tempTable);
         stepmanager.step.push_back(step);
     }
     printHTable(HSvalue);
@@ -355,13 +379,13 @@ void HTable::deleteData() {
     for (int i = 0; i < box.someList.size(); ++i) {
         step.highlightedNode = -1;
         step.highlightedLine = 0;
-        copy(HSvalue,step.tempTable);
+        copyNode(HSvalue,step.tempTable);
         stepmanager.step.push_back(step);
         int index = box.someList[i] % box.primeNumber;
         if (!HSvalue[index]) {
             step.highlightedLine = 1;
             step.description.push_back("Index " + std::to_string(index) + " does not has value");
-            copy(HSvalue,step.tempTable);
+            copyNode(HSvalue,step.tempTable);
             stepmanager.step.push_back(step);
             continue;
         }
@@ -372,7 +396,7 @@ void HTable::deleteData() {
             delete tmp;
             step.highlightedLine = 3;
             step.description.push_back("Index " + std::to_string(index) + " does not has value");
-            copy(HSvalue,step.tempTable);
+            copyNode(HSvalue,step.tempTable);
             stepmanager.step.push_back(step);
             continue;
         }
@@ -381,7 +405,7 @@ void HTable::deleteData() {
         while (curr->next && curr->next->val != box.someList[i]) {
             step.highlightedNode = curr->ID;
             step.highlightedLine = 5;
-            copy(HSvalue,step.tempTable);
+            copyNode(HSvalue,step.tempTable);
             stepmanager.step.push_back(step);
             curr = curr->next;
         }
@@ -394,13 +418,13 @@ void HTable::deleteData() {
             step.highlightedNode = curr->ID;
             step.highlightedLine = 9;
             step.description.push_back("Delete " + to_string(box.someList[i]) + " successfully");
-            copy(HSvalue,step.tempTable);
+            copyNode(HSvalue,step.tempTable);
             stepmanager.step.push_back(step);
         } else {
             step.highlightedNode = curr->ID;
             step.highlightedLine = 9;
             step.description.push_back(to_string(box.someList[i]) + " has not been inserted yet.");
-            copy(HSvalue,step.tempTable);
+            copyNode(HSvalue,step.tempTable);
             stepmanager.step.push_back(step);
         }
     }
@@ -422,12 +446,12 @@ void HTable::searchData() {
         int index = box.someList[i] % box.primeNumber;
         step.highlightedNode = -1;
         step.highlightedLine = 0;
-        copy(HSvalue,step.tempTable);
+        copyNode(HSvalue,step.tempTable);
         stepmanager.step.push_back(step);
         if (!HSvalue[index]) {
             step.highlightedLine = 1;
             step.description.push_back("Index " + std::to_string(index) + " does not has value");
-            copy(HSvalue,step.tempTable);
+            copyNode(HSvalue,step.tempTable);
             stepmanager.step.push_back(step);
             continue;
         }
@@ -435,7 +459,7 @@ void HTable::searchData() {
         while (curr && curr->val != box.someList[i]) {
             step.highlightedNode = curr->ID;
             step.highlightedLine = 3;
-            copy(HSvalue,step.tempTable);
+            copyNode(HSvalue,step.tempTable);
             stepmanager.step.push_back(step);
             curr = curr->next;
         }
@@ -443,13 +467,13 @@ void HTable::searchData() {
             step.highlightedNode = curr->ID;
             step.highlightedLine = 4;
             step.description.push_back("Value " + to_string(box.someList[i]) + " is found");
-            copy(HSvalue,step.tempTable);
+            copyNode(HSvalue,step.tempTable);
             stepmanager.step.push_back(step);
         } else {
             step.highlightedNode = -1;
             step.highlightedLine = 4;
             step.description.push_back("Value " + to_string(box.someList[i]) + " is not found");
-            copy(HSvalue,step.tempTable);
+            copyNode(HSvalue,step.tempTable);
             stepmanager.step.push_back(step);
         }
     }

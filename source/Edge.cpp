@@ -5,7 +5,7 @@ void Edge::draw() {
    float dis = std::sqrt(diff.x * diff.x + diff.y * diff.y);
    Vector2 point1 = {(30 * endPoint2->position.x - (30 - dis) * endPoint1->position.x) / dis, (30 * endPoint2->position.y - (30 - dis) * endPoint1->position.y) / dis};
    Vector2 point2 = {((dis - 30) * endPoint2->position.x + 30 * endPoint1->position.x) / dis, ((dis - 30) * endPoint2->position.y + 30 * endPoint1->position.y) / dis};
-   DrawLineEx(point1,point2,5,BLACK);
+   DrawLineEx(point1,point2,5,Fade(BLACK,alpha));
 }
 
 void Edge::drawHighlighted() {
@@ -13,5 +13,5 @@ void Edge::drawHighlighted() {
     float dis = std::sqrt(diff.x * diff.x + diff.y * diff.y);
     Vector2 point1 = {(30 * endPoint2->position.x - (30 - dis) * endPoint1->position.x) / dis, (30 * endPoint2->position.y - (30 - dis) * endPoint1->position.y) / dis};
     Vector2 point2 = {((dis - 30) * endPoint2->position.x + 30 * endPoint1->position.x) / dis, ((dis - 30) * endPoint2->position.y + 30 * endPoint1->position.y) / dis};
-    DrawLineEx(point1,point2,5,RED);
+    DrawLineEx(point1,point2,5,Fade(RED,alpha));
 }

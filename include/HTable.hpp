@@ -17,8 +17,17 @@ class HTable: public Logic, public View {
                 }
         };
         std::vector<ListNode*> HSvalue;
+        std::vector<Edge*> edge;
+        std::chrono::time_point<std::chrono::steady_clock> lastUpdateTime;
+        float accumulatedTime = 0.0f;
+        const float stepDuration = 0.5f;
         void init();
         void draw();
+        void calculatePosition(std::vector<ListNode*> table);
+        void calculatePosition(std::vector<Node*> table);
+        void drawNode(std::vector<ListNode*> table, int highlight);
+        void drawNode(std::vector<Node*> table, int highlight);
+        void drawEdge(std::vector<Edge*> edge);
         void run();
         void exit();
         void remove();
@@ -26,10 +35,14 @@ class HTable: public Logic, public View {
         void insertData();
         void deleteData();
         void searchData();
-        void copy(std::vector<ListNode*> source, std::vector<Node*> &des);   
+        void copyNode(std::vector<ListNode*> source, std::vector<Node*> &des); 
+        void copyEdge(std::vector<Edge*> source, std::vector<Edge*> &des, ListNode* head);
+        ListNode* findNodebyID(std::vector<ListNode*> table, int ID);
+        Edge* findEdgebyEndPoint(std::vector<Edge*> list, int endPoint2ID);  
+        void prepareTransition();
+        void safeRemoveEdge(int nodeID);
         void printHTable(std::vector<Node*> table); 
         void printHTable(std::vector<ListNode*> table); 
 };
 
 #endif
-//

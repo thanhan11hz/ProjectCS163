@@ -19,20 +19,19 @@ void AVL::draw() {
             Animation currAnimation = currStep.animQueue.animation.front();
             Step& prevStep = stepmanager.step[stepmanager.currentStep - 1];
             if (currAnimation.type == AnimateType::DELETION) {
-                drawNode((TreeNode*)prevStep.tempRoot,currStep.highlightedNode);
                 drawEdge(prevStep.tempEdge);
+                drawNode((TreeNode*)prevStep.tempRoot,currStep.highlightedNode);
             } else if (currAnimation.type == AnimateType::MOVEMENT) {
-                drawNode((TreeNode*)prevStep.tempRoot,currStep.highlightedNode);
                 drawEdge(prevStep.tempEdge);
+                drawNode((TreeNode*)prevStep.tempRoot,currStep.highlightedNode);
             } else if (currAnimation.type == AnimateType::INSERTION) {
-                drawNode((TreeNode*)currStep.tempRoot,currStep.highlightedNode);
-                std::cout<<currStep.tempEdge.size();
                 drawEdge(currStep.tempEdge);
+                drawNode((TreeNode*)currStep.tempRoot,currStep.highlightedNode);
             }
         } else {
             calculatePositions((TreeNode*)currStep.tempRoot,980,120,0);
-            drawNode((TreeNode*)currStep.tempRoot,currStep.highlightedNode);
             drawEdge(currStep.tempEdge);
+            drawNode((TreeNode*)currStep.tempRoot,currStep.highlightedNode);
         }
     } else {
         calculatePositions(root,980,120,0);
@@ -121,16 +120,22 @@ void AVL::run() {
         stepmanager.isPlaying = true;
         panel.isPlaying = true;
     }
+    auto now = std::chrono::steady_clock::now();
+    float deltaTime = std::chrono::duration<float>(now - lastUpdateTime).count();
+    lastUpdateTime = now;
     if (stepmanager.isPlaying && stepmanager.currentStep < stepmanager.step.size() - 1) {
-        if (stepmanager.isTransitioning) {
-            stepmanager.updateTransitionProgress();
-            if (stepmanager.isTransitionComplete()) stepmanager.finishTransition();
-        } else {
-            stepmanager.nextStep();
-            prepareTransition();
+        accumulatedTime += deltaTime * stepmanager.speed;
+        while (accumulatedTime >= stepDuration && stepmanager.isPlaying) {
+            accumulatedTime -= stepDuration;
+            if (stepmanager.isTransitioning) {
+                stepmanager.updateTransitionProgress();
+                if (stepmanager.isTransitionComplete()) stepmanager.finishTransition();
+            } else {
+                stepmanager.nextStep();
+                prepareTransition();
+            }
         }
         draw();
-        std::this_thread::sleep_for(std::chrono::milliseconds((int)(800 / stepmanager.speed)));
     } else {
         stepmanager.isPlaying = false;
         panel.isPlaying = false; 
@@ -316,9 +321,8 @@ void AVL::leftRotate(TreeNode* &node) {
     TreeNode* x = node->right;
     TreeNode* z = x->left;
     x->left=node;
-    safeRemoveEdge(x->ID);
-    Edge *line = new Edge(x,node);
-    edge.push_back(line);
+    Edge* line = findEdgebyEndPoint(edge,x->ID);
+    std::swap(line->endPoint1,line->endPoint2);
     TreeNode* parent = findParent(root,node->ID);
     if (parent) {
         safeRemoveEdge(node->ID);
@@ -340,9 +344,8 @@ void AVL::rightRotate(TreeNode* &node) {
     TreeNode* x = node->left;
     TreeNode* z = x->right;
     x->right=node;
-    safeRemoveEdge(x->ID);
-    Edge *line = new Edge(x,node);
-    edge.push_back(line);
+    Edge* line = findEdgebyEndPoint(edge,x->ID);
+    std::swap(line->endPoint1,line->endPoint2);
     TreeNode* parent = findParent(root,node->ID);
     if (parent) {
         safeRemoveEdge(node->ID);
@@ -387,67 +390,54 @@ void AVL::initData() {
 void AVL::insertData() {
     if (box.someList.empty()) return;
     code.codeline = {
-        "if (node == nullptr)                                             ",
-        "{    node = new TreeNode(key); return;                           ",
-        "if (node->val == key) return;                                    ",
-        "else if (node->val > key) insertNode(node->left,key);            ",
-        "else insertNode(node->right,key,root,step);                      ",
-        "node->height=1+max(getHeight(node->left),getHeight(node->right));",
-        "int bl = balanceFactor(node);                                    ",
-        "if (bl > 1 && node->left->val > key)                             ",
-        "{   return rightRotate(node);}                                   ",
-        "if (bl > 1 && node->left->val < key)                             ",
-        "{   leftRotate(node->left);                                      ",
-        "    rightRotate(node);}                                          ",
-        "if (bl < -1 && node->right->val < key)                           ",
-        "{   leftRotate(node);}                                           ",
-        "if (bl < -1 && node->right->val > key)                           ",
-        "{   rightRotate(node->right);                                    ",
-        "    leftRotate(node);        }                                   "
+        "if !n: return new Node(k)                          ",
+        "if k == n.val: return n                            ",
+        "k < n.val ? insert(n.left,k) : insert(n.right,k)   ",
+        "n.height = 1 + max(height(n.left), height(n.right))",
+        "b = balance(n)                                     ",
+        "if b > 1:                                          ",
+        "  if k < n.left.val: rightRot(n)                   ",
+        "  else: leftRot(n.left), rightRot(n)               ",
+        "if b < -1:                                         ",
+        "  if k > n.right.val: leftRot(n)                   ",
+        "  else: rightRot(n.right), leftRot(n)              ",
+        "return n                                           "
     };
     Step step;
     for (int i = 0; i < box.someList.size(); ++i) {
         insertNode(root,box.someList[i],step);
     }
-    // for (int i = 0; i < stepmanager.step.size(); ++i) {
-    //     for (int j = 0; j < stepmanager.step[i].tempEdge.size(); ++j) {
-    //         std::cout<<stepmanager.step[i].tempEdge[j]->ID<<" ";
-    //     }
-    //     std::cout<<std::endl;
-    // }
+    for (int i = 0; i < stepmanager.step.size(); ++i) {
+        for (int j = 0; j < stepmanager.step[i].tempEdge.size(); ++j) {
+            std::cout<<stepmanager.step[i].tempEdge[j]->ID<<" ";
+        }
+        std::cout<<std::endl;
+    }
     box.someList.clear();
 }
 
 void AVL::deleteData() {
     if (box.someList.empty()) return;
     code.codeline = {
-        "if (node == nullptr) return;                                         ",
-        "if (node->val > key) delete(node->left,key);                         ",
-        "else if (node->val < key) delete(node->right,key);                   ",
-        "else { if (!node->left)                                              ",
-        "        {   Node* tmp = node->right;                                 ",
-        "            delete node;                                             ",
-        "            node = tmp;                 }                            ",
-        "        if (!node->right)                                            ",
-        "        {   Node* tmp = node->left;                                  ",
-        "            delete node;                                             ",
-        "            node = tmp;                }                             ",
-        "        Node* succ = getSuccessor(node);                             ",
-        "        node->val=succ->val;                                         ",
-        "        deleteNode(node->right,succ->val,root,step);  }              ",
-        "if (!node) return;                                                   ",
-        "node->height = 1 + max(getHeight(node->left),getHeight(node->right));",
-        "int bf = balanceFactor(node);                                        ",
-        "if (bf > 1 && balanceFactor(node->left) >= 0)                        ",
-        "{   rightRotate(node);}                                              ",
-        "if (bf > 1 && balanceFactor(node->left) < 0)                         ",
-        "{   leftRotate(node->left);                                          ",
-        "    rightRotate(node);}                                              ",
-        "if (bf < -1 && balanceFactor(node->right) <= 0)                      ",
-        "{   leftRotate(node);}                                               ",
-        "if (bf < -1 && balanceFactor(node->right) > 0)                       ",
-        "{   rightRotate(node->right);                                        ",
-        "    leftRotate(node);}                                               "
+        "if !n: return                                      ",
+        "if k < n.val: delete(n.left, k)                    ",
+        "else if k > n.val: delete(n.right, k)              ",
+        "else:                                              ",
+        "  if !n.left: n = n.right                          ",
+        "  else if !n.right: n = n.left                     ",
+        "  else:                                            ",
+        "    s = getSuccessor(n)                            ",
+        "    n.val = s.val                                  ",
+        "    delete(n.right, s.val)                         ",
+        "if !n: return                                      ",
+        "n.height = 1 + max(height(n.left), height(n.right))",
+        "bf = balance(n)                                    ",
+        "if bf > 1:                                         ",
+        "  if balance(n.left) >= 0: rightRot(n)             ",
+        "  else: leftRot(n.left), rightRot(n)               ",
+        "if bf < -1:                                        ",
+        "  if balance(n.right) <= 0: leftRot(n)             ",
+        " else: rightRot(n.right), leftRot(n)               "
     };
     Step step;
     for (int i = 0; i < box.someList.size(); ++i) {
@@ -459,21 +449,14 @@ void AVL::deleteData() {
 void AVL::searchData() {
     if (box.someList.empty()) return;
     code.codeline = {
-        "if (!root) return false;                                ",
-        "if (root->val == key) return true;                      ",
-        "else if (root->val > key) return search(root->left,key);",
-        "else return search(root->right,key);                    "
+        "if !root: return false                         ",
+        "if root.val == key: return true                ",
+        "if key < root.val: return search(root.left,key)",
+        "else: return search(root.right,key)            ",
     };
     Step step;
     for (int i = 0; i < box.someList.size(); ++i) {
         searchNode(root,box.someList[i],step);
-    }
-    std::cout<<stepmanager.step.size();
-    for (int i = 0; i < stepmanager.step.size(); ++i) {
-        for (auto x: stepmanager.step[i].description) {
-            std::cout<<x<<" ";
-        }
-        std::cout<<std::endl;
     }
     box.someList.clear();
 }
@@ -494,7 +477,7 @@ void AVL::insertNode(TreeNode* &node, int key, Step step) {
             Edge* line = new Edge(parent,node);
             edge.push_back(line);
         }
-        step.highlightedLine = 1;
+        step.highlightedLine = 0;
         step.highlightedNode = node->ID;
         copyNode(root,tmp);
         step.tempRoot = tmp;
@@ -504,9 +487,8 @@ void AVL::insertNode(TreeNode* &node, int key, Step step) {
         return;
     }
     if (node->val == key) {
-        step.highlightedLine = 2;
-        step.highlightedNode = node->val;
-        step.description.push_back("");
+        step.highlightedLine = 1;
+        step.highlightedNode = node->ID;
         copyNode(root,tmp);
         step.tempRoot = tmp;
         tmp = nullptr;
@@ -515,8 +497,8 @@ void AVL::insertNode(TreeNode* &node, int key, Step step) {
         return;
     }
     else if (node->val > key) {
-        step.highlightedLine = 3;
-        step.highlightedNode = node->val;
+        step.highlightedLine = 2;
+        step.highlightedNode = node->ID;
         copyNode(root,tmp);
         step.tempRoot = tmp;
         tmp = nullptr;
@@ -524,8 +506,8 @@ void AVL::insertNode(TreeNode* &node, int key, Step step) {
         stepmanager.step.push_back(step);
         insertNode(node->left,key,step);
     } else {
-        step.highlightedLine = 4;
-        step.highlightedNode = node->val;
+        step.highlightedLine = 2;
+        step.highlightedNode = node->ID;
         copyNode(root,tmp);
         step.tempRoot = tmp;
         tmp = nullptr;
@@ -533,15 +515,15 @@ void AVL::insertNode(TreeNode* &node, int key, Step step) {
         stepmanager.step.push_back(step);
         insertNode(node->right,key,step);
     }
-    step.highlightedLine = 5;
-    step.highlightedNode = node->val;
+    step.highlightedLine = 3;
+    step.highlightedNode = node->ID;
     copyNode(root,tmp);
     step.tempRoot = tmp;
     tmp = nullptr;
     copyEdge(edge,step.tempEdge,(TreeNode*)step.tempRoot);
     stepmanager.step.push_back(step);
-    step.highlightedLine = 6;
-    step.highlightedNode = node->val;
+    step.highlightedLine = 4;
+    step.highlightedNode = node->ID;
     copyNode(root,tmp);
     step.tempRoot = tmp;
     tmp = nullptr;
@@ -551,16 +533,10 @@ void AVL::insertNode(TreeNode* &node, int key, Step step) {
     int bl = balanceFactor(node);
 
     if (bl > 1 && node->left->val > key) {
-        step.highlightedLine = 7;
-        step.highlightedNode = node->val;
-        copyNode(root,tmp);
-        step.tempRoot = tmp;
-        tmp = nullptr;
-        copyEdge(edge,step.tempEdge,(TreeNode*)step.tempRoot);
-        stepmanager.step.push_back(step);
         rightRotate(node);
-        step.highlightedLine = -1;
-        copyNode(root, tmp);
+        step.highlightedLine = 6;
+        step.highlightedNode = node->ID;
+        copyNode(root,tmp);
         step.tempRoot = tmp;
         tmp = nullptr;
         copyEdge(edge,step.tempEdge,(TreeNode*)step.tempRoot);
@@ -568,22 +544,16 @@ void AVL::insertNode(TreeNode* &node, int key, Step step) {
     }
 
     if (bl > 1 && node->left->val < key) {
-        step.highlightedLine = 8;
-        step.highlightedNode = node->val;
+        leftRotate(node->left);
+        step.highlightedLine = 7;
+        step.highlightedNode = node->left->ID;
         copyNode(root,tmp);
         step.tempRoot = tmp;
         tmp = nullptr;
         copyEdge(edge,step.tempEdge,(TreeNode*)step.tempRoot);
         stepmanager.step.push_back(step);
-        leftRotate(node->left);
-        step.highlightedLine = -1;
-        copyNode(root, tmp);
-        step.tempRoot = tmp;
-        tmp = nullptr;
-        copyEdge(edge,step.tempEdge,(TreeNode*)step.tempRoot);
-        stepmanager.step.push_back(step);
         rightRotate(node);
-        step.highlightedLine = -1;
+        step.highlightedNode = node->ID;
         copyNode(root, tmp);
         step.tempRoot = tmp;
         tmp = nullptr;
@@ -592,16 +562,10 @@ void AVL::insertNode(TreeNode* &node, int key, Step step) {
     }
 
     if (bl < -1 && node->right->val < key) {
-        step.highlightedLine = 9;
-        step.highlightedNode = node->val;
-        copyNode(root,tmp);
-        step.tempRoot = tmp;
-        tmp = nullptr;
-        copyEdge(edge,step.tempEdge,(TreeNode*)step.tempRoot);
-        stepmanager.step.push_back(step);
         leftRotate(node);
-        step.highlightedLine = -1;
-        copyNode(root, tmp);
+        step.highlightedLine = 9;
+        step.highlightedNode = node->ID;
+        copyNode(root,tmp);
         step.tempRoot = tmp;
         tmp = nullptr;
         copyEdge(edge,step.tempEdge,(TreeNode*)step.tempRoot);
@@ -609,22 +573,16 @@ void AVL::insertNode(TreeNode* &node, int key, Step step) {
     }
 
     if (bl < -1 && node->right->val > key) {
+        rightRotate(node->right);
         step.highlightedLine = 10;
-        step.highlightedNode = node->val;
+        step.highlightedNode = node->right->ID;
         copyNode(root,tmp);
         step.tempRoot = tmp;
         tmp = nullptr;
         copyEdge(edge,step.tempEdge,(TreeNode*)step.tempRoot);
         stepmanager.step.push_back(step);
-        rightRotate(node->right);
-        step.highlightedLine = -1;
-        copyNode(root, tmp);
-        step.tempRoot = tmp;
-        tmp = nullptr;
-        copyEdge(edge,step.tempEdge,(TreeNode*)step.tempRoot);
-        stepmanager.step.push_back(step);
         leftRotate(node);
-        step.highlightedLine = -1;
+        step.highlightedNode = node->ID;
         copyNode(root, tmp);
         step.tempRoot = tmp;
         tmp = nullptr;
@@ -667,14 +625,8 @@ void AVL::deleteNode(TreeNode* &node, int key, Step step) {
         deleteNode(node->right,key,step);
     } else {
         if (!node->left) {
-            step.highlightedLine = 3;
-            step.highlightedNode = node->ID;
-            copyNode(root,tmp);
-            step.tempRoot = tmp;
-            tmp = nullptr;
-            copyEdge(edge,step.tempEdge,(TreeNode*)step.tempRoot);
-            stepmanager.step.push_back(step);
             step.highlightedLine = 4;
+            step.highlightedNode = node->ID;
             copyNode(root,tmp);
             step.tempRoot = tmp;
             tmp = nullptr;
@@ -689,15 +641,9 @@ void AVL::deleteNode(TreeNode* &node, int key, Step step) {
             }
             delete node;
             node = tmp;
-            step.highlightedLine = 5;
+            step.highlightedLine = 4;
             if (node) step.highlightedNode = node->ID;
             else step.highlightedNode = -1;
-            copyNode(root,tmp);
-            step.tempRoot = tmp;
-            tmp = nullptr;
-            copyEdge(edge,step.tempEdge,(TreeNode*)step.tempRoot);
-            stepmanager.step.push_back(step);
-            step.highlightedLine = 6;
             copyNode(root,tmp);
             step.tempRoot = tmp;
             tmp = nullptr;
@@ -706,14 +652,8 @@ void AVL::deleteNode(TreeNode* &node, int key, Step step) {
             return;
         }
         if (!node->right) {
-            step.highlightedLine = 7;
+            step.highlightedLine = 5;
             step.highlightedNode = node->ID;
-            copyNode(root,tmp);
-            step.tempRoot = tmp;
-            tmp = nullptr;
-            copyEdge(edge,step.tempEdge,(TreeNode*)step.tempRoot);
-            stepmanager.step.push_back(step);
-            step.highlightedLine = 8;
             copyNode(root,tmp);
             step.tempRoot = tmp;
             tmp = nullptr;
@@ -728,7 +668,7 @@ void AVL::deleteNode(TreeNode* &node, int key, Step step) {
             }
             delete node;
             node = tmp;
-            step.highlightedLine = 9;
+            step.highlightedLine = 5;
             if (node) step.highlightedNode = node->ID;
             else step.highlightedNode = -1;
             copyNode(root,tmp);
@@ -736,31 +676,21 @@ void AVL::deleteNode(TreeNode* &node, int key, Step step) {
             tmp = nullptr;
             copyEdge(edge,step.tempEdge,(TreeNode*)step.tempRoot);
             stepmanager.step.push_back(step);
-            step.highlightedLine = 10;
-            step.tempRoot = tmp;
-            tmp = nullptr;
-            stepmanager.step.push_back(step);
             return;
         }
-        step.highlightedLine = 11;
+        step.highlightedLine = 7;
         step.highlightedNode = node->ID;
         copyNode(root,tmp);
         step.tempRoot = tmp;
         tmp = nullptr;
         copyEdge(edge,step.tempEdge,(TreeNode*)step.tempRoot);
-        stepmanager.step.push_back(step);
-        step.highlightedLine = 12;
-        copyNode(root,tmp);
-        step.tempRoot = tmp;
-        tmp = nullptr;
-        copyEdge(edge,step.tempEdge,(TreeNode*)step.tempRoot);
-        stepmanager.step.push_back(step);        
+        stepmanager.step.push_back(step);       
         TreeNode* succ = getSuccessor(node);
         node->val=succ->val;
         deleteNode(node->right,succ->val,step);
     }
     if (!node) {
-        step.highlightedLine = 13;
+        step.highlightedLine = 10;
         step.highlightedNode = node->ID;
         copyNode(root,tmp);
         step.tempRoot = tmp;
@@ -769,14 +699,7 @@ void AVL::deleteNode(TreeNode* &node, int key, Step step) {
         stepmanager.step.push_back(step);
         return;
     }
-    step.highlightedLine = 14;
-    step.highlightedNode = node->ID;
-    copyNode(root,tmp);
-    step.tempRoot = tmp;
-    tmp = nullptr;
-    copyEdge(edge,step.tempEdge,(TreeNode*)step.tempRoot);
-    stepmanager.step.push_back(step);
-    step.highlightedLine = 15;
+    step.highlightedLine = 11;
     step.highlightedNode = node->ID;
     copyNode(root,tmp);
     step.tempRoot = tmp;
@@ -786,15 +709,8 @@ void AVL::deleteNode(TreeNode* &node, int key, Step step) {
     node->height = 1 + std::max(getHeight(node->left),getHeight(node->right));
     int bf = balanceFactor(node);
     if (bf > 1 && balanceFactor(node->left) >= 0) {
-        step.highlightedLine = 16;
-        step.highlightedNode = node->ID;
-        copyNode(root,tmp);
-        step.tempRoot = tmp;
-        tmp = nullptr;
-        copyEdge(edge,step.tempEdge,(TreeNode*)step.tempRoot);
-        stepmanager.step.push_back(step);
         rightRotate(node);
-        step.highlightedLine = -1;
+        step.highlightedLine = 14;
         step.highlightedNode = node->ID;
         copyNode(root,tmp);
         step.tempRoot = tmp;
@@ -803,23 +719,15 @@ void AVL::deleteNode(TreeNode* &node, int key, Step step) {
         stepmanager.step.push_back(step);
     }
     if (bf > 1 && balanceFactor(node->left) < 0) {
-        step.highlightedLine = 18;
-        step.highlightedNode = node->ID;
-        copyNode(root,tmp);
-        step.tempRoot = tmp;
-        tmp = nullptr;
-        copyEdge(edge,step.tempEdge,(TreeNode*)step.tempRoot);
-        stepmanager.step.push_back(step);
         leftRotate(node->left);
-        step.highlightedLine = -1;
-        step.highlightedNode = node->ID;
+        step.highlightedLine = 15;
+        step.highlightedNode = node->left->ID;
         copyNode(root,tmp);
         step.tempRoot = tmp;
         tmp = nullptr;
         copyEdge(edge,step.tempEdge,(TreeNode*)step.tempRoot);
         stepmanager.step.push_back(step);
         rightRotate(node);
-        step.highlightedLine = -1;
         step.highlightedNode = node->ID;
         copyNode(root,tmp);
         step.tempRoot = tmp;
@@ -828,33 +736,20 @@ void AVL::deleteNode(TreeNode* &node, int key, Step step) {
         stepmanager.step.push_back(step);
     }
     if (bf < -1 && balanceFactor(node->right) <= 0) {
-        step.highlightedLine = 21;
-        step.highlightedNode = node->ID;
-        copyNode(root,tmp);
-        step.tempRoot = tmp;
-        tmp = nullptr;
-        copyEdge(edge,step.tempEdge,(TreeNode*)step.tempRoot);
-        stepmanager.step.push_back(step);
         leftRotate(node);
-        step.highlightedLine = -1;
+        step.highlightedLine = 17;
         step.highlightedNode = node->ID;
         copyNode(root,tmp);
         step.tempRoot = tmp;
         tmp = nullptr;
         copyEdge(edge,step.tempEdge,(TreeNode*)step.tempRoot);
         stepmanager.step.push_back(step);
+        
     }
     if (bf < -1 && balanceFactor(node->right) > 0) {
-        step.highlightedLine = 23;
-        step.highlightedNode = node->ID;
-        copyNode(root,tmp);
-        step.tempRoot = tmp;
-        tmp = nullptr;
-        copyEdge(edge,step.tempEdge,(TreeNode*)step.tempRoot);
-        stepmanager.step.push_back(step);
         rightRotate(node->right);
-        step.highlightedLine = -1;
-        step.highlightedNode = node->ID;
+        step.highlightedLine = 18;
+        step.highlightedNode = node->right->ID;
         copyNode(root,tmp);
         step.tempRoot = tmp;
         tmp = nullptr;

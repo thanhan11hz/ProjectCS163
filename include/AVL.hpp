@@ -21,7 +21,10 @@ class AVL : public Logic, public View {
             }
         };
         TreeNode* root = nullptr;
-        std::vector<Edge*> edge;   
+        std::vector<Edge*> edge;
+        std::chrono::time_point<std::chrono::steady_clock> lastUpdateTime;
+        float accumulatedTime = 0.0f;
+        const float stepDuration = 0.5f;         
         void init();
         void draw();
         void calculatePositions(TreeNode* node, int x, int y, int level);
