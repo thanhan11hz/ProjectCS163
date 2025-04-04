@@ -146,9 +146,8 @@ class View {
         void eventView();
         virtual void exit() = 0;
 
-        
-    private:
-        
+        Camera2D camera;
+
 };
 
 #endif

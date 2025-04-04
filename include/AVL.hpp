@@ -21,10 +21,19 @@ class AVL : public Logic, public View {
             }
         };
         TreeNode* root = nullptr;
-        std::vector<Edge*> edge;   
+        std::vector<Edge*> edge;
+        std::chrono::time_point<std::chrono::steady_clock> lastUpdateTime;
+        float accumulatedTime = 0.0f;
+        const float stepDuration = 0.5f;         
         void init();
         void draw();
-        void calculatePositions(TreeNode* node, int x, int y, int level);
+        std::unordered_map<TreeNode*, int> subtreeWidth;
+        int calculateSubtreeWidth(TreeNode* node);
+        int countRightmost(TreeNode* node);
+        int countLeftmost(TreeNode* node);
+        void calculatePositions(TreeNode* node, int x, int y);
+        void resetAlphaNode(TreeNode* node);
+        void resetAlphaEdge(std::vector<Edge*> edge);
         void drawEdge(std::vector<Edge*> edge);
         void drawNode(TreeNode* node, int highlightNode);
         void run();

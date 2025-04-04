@@ -18,12 +18,17 @@ class SLList: public Logic, public View {
                 }
         };
         ListNode *root = nullptr;
-        std::vector<Edge*> edge;        
+        std::vector<Edge*> edge;
+        std::chrono::time_point<std::chrono::steady_clock> lastUpdateTime;
+        float accumulatedTime = 0.0f;
+        const float stepDuration = 0.5f;        
         void init();
         void draw();
         void calculatePosition(ListNode* head);
         void drawNode(ListNode* head, int highlight);
         void drawEdge(std::vector<Edge*> edge);
+        void resetAlphaNode(ListNode* head);
+        void resetAlphaEdge(std::vector<Edge*> edge);
         void run();
         void remove();
         void exit();

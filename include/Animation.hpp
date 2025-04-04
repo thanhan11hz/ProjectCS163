@@ -16,7 +16,7 @@ class Animation {
         std::vector<Edge*> insertedEdge;
         std::vector<std::pair<Node*,Node*>> movedNode;
         float progress = 0.0f;
-        float duration = 1.0f;
+        float duration = 0.5f;
         Animation() {}
 };
 
