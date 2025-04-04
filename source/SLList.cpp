@@ -15,6 +15,8 @@ void SLList::draw() {
         log.infor = currStep.description;
         code.lineHighlighted = currStep.highlightedLine;
         drawView();
+        BeginScissorMode(400,80,1040,640);
+        BeginMode2D(camera);
         if (stepmanager.isTransitioning) {
             Animation currAnimation = currStep.animQueue.animation.front();
             Step& prevStep = stepmanager.step[stepmanager.currentStep - 1];
@@ -29,15 +31,24 @@ void SLList::draw() {
                 drawNode((ListNode*)currStep.tempRoot,currStep.highlightedNode);
             }
         } else {
+            std::cout<<1;
             calculatePosition((ListNode*)currStep.tempRoot);
+            resetAlphaEdge(currStep.tempEdge);
+            resetAlphaNode((ListNode*)currStep.tempRoot);
             drawEdge(currStep.tempEdge);
             drawNode((ListNode*)currStep.tempRoot,currStep.highlightedNode);
             code.lineHighlighted = -1;
         }
+        EndMode2D();
+        EndScissorMode();
     } else {
+        BeginScissorMode(400,80,1040,640);
+        BeginMode2D(camera);
         calculatePosition(root);
         drawEdge(edge);
         drawNode(root,-1);
+        EndMode2D();
+        EndScissorMode();
     }
 }
 
@@ -85,6 +96,21 @@ void SLList::drawEdge(std::vector<Edge*> edge) {
     }
 }
 
+void SLList::resetAlphaNode(ListNode* head) {
+    if (!head) return;
+    ListNode* curr = head;
+    while (curr) {
+        curr->alpha = 1.0f;
+        curr = curr->next;
+    }
+}
+        
+void SLList::resetAlphaEdge(std::vector<Edge*> edge) {
+    for (int i = 0; i < edge.size(); ++i) {
+        edge[i]->alpha = 1.0f;
+    }
+}
+
 void SLList::run() {
     eventView();
 
@@ -126,8 +152,10 @@ void SLList::run() {
     } else if (panel.isForwardPressed()) {
         stepmanager.isPlaying = false;
         panel.isPlaying = false;
-        stepmanager.nextStep();
-        prepareTransition();
+        if (stepmanager.currentStep < stepmanager.step.size() - 1) {
+            stepmanager.nextStep();
+            prepareTransition();
+        }
     } else if (panel.isRewindPressed()) {
         stepmanager.isPlaying = false;
         panel.isPlaying = false;

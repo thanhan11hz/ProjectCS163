@@ -125,8 +125,7 @@ class View {
         void drawView();
         void eventView();
         virtual void exit() = 0;
-
-        
+        Camera2D camera;
 };
 
 #endif

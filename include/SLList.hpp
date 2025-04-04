@@ -27,6 +27,8 @@ class SLList: public Logic, public View {
         void calculatePosition(ListNode* head);
         void drawNode(ListNode* head, int highlight);
         void drawEdge(std::vector<Edge*> edge);
+        void resetAlphaNode(ListNode* head);
+        void resetAlphaEdge(std::vector<Edge*> edge);
         void run();
         void remove();
         void exit();

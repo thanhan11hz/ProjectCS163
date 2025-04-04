@@ -3,12 +3,52 @@ using namespace std;
 
 void HTable::init() {
     initView();
+    HSvalue.clear();
     stepmanager.currentStep = 0;
 }
 
 void HTable::draw() {
     drawView();
-    // if (HSvalue.empty()) return;
+    if (HSvalue.empty()) return;
+    if (!stepmanager.step.empty() && stepmanager.currentStep >= 0) {
+        Step currStep = stepmanager.step[stepmanager.currentStep];
+        log.infor = currStep.description;
+        code.lineHighlighted = currStep.highlightedLine;
+        drawView();
+        BeginScissorMode(400,80,1040,640);
+        BeginMode2D(camera);
+        if (stepmanager.isTransitioning) {
+            Animation currAnimation = currStep.animQueue.animation.front();
+            Step& prevStep = stepmanager.step[stepmanager.currentStep - 1];
+            if (currAnimation.type == AnimateType::DELETION) {
+                drawEdge(prevStep.tempEdge);
+                drawNode(prevStep.tempTable,currStep.highlightedNode);
+            } else if (currAnimation.type == AnimateType::MOVEMENT) {
+                drawEdge(prevStep.tempEdge);
+                drawNode(prevStep.tempTable,currStep.highlightedNode);
+            } else if (currAnimation.type == AnimateType::INSERTION) {
+                drawEdge(currStep.tempEdge);
+                drawNode(currStep.tempTable,currStep.highlightedNode);
+            }
+        } else {
+            calculatePosition(currStep.tempTable);
+            resetAlphaEdge(currStep.tempEdge);
+            resetAlphaNode(currStep.tempTable);
+            drawEdge(currStep.tempEdge);
+            drawNode(currStep.tempTable,currStep.highlightedNode);
+            code.lineHighlighted = -1;
+        }
+        EndMode2D();
+        EndScissorMode();
+    } else {
+        BeginScissorMode(400,80,1040,640);
+        BeginMode2D(camera);
+        calculatePosition(HSvalue);
+        drawEdge(edge);
+        drawNode(HSvalue,-1);
+        EndMode2D();
+        EndScissorMode();
+    }
     // if (!stepmanager.step.empty() && stepmanager.currentStep >= 0) {
     //     Step currStep = stepmanager.step[stepmanager.currentStep];
     //     std::vector<Node*> hash = currStep.tempTable;
@@ -92,11 +132,125 @@ void HTable::draw() {
 }
 
 void HTable::calculatePosition(std::vector<ListNode*> table) {
-    
+    int offsetY = 200;
+    int cellWidth = 60;
+    int cellHeight = 40;
+    int gap = 10;
+    int whiteAreaX = 400;
+    int whiteAreaWidth = 1440 - whiteAreaX;
+    int totalWidth = box.primeNumber * cellWidth + (box.primeNumber - 1) * gap;
+    int offsetX = whiteAreaX + (whiteAreaWidth - totalWidth) / 2;
+    for (int i = 0; i < table.size(); ++i) {
+        ListNode* curr = table[i];
+        int nodeOffsetY = offsetY + cellHeight + 20;
+        while (curr) {
+            curr->position = {
+                (float)(offsetX + i * (cellWidth + gap) + cellWidth / 2),
+                (float)(nodeOffsetY + 20)
+            };
+            curr = curr->next;
+            nodeOffsetY += 80;
+        }
+    }
 }
 
 void HTable::calculatePosition(std::vector<Node*> table) {
-    
+    int offsetY = 200;
+    int cellWidth = 60;
+    int cellHeight = 40;
+    int gap = 10;
+    int whiteAreaX = 400;
+    int whiteAreaWidth = 1440 - whiteAreaX;
+    int totalWidth = box.primeNumber * cellWidth + (box.primeNumber - 1) * gap;
+    int offsetX = whiteAreaX + (whiteAreaWidth - totalWidth) / 2;
+    for (int i = 0; i < table.size(); ++i) {
+        ListNode* curr = (ListNode*)table[i];
+        int nodeOffsetY = offsetY + cellHeight + 20;
+        while (curr) {
+            curr->position = {
+                (float)(offsetX + i * (cellWidth + gap) + cellWidth / 2),
+                (float)(nodeOffsetY + 20)
+            };
+            curr = curr->next;
+            nodeOffsetY += 80;
+        }
+    }
+}
+
+void HTable::drawNode(std::vector<ListNode*> table, int highlight) {
+    int offsetY = 200;
+    int cellWidth = 60;
+    int cellHeight = 40;
+    int gap = 10;
+    int whiteAreaX = 400;
+    int whiteAreaWidth = 1440 - whiteAreaX;
+    int totalWidth = box.primeNumber * cellWidth + (box.primeNumber - 1) * gap;
+    int offsetX = whiteAreaX + (whiteAreaWidth - totalWidth) / 2;
+    for (int i = 0; i < table.size(); ++i) {
+        DrawRectangle(offsetX + i * (cellWidth + gap), offsetY, cellWidth, cellHeight, LIGHTGRAY);
+        Vector2 textSize = MeasureTextEx(GetFontDefault(),std::to_string(i).c_str(),20,2);
+        Vector2 textPos = {
+            (float)(offsetX + i * (cellWidth + gap) + (cellWidth - textSize.x) / 2.0f),
+            (float)(offsetY + (cellHeight - textSize.y) / 2.0f)
+        };
+        DrawTextEx(GetFontDefault(), std::to_string(i).c_str(), textPos, 20, 2, BLACK);
+        ListNode* curr = table[i];
+        while (curr) {
+            if (curr->ID == highlight) curr->drawHighlight();
+            else curr->draw();
+            curr = curr->next;
+        }
+    }
+}
+
+void HTable::drawNode(std::vector<Node*> table, int highlight) {
+    int offsetY = 200;
+    int cellWidth = 60;
+    int cellHeight = 40;
+    int gap = 10;
+    int whiteAreaX = 400;
+    int whiteAreaWidth = 1440 - whiteAreaX;
+    int totalWidth = box.primeNumber * cellWidth + (box.primeNumber - 1) * gap;
+    int offsetX = whiteAreaX + (whiteAreaWidth - totalWidth) / 2;
+    for (int i = 0; i < table.size(); ++i) {
+        DrawRectangle(offsetX + i * (cellWidth + gap), offsetY, cellWidth, cellHeight, LIGHTGRAY);
+        Vector2 textSize = MeasureTextEx(GetFontDefault(),std::to_string(i).c_str(),20,2);
+        Vector2 textPos = {
+            (float)(offsetX + i * (cellWidth + gap) + (cellWidth - textSize.x) / 2.0f),
+            (float)(offsetY + (cellHeight - textSize.y) / 2.0f)
+        };
+        DrawTextEx(GetFontDefault(), std::to_string(i).c_str(), textPos, 20, 2, BLACK);
+        ListNode* curr = (ListNode*)table[i];
+        while (curr) {
+            if (curr->ID == highlight) curr->drawHighlight();
+            else curr->draw();
+            curr = curr->next;
+        }
+    }
+}
+
+void HTable::drawEdge(std::vector<Edge*> edge) {
+    for (int i = 0; i < edge.size(); ++i) {
+        if (edge[i]->endPoint1) edge[i]->draw();
+        else ;
+    }
+}
+
+void HTable::resetAlphaNode(std::vector<Node*> table) {
+    for (int i = 0; i < table.size(); ++i) {
+        if (!table[i]) continue;
+        ListNode* curr = (ListNode*) table[i];
+        while (curr) {
+            curr->alpha = 1.0f;
+            curr = curr->next;
+        }
+    }
+}
+
+void HTable::resetAlphaEdge(std::vector<Edge*> edge) {
+    for (int i = 0; i < edge.size(); ++i) {
+        edge[i]->alpha = 1.0f;
+    }
 }
 
 void HTable::run() {
@@ -122,7 +276,6 @@ void HTable::run() {
         box.enteredPrime = false;
         func = Function::SEARCH;
     }
-
     if (!box.isOpen && func != Function::NONE) {
         switch (func) {
             case Function::INIT:
@@ -131,7 +284,7 @@ void HTable::run() {
                 func = Function::NONE;
                 break;
             case Function::INSERT:
-                //remove();
+                remove();
                 insertData();
                 func = Function::NONE;
                 break;
@@ -156,8 +309,10 @@ void HTable::run() {
     } else if (panel.isForwardPressed()) {
         stepmanager.isPlaying = false;
         panel.isPlaying = false;
-        stepmanager.nextStep();
-        prepareTransition();
+        if (stepmanager.currentStep < stepmanager.step.size() - 1) {
+            stepmanager.nextStep();
+            prepareTransition();
+        }
     } else if (panel.isRewindPressed()) {
         stepmanager.isPlaying = false;
         panel.isPlaying = false;
@@ -208,6 +363,10 @@ void HTable::exit() {
             }
         }
     }
+    for (int j = 0; j < edge.size(); ++j) {
+        delete edge[j];
+        edge[j] = nullptr;
+    }
     for (int i = 0; i < stepmanager.step.size(); ++i) {
         for (int j = 0; j < stepmanager.step[i].tempTable.size(); ++j) {
             if (!stepmanager.step[i].tempTable[j]) continue;
@@ -219,9 +378,13 @@ void HTable::exit() {
             }
             stepmanager.step[i].tempTable[j] = nullptr;
         }
+        for (int j = 0; j < stepmanager.step[i].tempEdge.size(); ++j) {
+            delete stepmanager.step[i].tempEdge[j];
+        }
     }
     stepmanager.step.clear();
     stepmanager.currentStep = 0;
+    edge.clear();
 }
 
 void HTable::remove(){
@@ -236,6 +399,9 @@ void HTable::remove(){
                 curr = nextNode;
             }
             stepmanager.step[i].tempTable[j] = nullptr;
+        }
+        for (int j = 0; j < stepmanager.step[i].tempEdge.size(); ++j) {
+            delete stepmanager.step[i].tempEdge[j];
         }
     }
     stepmanager.step.clear();
@@ -264,6 +430,116 @@ void HTable::copyNode(std::vector<ListNode*> source, std::vector<Node*> &des) {
             head2->ID = head1->ID;
             head2->position = head1->position;
             head1 = head1->next;
+        }
+    }
+}
+
+void HTable::copyEdge(std::vector<Edge*> source, std::vector<Edge*> &des, std::vector<Node*> table) {
+    if (source.size() == 0) {
+        des.clear();
+        return;
+    }
+    des.resize(source.size());
+    for (int i = 0; i < source.size(); ++i) {
+        des[i] = new Edge(findNodebyID(table,source[i]->endPoint1->ID),findNodebyID(table,source[i]->endPoint2->ID));
+        des[i]->ID = source[i]->ID;
+    }
+}
+
+HTable::ListNode* HTable::findNodebyID(std::vector<Node*> table, int ID) {
+    if (table.size() == 0) return nullptr;
+    for (int i = 0; i < table.size(); ++i) {
+        ListNode* curr = (ListNode*) table[i];
+        if (!curr) continue;
+        while (curr) {
+            if (curr->ID == ID) return curr;
+            curr = curr->next;
+        }
+    }
+    return nullptr;
+}
+
+Edge* HTable::findEdgebyEndPoint(std::vector<Edge*> list, int endPoint2ID) {
+    if (list.size() == 0) return nullptr;
+    for (int i = 0; i < list.size(); ++i) {
+        if (list[i]->endPoint2->ID == endPoint2ID) return list[i];
+    }
+    return nullptr;
+}
+
+void HTable::prepareTransition() {
+    Step& currStep = stepmanager.step[stepmanager.currentStep];
+    if (stepmanager.currentStep <= 0) return;
+    Step& prevStep = stepmanager.step[stepmanager.currentStep - 1];
+    calculatePosition(currStep.tempTable);
+    calculatePosition(prevStep.tempTable);
+    std::unordered_map<int,ListNode*> currNode;
+    std::unordered_map<int,ListNode*> prevNode;
+    std::unordered_map<int,Edge*> currEdge;
+    std::unordered_map<int,Edge*> prevEdge;
+    scanNode(currStep.tempTable,currNode);
+    scanNode(prevStep.tempTable,prevNode);
+    for (int i = 0; i < currStep.tempEdge.size(); ++i) {
+        currEdge[currStep.tempEdge[i]->ID] = currStep.tempEdge[i];
+    }
+    for (int i = 0; i < prevStep.tempEdge.size(); ++i) {
+        prevEdge[prevStep.tempEdge[i]->ID] = prevStep.tempEdge[i];
+    }
+    Animation anim;
+    anim.type = AnimateType::DELETION;
+    for (auto it : prevNode) {
+        if (currNode.find(it.first) == currNode.end()) {
+            anim.deletedNode.push_back(it.second);
+        }
+    }
+    for (auto it : prevEdge) {
+        if (currEdge.find(it.first) == currEdge.end()) {
+            anim.deletedEdge.push_back(it.second);
+        }
+    }
+    if (anim.deletedEdge.size() || anim.deletedNode.size()) currStep.animQueue.addAnimation(anim);
+    anim.type = AnimateType::MOVEMENT;
+    for (auto it : prevNode) {
+        if (currNode.find(it.first) != currNode.end()) {
+            anim.movedNode.push_back({it.second,currNode.find(it.first)->second});
+        }
+    }
+    if (anim.movedNode.size()) currStep.animQueue.addAnimation(anim);
+    anim.type = AnimateType::INSERTION;
+    for (auto it : currNode) {
+        if (prevNode.find(it.first) == prevNode.end()) {
+            it.second->alpha = 0.0f;
+            anim.insertedNode.push_back(it.second);
+        }
+    }
+    for (auto it : currEdge) {
+        if (prevEdge.find(it.first) == prevEdge.end()) {
+            it.second->alpha = 0.0f;
+            anim.insertedEdge.push_back(it.second);
+        }
+    }
+    if (anim.insertedNode.size() || anim.insertedEdge.size()) currStep.animQueue.addAnimation(anim);
+}
+
+void HTable::scanNode(std::vector<Node*> table, std::unordered_map<int,ListNode*> &node) {
+    if (table.size() == 0) return;
+    for (int i = 0; i < table.size(); ++i) {
+        if (!table[i]) continue;
+        ListNode* curr = (ListNode*) table[i];
+        while (curr) {
+            node[curr->ID] = curr;
+            curr = curr->next;
+        }
+    }
+}
+
+void HTable::safeRemoveEdge(int nodeID) {
+    Edge* edgeToRemove = findEdgebyEndPoint(edge, nodeID);
+    if (edgeToRemove) {
+        auto it = find(edge.begin(), edge.end(), edgeToRemove);
+        if (it != edge.end()) {
+            delete *it;
+            edge.erase(it);
         }
     }
 }
@@ -310,6 +586,8 @@ void HTable::initData() {
                 curr = curr->next;
             }
             curr->next = newNode;
+            Edge* line = new Edge(curr,curr->next);
+            edge.push_back(line);
         }
     }
     box.someList.clear();
@@ -317,6 +595,7 @@ void HTable::initData() {
 
 void HTable::insertData() {
     if (box.someList.empty()) return;
+    if (box.primeNumber < 0) return;
     code.codeline = {
         "int index = value % prime;            ",
         "Node* newNode = new Node(value);      ",                              
@@ -331,6 +610,7 @@ void HTable::insertData() {
         step.highlightedNode = -1;
         step.highlightedLine = 0;
         copyNode(HSvalue,step.tempTable);
+        copyEdge(edge,step.tempEdge,step.tempTable);
         stepmanager.step.push_back(step);
         int index = box.someList[i] % box.primeNumber;
         ListNode* newNode = new ListNode(box.someList[i]);
@@ -339,6 +619,7 @@ void HTable::insertData() {
             step.highlightedNode = HSvalue[index]->ID;
             step.highlightedLine = 2;
             copyNode(HSvalue,step.tempTable);
+            copyEdge(edge,step.tempEdge,step.tempTable);
             stepmanager.step.push_back(step);
             continue;
         }
@@ -347,16 +628,23 @@ void HTable::insertData() {
             step.highlightedNode = curr->ID;
             step.highlightedLine = 5;
             copyNode(HSvalue,step.tempTable);
+            copyEdge(edge,step.tempEdge,step.tempTable);
             stepmanager.step.push_back(step);
             curr = curr->next;
         }
         curr->next = newNode;
+        Edge* line = new Edge(curr,curr->next);
+        edge.push_back(line);
         step.highlightedNode = curr->next->ID;
         step.highlightedLine = 6;
         copyNode(HSvalue,step.tempTable);
+        copyEdge(edge,step.tempEdge,step.tempTable);
         stepmanager.step.push_back(step);
     }
-    printHTable(HSvalue);
+    // for (int i = 0; i < stepmanager.step.size(); ++i) {
+    //     printHTable(stepmanager.step[i].tempTable);
+    //     std::cout<<std::endl;
+    // }
     box.someList.clear();
 }
 
@@ -386,17 +674,20 @@ void HTable::deleteData() {
             step.highlightedLine = 1;
             step.description.push_back("Index " + std::to_string(index) + " does not has value");
             copyNode(HSvalue,step.tempTable);
+            copyEdge(edge,step.tempEdge,step.tempTable);
             stepmanager.step.push_back(step);
             continue;
         }
     
         if (HSvalue[index]->val == box.someList[i]) {
             ListNode* tmp = HSvalue[index];
-            HSvalue[index] = HSvalue[index]->next; 
+            if (HSvalue[index]->next) safeRemoveEdge(HSvalue[index]->next->ID);
+            HSvalue[index] = HSvalue[index]->next;
             delete tmp;
             step.highlightedLine = 3;
-            step.description.push_back("Index " + std::to_string(index) + " does not has value");
+            step.description.push_back("Delete " + to_string(box.someList[i]) + " successfully");
             copyNode(HSvalue,step.tempTable);
+            copyEdge(edge,step.tempEdge,step.tempTable);
             stepmanager.step.push_back(step);
             continue;
         }
@@ -406,12 +697,14 @@ void HTable::deleteData() {
             step.highlightedNode = curr->ID;
             step.highlightedLine = 5;
             copyNode(HSvalue,step.tempTable);
+            copyEdge(edge,step.tempEdge,step.tempTable);
             stepmanager.step.push_back(step);
             curr = curr->next;
         }
     
         if (curr->next) {
             ListNode* tmp = curr->next;
+            if (curr->next) safeRemoveEdge(curr->next->ID);
             curr->next = curr->next->next;
             delete tmp;
             tmp = nullptr;
@@ -419,12 +712,14 @@ void HTable::deleteData() {
             step.highlightedLine = 9;
             step.description.push_back("Delete " + to_string(box.someList[i]) + " successfully");
             copyNode(HSvalue,step.tempTable);
+            copyEdge(edge,step.tempEdge,step.tempTable);
             stepmanager.step.push_back(step);
         } else {
             step.highlightedNode = curr->ID;
             step.highlightedLine = 9;
             step.description.push_back(to_string(box.someList[i]) + " has not been inserted yet.");
             copyNode(HSvalue,step.tempTable);
+            copyEdge(edge,step.tempEdge,step.tempTable);
             stepmanager.step.push_back(step);
         }
     }
@@ -447,11 +742,13 @@ void HTable::searchData() {
         step.highlightedNode = -1;
         step.highlightedLine = 0;
         copyNode(HSvalue,step.tempTable);
+        copyEdge(edge,step.tempEdge,step.tempTable);
         stepmanager.step.push_back(step);
         if (!HSvalue[index]) {
             step.highlightedLine = 1;
             step.description.push_back("Index " + std::to_string(index) + " does not has value");
             copyNode(HSvalue,step.tempTable);
+            copyEdge(edge,step.tempEdge,step.tempTable);
             stepmanager.step.push_back(step);
             continue;
         }
@@ -460,6 +757,7 @@ void HTable::searchData() {
             step.highlightedNode = curr->ID;
             step.highlightedLine = 3;
             copyNode(HSvalue,step.tempTable);
+            copyEdge(edge,step.tempEdge,step.tempTable);
             stepmanager.step.push_back(step);
             curr = curr->next;
         }
@@ -468,12 +766,14 @@ void HTable::searchData() {
             step.highlightedLine = 4;
             step.description.push_back("Value " + to_string(box.someList[i]) + " is found");
             copyNode(HSvalue,step.tempTable);
+            copyEdge(edge,step.tempEdge,step.tempTable);
             stepmanager.step.push_back(step);
         } else {
             step.highlightedNode = -1;
             step.highlightedLine = 4;
             step.description.push_back("Value " + to_string(box.someList[i]) + " is not found");
             copyNode(HSvalue,step.tempTable);
+            copyEdge(edge,step.tempEdge,step.tempTable);
             stepmanager.step.push_back(step);
         }
     }

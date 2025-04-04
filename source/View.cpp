@@ -433,6 +433,11 @@ void View::initView()
     panel.Rewind = LoadTexture("resource\\Texture\\Rewind.png");
     panel.Forward = LoadTexture("resource\\Texture\\Forward.png");
     panel.Final = LoadTexture("resource\\Texture\\Final.png");
+
+    camera = {0};
+    camera.offset = (Vector2){0, 0};       
+    camera.target = (Vector2){0, 0};  
+    camera.zoom = 1.0f;     
 }
 
 
@@ -521,6 +526,10 @@ void View::eventView() {
     box.update();
     slider.update();
     code.update();
-   
+    if (IsKeyDown(KEY_RIGHT)) camera.target.x -= 2;
+    if (IsKeyDown(KEY_LEFT)) camera.target.x += 2;
+    if (IsKeyDown(KEY_UP)) camera.target.y += 2;
+    if (IsKeyDown(KEY_DOWN)) camera.target.y -=2;
+    camera.zoom += GetMouseWheelMove() * 0.1f;
 }
 

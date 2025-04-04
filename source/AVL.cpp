@@ -15,44 +15,95 @@ void AVL::draw() {
         log.infor = currStep.description;
         code.lineHighlighted = currStep.highlightedLine;
         drawView();
+        BeginScissorMode(400,80,1040,640);
+        BeginMode2D(camera);
         if (stepmanager.isTransitioning) {
             Animation currAnimation = currStep.animQueue.animation.front();
             Step& prevStep = stepmanager.step[stepmanager.currentStep - 1];
             if (currAnimation.type == AnimateType::DELETION) {
+                std::cout<<1;
                 drawEdge(prevStep.tempEdge);
                 drawNode((TreeNode*)prevStep.tempRoot,currStep.highlightedNode);
             } else if (currAnimation.type == AnimateType::MOVEMENT) {
+                std::cout<<2;
                 drawEdge(prevStep.tempEdge);
                 drawNode((TreeNode*)prevStep.tempRoot,currStep.highlightedNode);
             } else if (currAnimation.type == AnimateType::INSERTION) {
+                std::cout<<3;
                 drawEdge(currStep.tempEdge);
                 drawNode((TreeNode*)currStep.tempRoot,currStep.highlightedNode);
             }
         } else {
-            calculatePositions((TreeNode*)currStep.tempRoot,980,120,0);
+            calculateSubtreeWidth((TreeNode*)currStep.tempRoot);
+            calculatePositions((TreeNode*)currStep.tempRoot,980,120);
+            resetAlphaEdge(currStep.tempEdge);
+            resetAlphaNode((TreeNode*)currStep.tempRoot);
             drawEdge(currStep.tempEdge);
             drawNode((TreeNode*)currStep.tempRoot,currStep.highlightedNode);
         }
+        EndMode2D();
+        EndScissorMode();
     } else {
-        calculatePositions(root,980,120,0);
+        BeginScissorMode(400,80,1040,640);
+        BeginMode2D(camera);
+        calculateSubtreeWidth(root);
+        calculatePositions(root,980,120);
         drawEdge(edge);
         drawNode(root,-1);
+        EndMode2D();
+        EndScissorMode();
     }
 }
 
-void AVL::calculatePositions(TreeNode* node, int x, int y, int level) {
+int AVL::countRightmost(TreeNode* node) {
+    if (!node) return 0;
+    return 1 + countRightmost(node->right);
+}
+
+int AVL::countLeftmost(TreeNode* node) {
+    if (!node) return 0;
+    return 1 + countLeftmost(node->left);
+}
+
+int AVL::calculateSubtreeWidth(TreeNode* node) {
+    if (!node) return 0;
+    int leftWidth = calculateSubtreeWidth(node->left);
+    int rightWidth = calculateSubtreeWidth(node->right);
+    subtreeWidth[node] = subtreeWidth[node->left] + subtreeWidth[node->right];
+    if (node->left || node->left) subtreeWidth[node] += 60; 
+    //std::cout<<node->val<<" "<<subtreeWidth[node]<<std::endl;
+    return subtreeWidth[node];
+}
+
+void AVL::calculatePositions(TreeNode* node, int x, int y) {
     if (!node) return;
+
     node->position.x = x;
     node->position.y = y;
-    int treeHeight = getHeight(root); 
-    int offsetX = 100 / (1 << level); 
-    if (node->left) calculatePositions(node->left, x - offsetX, y + 100, level + 1);
-    if (node->right) calculatePositions(node->right, x + offsetX, y + 100, level + 1);
+
+    int leftWidth = (node->left) ? subtreeWidth[node->left] + 30 : 0;
+    int rightWidth = (node->right) ? subtreeWidth[node->right] + 30 : 0;
+    //std::cout<<node->val<<" "<<leftWidth<<" "<<rightWidth<<std::endl;
+    if (node->left) calculatePositions(node->left, x - leftWidth, y + 80);
+    if (node->right) calculatePositions(node->right, x + rightWidth, y + 80);
 }
 
 void AVL::drawEdge(std::vector<Edge*> edge) {
     for (int i = 0; i < edge.size(); ++i) {
         edge[i]->draw();
+    }
+}
+
+void AVL::resetAlphaNode(TreeNode* node) {
+    if (!node) return;
+    node->alpha = 1.0f;
+    resetAlphaNode(node->left);
+    resetAlphaNode(node->right);
+}
+
+void AVL::resetAlphaEdge(std::vector<Edge*> edge) {
+    for (int i = 0; i < edge.size(); ++i) {
+        edge[i]->alpha = 1.0f;
     }
 }
 
@@ -105,8 +156,10 @@ void AVL::run() {
     } else if (panel.isForwardPressed()) {
         stepmanager.isPlaying = false;
         panel.isPlaying = false;
-        stepmanager.nextStep();
-        prepareTransition();
+        if (stepmanager.currentStep < stepmanager.step.size() - 1) {
+            stepmanager.nextStep();
+            prepareTransition();
+        }
     } else if (panel.isRewindPressed()) {
         stepmanager.isPlaying = false;
         panel.isPlaying = false;
@@ -225,8 +278,10 @@ void AVL::prepareTransition() {
     Step& currStep = stepmanager.step[stepmanager.currentStep];
     if (stepmanager.currentStep <= 0) return;
     Step& prevStep = stepmanager.step[stepmanager.currentStep - 1];
-    calculatePositions((TreeNode*)currStep.tempRoot,980,120,0);
-    calculatePositions((TreeNode*)prevStep.tempRoot,980,120,0);
+    calculateSubtreeWidth((TreeNode*)currStep.tempRoot);
+    calculatePositions((TreeNode*)currStep.tempRoot,980,120);
+    calculateSubtreeWidth((TreeNode*)prevStep.tempRoot);
+    calculatePositions((TreeNode*)prevStep.tempRoot,980,120);
     std::unordered_map<int,TreeNode*> currNode;
     std::unordered_map<int,TreeNode*> prevNode;
     std::unordered_map<int,Edge*> currEdge;
@@ -541,6 +596,7 @@ void AVL::insertNode(TreeNode* &node, int key, Step step) {
         tmp = nullptr;
         copyEdge(edge,step.tempEdge,(TreeNode*)step.tempRoot);
         stepmanager.step.push_back(step);
+        return;
     }
 
     if (bl > 1 && node->left->val < key) {
@@ -559,6 +615,7 @@ void AVL::insertNode(TreeNode* &node, int key, Step step) {
         tmp = nullptr;
         copyEdge(edge,step.tempEdge,(TreeNode*)step.tempRoot);
         stepmanager.step.push_back(step);
+        return;
     }
 
     if (bl < -1 && node->right->val < key) {
@@ -570,6 +627,7 @@ void AVL::insertNode(TreeNode* &node, int key, Step step) {
         tmp = nullptr;
         copyEdge(edge,step.tempEdge,(TreeNode*)step.tempRoot);
         stepmanager.step.push_back(step);
+        return;
     }
 
     if (bl < -1 && node->right->val > key) {
@@ -588,6 +646,7 @@ void AVL::insertNode(TreeNode* &node, int key, Step step) {
         tmp = nullptr;
         copyEdge(edge,step.tempEdge,(TreeNode*)step.tempRoot);
         stepmanager.step.push_back(step);
+        return;
     }
 }
 
