@@ -216,7 +216,11 @@ void View::TextBox::draw(){
         DrawText("Supported format:", textBoxRec.x + 10, textBoxRec.y + 70, 16, GRAY);
         if (mode == Mode::HTABLE) {
             DrawText("Line 1: Values, Line 2: Prime", textBoxRec.x + 10, textBoxRec.y + 90, 16, GRAY);
-        } else {
+        } 
+        else if (mode == Mode::GRAPH){
+            DrawText("Adjacency matrix: one row per line",textBoxRec.x + 10, textBoxRec.y + 90, 16, GRAY);
+        }
+        else {
             DrawText("One value per line", textBoxRec.x + 10, textBoxRec.y + 90, 16, GRAY);
         }
     }
@@ -275,8 +279,29 @@ bool View::TextBox::processFileData(const std::string& filePath) {
     std::stringstream ss(fileData); 
     std::string line;
     someList.clear();
+    ADJmatrix.clear();
 
-    if (mode == Mode::HTABLE) {
+    if (mode == Mode::GRAPH){
+        processingGraphMatrix = true;
+        while (std::getline(ss, line)){
+            std::vector<int> row;
+            std::stringstream lineStream(line);
+            std::string token;
+            while (lineStream >> token){
+                try{
+                    row.push_back(std::stoi(token));
+                }
+                catch(std::invalid_argument){
+                }
+            }
+            ADJmatrix.push_back(row);
+        }
+        processingGraphMatrix = false;
+        parent->log.infor.push_back("Loaded adjacency matrix sucessfully" + std::to_string(ADJmatrix.size()) + "x" + std::to_string(ADJmatrix.empty() ? 0 : ADJmatrix[0].size()));
+
+    }
+
+    else if (mode == Mode::HTABLE) {
         if (std::getline(ss, line)) {
             std::stringstream valuesStream(line);
             std::string token;
@@ -320,8 +345,12 @@ bool View::TextBox::processFileData(const std::string& filePath) {
     // DEBUG
     if (mode == Mode::HTABLE){
         parent->log.infor.push_back("Prime number: " + std::to_string(primeNumber));
+        parent->log.infor.push_back("Values count: " + std::to_string(someList.size()));
     }
-    parent->log.infor.push_back("Values count: " + std::to_string(someList.size()));
+    else if (mode == Mode::GRAPH){
+        parent->log.infor.push_back("Number of vertexs: " + std::to_string(ADJmatrix.size()));
+    }
+    
 
     return true;
 }
@@ -683,12 +712,20 @@ void View::eventView() {
                 inputPanel.isOpen = false;
                 box.isOpen = true;
                 box.isFileMode = true;
+                box.isDragDropMode = true;
+                box.isURLMode = false; // Rõ ràng tắt URL mode
+                box.value.clear();
+                box.ADJmatrix.clear();
             }
 
             else if (inputPanel.isURLPressed()){
                 inputPanel.isOpen = false;
                 box.isOpen = true;
                 box.isURLMode = true;
+                box.isDragDropMode = true;
+                box.isFileMode = false; // Rõ ràng tắt File mode
+                box.value.clear();
+                box.ADJmatrix.clear();
             }
 
             else if (inputPanel.isClosePressed()){

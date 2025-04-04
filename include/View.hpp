@@ -77,6 +77,7 @@ class View {
             // for graph
             std::vector<std::vector<int>> ADJmatrix;
             int startedVertex = 0;
+            bool processingGraphMatrix = false;
 
             bool isOpen = false;
             bool isSelected = false;
@@ -97,6 +98,7 @@ class View {
             void update();
             void draw();
 
+            // For HashTable
             int primeNumber = 0;
             bool enteredPrime = false;
             bool enteredValues = false;

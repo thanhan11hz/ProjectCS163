@@ -25,27 +25,16 @@ class Graph : public Logic, public View {
         bool checkValidPos();
         void generatePosition();
         std::vector<GraphNode*> vertex;
-        class Edge {
-            public:
-                int ID; 
-                GraphNode *endPoint1,*endPoint2;
-                Edge() {
-                    ID = globalID;
-                    globalID++;
-                    endPoint1 = endPoint2 = nullptr;
-                }
-        }; // For graph
 
         std::vector<Edge*> edge;
-        bool Comparator(std::vector<int> a, std::vector<int> b);
-        vector<vector<int>> edges;
-        vector<vector<pair<int, int>>> ADJList;
+        std::vector<std::vector<int>> edges;
+        std::vector<std::vector<std::pair<int, int>>> ADJList;
         
         void ADJmatrixtoEdges();
         void EdgestoADJList();
         struct DSU{
-            vector<int> parent;
-            vector<int> size;
+            std::vector<int> parent;
+            std::vector<int> size;
 
             DSU(int n){
                 parent.resize(n + 1);

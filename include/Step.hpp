@@ -17,6 +17,8 @@ struct Step {
         std::vector<Node *> tempTable;
         std::vector<Edge*> tempEdge;
         AnimationQueue animQueue;
+        std::vector<Node *> nodeHightlight;
+        std::vector<Edge *> edgeHighlight;
 };
 
 class StepManager {
