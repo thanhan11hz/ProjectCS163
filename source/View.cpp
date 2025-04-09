@@ -279,7 +279,7 @@ bool View::TextBox::processFileData(const std::string& filePath) {
     std::stringstream ss(fileData); 
     std::string line;
     someList.clear();
-    ADJmatrix.clear();
+    adjMatrix.clear();
 
     if (mode == Mode::GRAPH){
         processingGraphMatrix = true;
@@ -294,10 +294,10 @@ bool View::TextBox::processFileData(const std::string& filePath) {
                 catch(std::invalid_argument){
                 }
             }
-            ADJmatrix.push_back(row);
+            adjMatrix.push_back(row);
         }
         processingGraphMatrix = false;
-        parent->log.infor.push_back("Loaded adjacency matrix sucessfully" + std::to_string(ADJmatrix.size()) + "x" + std::to_string(ADJmatrix.empty() ? 0 : ADJmatrix[0].size()));
+        parent->log.infor.push_back("Loaded adjacency matrix successfully" + std::to_string(adjMatrix.size()) + "x" + std::to_string(adjMatrix.empty() ? 0 : adjMatrix[0].size()));
 
     }
 
@@ -348,7 +348,7 @@ bool View::TextBox::processFileData(const std::string& filePath) {
         parent->log.infor.push_back("Values count: " + std::to_string(someList.size()));
     }
     else if (mode == Mode::GRAPH){
-        parent->log.infor.push_back("Number of vertexs: " + std::to_string(ADJmatrix.size()));
+        parent->log.infor.push_back("Number of vertices: " + std::to_string(adjMatrix.size()));
     }
     
 
@@ -381,7 +381,7 @@ void View::TextBox::update() {
             if (mode == Mode::HTABLE) {
                 if (!enteredValues) {
                     std::vector<int> numbers;
-                    std::stringstream ss(value);  // tách từ value cho vào token
+                    std::stringstream ss(value);  
                     std::string token;
                     while (ss >> token) {
                         try {
@@ -720,7 +720,7 @@ void View::eventView() {
                 box.isDragDropMode = true;
                 box.isURLMode = false; // Rõ ràng tắt URL mode
                 box.value.clear();
-                box.ADJmatrix.clear();
+                box.adjMatrix.clear();
             }
 
             else if (inputPanel.isURLPressed()){
@@ -730,7 +730,7 @@ void View::eventView() {
                 box.isDragDropMode = true;
                 box.isFileMode = false; // Rõ ràng tắt File mode
                 box.value.clear();
-                box.ADJmatrix.clear();
+                box.adjMatrix.clear();
             }
 
             else if (inputPanel.isClosePressed()){

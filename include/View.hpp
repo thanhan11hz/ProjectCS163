@@ -75,7 +75,7 @@ class View {
             std::vector<int> someList;
 
             // for graph
-            std::vector<std::vector<int>> ADJmatrix;
+            std::vector<std::vector<int>> adjMatrix;
             int startedVertex = 0;
             bool processingGraphMatrix = false;
 

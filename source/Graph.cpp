@@ -98,33 +98,201 @@
 
     void Graph::draw() {
         drawView();
-        // if (vertex.size() == 0) return;
-        // if (!stepmanager.step.empty() && stepmanager.currentStep >= 0) {
-        //     Step currStep = stepmanager.step[stepmanager.currentStep];
-        //     log.infor = currStep.description;
-        //     code.lineHighlighted = currStep.highlightedLine;
-        //     drawView();
-        //     for (int i = 0; i < edge.size(); ++i) {
-        //         // if (edge[i]->ID == currStep.highlightedEdge) edge[i]->endPoint1->drawHighlightedEdge(edge[i]->endPoint2);
-        //         // else edge[i]->endPoint1->drawEdge(edge[i]->endPoint2);
-        //     }
-        //     for (int i = 0; i < vertex.size(); ++i) {
-        //         if (vertex[i]->ID == currStep.highlightedNode) vertex[i]->drawHighlightNode();
-        //         else vertex[i]->drawNode();
-        //     }
-        // } else {
-        //     for (int i = 0; i < edge.size(); ++i) {
-        //         edge[i]->endPoint1->drawEdge(edge[i]->endPoint2);
-        //     }
-        //     for (int i = 0; i < vertex.size(); ++i) {
-        //         vertex[i]->drawNode();
-        //     }
-        // }
+        if (vertex.size() == 0) return;
+        if (!stepmanager.step.empty() && stepmanager.currentStep >= 0) {
+            Step currStep = stepmanager.step[stepmanager.currentStep];
+            log.infor = currStep.description;
+            code.lineHighlighted = currStep.highlightedLine;
+            drawView();
+            BeginScissorMode(400,80,1040,640);
+            BeginMode2D(camera);
+            if (stepmanager.isTransitioning) {
+                Animation currAnimation = currStep.animQueue.animation.front();
+                Step& prevStep = stepmanager.step[stepmanager.currentStep - 1];
+                if (currAnimation.type == AnimateType::HIGHLIGHT) {
+                    drawEdge(edge);
+                    drawNode(vertex);
+                }
+            } else {
+                resetColorEdge(currStep);
+                resetColorNode(currStep);
+                drawEdge(edge);
+                drawNode(vertex);
+            }
+            EndMode2D();
+            EndScissorMode();
+        } else {
+            BeginScissorMode(400,80,1040,640);
+            BeginMode2D(camera);
+            resetColorEdge();
+            resetColorNode();
+            drawEdge(edge);
+            drawNode(vertex);
+            EndMode2D();
+            EndScissorMode();
+        }
+    }
+
+    void Graph::drawNode(std::vector<GraphNode*> vertex) {
+        for (int i = 0; i < vertex.size(); ++i) {
+            vertex[i]->draw();
+        }
+    }
+
+    void Graph::drawEdge(std::vector<Edge*> edge) {
+        for (int i = 0; i < edge.size(); ++i) {
+            edge[i]->draw();
+        }
+    }
+
+    void Graph::resetColorNode() {
+        for (int i = 0; i < vertex.size(); ++i) {
+            vertex[i]->currentColor = GRAY;
+        }
+    }
+
+    void Graph::resetColorNode(Step step) {
+        for (int i = 0; i < vertex.size(); ++i) {
+            vertex[i]->currentColor = GRAY;
+        }
+        for (int i = 0; i < step.nodeHighlight.size(); ++i) {
+            step.nodeHighlight[i]->currentColor = RED;
+        }
+    }
+
+    void Graph::resetColorEdge() {
+        for (int i = 0; i < edge.size(); ++i) {
+            edge[i]->currentColor = BLACK;
+        }
+    } 
+        
+    void Graph::resetColorEdge(Step step) {
+        for (int i = 0; i < edge.size(); ++i) {
+            edge[i]->currentColor = BLACK;
+        }
+        for (int i = 0; i < step.edgeHighlight.size(); ++i) {
+            step.edgeHighlight[i]->currentColor = RED;
+        }
     }
 
     void Graph::run() {
         eventView();
         
+        if (option.isInitialize()) func = Function::INIT;
+        if (option.isAdd()) func = Function::INSERT;
+        if (option.isDelete()) func = Function::DELETE;
+        if (option.isSearch()) func = Function::SEARCH;
+
+        if (!box.isOpen && func != Function::NONE) {
+            switch (func) {
+                case Function::INIT:
+                    remove();
+                    initData();
+                    func = Function::NONE;
+                    break;
+                case Function::INSERT:
+                    remove();
+                    dijkstra();
+                    func = Function::NONE;
+                    break;
+                case Function::DELETE:
+                    remove();
+                    prim();
+                    func = Function::NONE;
+                    break;
+                case Function::SEARCH:
+                    remove();
+                    kruskal();
+                    func = Function::NONE;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if (stepmanager.isTransitioning) {
+            stepmanager.updateTransitionProgress();
+            if (stepmanager.isTransitionComplete()) stepmanager.finishTransition();
+        } else if (panel.isForwardPressed()) {
+            stepmanager.isPlaying = false;
+            panel.isPlaying = false;
+            if (stepmanager.currentStep < stepmanager.step.size() - 1) {
+                stepmanager.nextStep();
+                prepareTransition();
+            }
+        } else if (panel.isRewindPressed()) {
+            stepmanager.isPlaying = false;
+            panel.isPlaying = false;
+            stepmanager.prevStep();
+        }
+        if (panel.isPausePressed()) {
+            stepmanager.isPlaying = false;
+            panel.isPlaying = false;
+            accumulatedTime = 0.0f; 
+        }
+        if (panel.isPlayPressed()) {
+            stepmanager.isPlaying = true;
+            panel.isPlaying = true;
+        }
+        auto now = std::chrono::steady_clock::now();
+        float deltaTime = std::chrono::duration<float>(now - lastUpdateTime).count();
+        lastUpdateTime = now;
+        if (stepmanager.isPlaying && stepmanager.currentStep < stepmanager.step.size() - 1) {
+            accumulatedTime += deltaTime * stepmanager.speed;
+            while (accumulatedTime >= stepDuration && stepmanager.isPlaying) {
+                accumulatedTime -= stepDuration;
+                if (stepmanager.isTransitioning) {
+                    stepmanager.updateTransitionProgress();
+                    if (stepmanager.isTransitionComplete()) stepmanager.finishTransition();
+                } else {
+                    stepmanager.nextStep();
+                    prepareTransition();
+                }
+            }
+            draw();
+        } else {
+            stepmanager.isPlaying = false;
+            panel.isPlaying = false; 
+        }
+    }
+
+    void Graph::prepareTransition() {
+        Step& currStep = stepmanager.step[stepmanager.currentStep];
+        if (stepmanager.currentStep <= 0) return;
+        Step& prevStep = stepmanager.step[stepmanager.currentStep - 1];
+        std::unordered_map<int,GraphNode*> currNode;
+        std::unordered_map<int,GraphNode*> prevNode;
+        std::unordered_map<int,Edge*> currEdge;
+        std::unordered_map<int,Edge*> prevEdge;
+        for (int i = 0; i <currStep.nodeHighlight.size(); ++i) {
+            currNode[currStep.nodeHighlight[i]->ID] = (GraphNode*)currStep.nodeHighlight[i];
+        }
+        for (int i = 0; i <prevStep.nodeHighlight.size(); ++i) {
+            currNode[prevStep.nodeHighlight[i]->ID] = (GraphNode*)prevStep.nodeHighlight[i];
+        }
+        for (int i = 0; i < currStep.edgeHighlight.size(); ++i) {
+            currEdge[currStep.edgeHighlight[i]->ID] = currStep.edgeHighlight[i];
+        }
+        for (int i = 0; i < prevStep.edgeHighlight.size(); ++i) {
+            prevEdge[prevStep.edgeHighlight[i]->ID] = prevStep.edgeHighlight[i];
+        }
+        Animation anim;
+        anim.type = AnimateType::HIGHLIGHT;
+        for (auto it : currNode) {
+            if (prevNode.find(it.first) == prevNode.end()) {
+                it.second->alpha = 0.0f;
+                anim.highlightedNode.push_back(it.second);
+            }
+        }
+        if (anim.highlightedNode.size()) currStep.animQueue.addAnimation(anim);
+        anim.highlightedNode.clear();
+        for (auto it : currEdge) {
+            if (prevEdge.find(it.first) == prevEdge.end()) {
+                it.second->alpha = 0.0f;
+                anim.highlightedEdge.push_back(it.second);
+            }
+        }
+        if (anim.highlightedEdge.size()) currStep.animQueue.addAnimation(anim);
     }
 
     void Graph::exit() {
@@ -144,7 +312,6 @@
         selectedNode = nullptr;
         stepmanager.step.clear();
         stepmanager.currentStep = 0;
-
     }
 
     void Graph::remove() {
@@ -154,6 +321,20 @@
     }
 
     void Graph::initData() {
+        vertex.resize(box.adjMatrix.size(),nullptr);
+        for (int i = 0; i < vertex.size(); ++i) {
+            vertex[i] = new GraphNode;
+        }
+        for (int i = 0; i < box.adjMatrix.size() - 1; ++i) {
+            for (int j = 0; j < box.adjMatrix.size(); ++j) {
+                if (box.adjMatrix[i][j]) {
+                    Edge* line = new Edge;
+                    line->endPoint1 = vertex[i];
+                    line->endPoint2 = vertex[j];
+                    edge.push_back(line);
+                }
+            }
+        }
         do {
             generatePosition();
         } while (checkValidPos());
@@ -161,24 +342,25 @@
 
     void Graph::dijkstra() {
         if (edges.empty()) return;
-        EdgestoADJList();
+        edgesToAdjList();
 
         Step step;
         code.codeline = {
-            "n = ADJmatrix.size(); priority_queue<...> pq; ",
-            "vector<int> dist(n, INT_MAX);                 ",
-            "pq.push({0, start}); dist[start]=0;           ",
-            "while (!pq.empty()){                          ",
-            "u = pq.top().second                           ",
-            "for (auto x : ADJmatrix[u])                   ",
-            "v=x.first; w = x.second                       ",
-            "if (dist[v] > dist[u] + w)                    ",
-            "dist[v] = dist[u] + w;                        ",
-            "pq.push({dist[v], v});}}}                     ",
-            "Complete !                                    ",
+            "Create priority queue pq              ",
+            "Initialize dist[0...n-1] ← ∞          ",
+            "pq.push( (0, start) ); dist[start] ← 0",
+            "while pq is not empty do              ",
+            "u ← pq.top().second                   ",
+            "for each (v, w) in adjMatrix[u] do    ",
+            "if dist[v] > dist[u] + w then         ",
+            "dist[v] ← dist[u] + w                 ",
+            "pq.push( (dist[v], v) )               ",
+            "Complete !                            "
         };
 
-        int n = box.ADJmatrix.size();
+        int n = box.adjMatrix.size();
+        vector<int> parent(n,0);
+        parent[box.startedVertex] = -1;
         priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
         {
             step.highlightedLine = 0;
@@ -195,37 +377,44 @@
         dist[src] = 0;
         {
             step.highlightedLine = 2;
-            step.nodeHightlight.push_back(vertex[src]);
+            step.nodeHighlight.push_back(vertex[src]);
             stepmanager.step.push_back(step);
         }
 
         while (!pq.empty()){
             {
                 step.highlightedLine = 3;
-                step.nodeHightlight.clear();
-                step.edgeHighlight.clear();
                 stepmanager.step.push_back(step);
             }
             int u = pq.top().second;
             pq.pop();
             {
                 step.highlightedLine = 4;
-                step.nodeHightlight.push_back(vertex[u]);
+                step.nodeHighlight.push_back(vertex[u]);
+                if (parent[u] != -1) {
+                    for (auto e : edge) {
+                        if ((e->endPoint1->ID == vertex[u]->ID && e->endPoint2->ID == vertex[parent[u]]->ID) ||
+                            (e->endPoint1->ID == vertex[parent[u]]->ID && e->endPoint2->ID == vertex[u]->ID)) {
+                            step.edgeHighlight.push_back(e);
+                            break;
+                        }
+                    }
+                }
                 stepmanager.step.push_back(step);
             }
 
-            for (auto x : ADJList[u]){
+            for (auto x : adjList[u]){
                 
-            step.highlightedLine = 5;
-            step.nodeHightlight.clear();
-            step.edgeHighlight.clear();
-            stepmanager.step.push_back(step);
+                step.highlightedLine = 5;
+                step.nodeHighlight.clear();
+                step.edgeHighlight.clear();
+                stepmanager.step.push_back(step);
                 
                 int v = x.first;
                 int w = x.second;
                 {
                     step.highlightedLine = 6;
-                    step.nodeHightlight.push_back(vertex[v]);
+                    step.nodeHighlight.push_back(vertex[v]);
                     for (auto e : edge) {
                         if ((e->endPoint1->ID == vertex[u]->ID && e->endPoint2->ID == vertex[v]->ID) ||
                             (e->endPoint1->ID == vertex[v]->ID && e->endPoint2->ID == vertex[u]->ID)) {
@@ -234,33 +423,32 @@
                         }
                     }
                     stepmanager.step.push_back(step);
+                    step.nodeHighlight.pop_back();
                 }
 
                 if (dist[v] > dist[u] + w){
-                step.highlightedLine = 7;
-                stepmanager.step.push_back(step);
-
+                    step.highlightedLine = 7;
+                    stepmanager.step.push_back(step);
+                    parent[v] = u;
                     dist[v] = dist[u] + w;
                     pq.push({dist[v], v});
                     {
                         step.highlightedLine = 8;
-                        step.nodeHightlight.clear();
-                        step.edgeHighlight.clear();
-                        step.nodeHightlight.push_back(vertex[v]);
+                        step.nodeHighlight.push_back(vertex[v]);
                         stepmanager.step.push_back(step);
+                        step.nodeHighlight.pop_back();
                     }
                 }
+                step.edgeHighlight.pop_back();
             }
         }
         step.highlightedLine = 9;
-        step.nodeHightlight.clear();
-        step.edgeHighlight.clear();
         stepmanager.step.push_back(step);
         // in ra vector dist
     }
 
     void Graph::checkConnected() {
-        DSU dsu(box.ADJmatrix.size());
+        DSU dsu(box.adjMatrix.size());
         int root = dsu.find(0);
         bool connected = true;
         for (int i = 0; i < dsu.parent.size(); i++){
@@ -271,26 +459,26 @@
 
     void Graph::prim() {
         if (edges.empty()) return;
-        EdgestoADJList();
+        edgesToAdjList();
 
         int V = vertex.size();
 
         Step step;
         code.codeline = {
-            "n = vertex.size(); priority_queue<>pq;  ",
-            "pq.push({0, start});                    ",
-            "while (!pq.empty()) {                   ",
-            "u = pq.top().second; w = pq.top().first ",
-            "if (visited[u]) continue;               ",
-            "visited[u] = true; sum += w;            ",
-            "for (auto x : ADJList[u])               ",
-            "v = x.first; w = x.second               ",
-            "if (!visited[v]) pq.push({w, v});}}}    ",
-            "Complete!                               ",
+            "Initialize min-heap pq                           ",
+            "pq.push({0, start})                              ",
+            "while pq is not empty do                         ",
+            "u ← pq.top().second; w ← pq.top().first; pq.pop()",
+            "if visited[u] is true then continue              ",
+            "sum += w; mark visited[u] as true                ",
+            "for each (v, weight) in adjList[u] do            ",
+            "if visited[v] is false then                      ",
+            "pq.push({weight, v})                             ",
+            "Complete !                                       "
         };
 
-        vector<bool> visisted(V, false);
-        priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+        vector<bool> visited(V, false);
+        priority_queue<tuple<int, int, int>, vector<tuple<int, int, int>>, greater<tuple<int, int, int>>> pq;
         {
             step.highlightedLine = 0;
             stepmanager.step.push_back(step);
@@ -298,47 +486,57 @@
         int sum = 0;
         int src = box.startedVertex;
 
-        pq.push({0, src});
+        pq.push({0, src, -1});
         {
             step.highlightedLine = 1;
-            step.nodeHightlight.push_back(vertex[src]);
+            step.nodeHighlight.push_back(vertex[src]);
             stepmanager.step.push_back(step);
         }
 
         while (!pq.empty()){
             {
                 step.highlightedLine = 2;
-                step.nodeHightlight.clear();
+                step.nodeHighlight.clear();
                 step.edgeHighlight.clear();
                 stepmanager.step.push_back(step);
             }
             auto top = pq.top();
             pq.pop();
 
-            int u = top.second;
-            int w = top.first;
+            int u = get<1>(top);
+            int w = get<0>(top);
+            int p = get<2>(top);
             {
                 step.highlightedLine = 3;
-                step.nodeHightlight.push_back(vertex[u]);
+                step.nodeHighlight.push_back(vertex[u]);
+                if (p != -1) {
+                    for (auto e : edge){
+                        if ((e->endPoint1->ID == vertex[u]->ID && e->endPoint2->ID == vertex[p]->ID) || (e->endPoint1->ID == vertex[p]->ID && e->endPoint2->ID == vertex[u]->ID)){
+                            step.edgeHighlight.push_back(e);
+                            break;
+                        }
+                    }
+                }
                 stepmanager.step.push_back(step);
             }
 
-            if (visisted[u] == true) continue;
+            if (visited[u] == true) continue;
             {
                 step.highlightedLine = 4;
+                step.nodeHighlight.pop_back();
                 stepmanager.step.push_back(step);
             }
 
             sum += w;
-            visisted[u] = true;
+            visited[u] = true;
             {
                 step.highlightedLine = 5;
                 stepmanager.step.push_back(step);
             }
 
-            for (auto x : ADJList[u]){
+            for (auto x : adjList[u]){
                 step.highlightedLine = 6;
-                step.nodeHightlight = {vertex[u]};
+                step.nodeHighlight.push_back(vertex[u]);
                 stepmanager.step.push_back(step);
 
                 int v = x.first;
@@ -348,23 +546,23 @@
                     stepmanager.step.push_back(step);
                 }
 
-                if (!visisted[v]){
+                if (!visited[v]){
                     step.highlightedLine = 8;
-                    step.nodeHightlight.push_back(vertex[v]);
+                    step.nodeHighlight.push_back(vertex[v]);
                     for (auto e : edge){
                         if ((e->endPoint1->ID == vertex[u]->ID && e->endPoint2->ID == vertex[v]->ID) || (e->endPoint1->ID == vertex[v]->ID && e->endPoint2->ID == vertex[u]->ID)){
                             step.edgeHighlight.push_back(e);
                             break;
                         }
                     }
-                    pq.push({weight, v});
+                    pq.push({weight, v, u});
                     stepmanager.step.push_back(step);
+                    step.edgeHighlight.pop_back();
                 }
+                step.nodeHighlight.pop_back();
             }
         }
         step.highlightedLine = 9;
-        step.edgeHighlight.clear();
-        step.nodeHightlight.clear();
         stepmanager.step.push_back(step);
     }
 
@@ -377,15 +575,16 @@
 
         Step step;
         code.codeline = {
-            "sort(edges.begin(), edges.end(), Comparator);"
-            "int count = 0; int sum = 0"
-            "DSU dsu(V);"
-            "for (auto e : edges){"
-            "u = e[0]; v = e[1], w = e[2]"
-            "if (dsu.find(u) != dsu.find(v)){"
-            "unite(u,v); sum+=w; count++"
-            "if (count == V) break;"
-            "Complete !"
+            "Sort all edges by increasing weight",
+            "count ← 0; sum ← 0                 ",
+            "Initialize DSU with V nodes        ",
+            "for each edge (u, v, w) in edges do",
+            "if find(u) ≠ find(v) then          ",
+            "Unite the sets of u and v          ",
+            "sum ← sum + w                      ",
+            "count ← count + 1                  ",
+            "if count = V then break            ",
+            "Complete !                         "
         };
 
         sort(edges.begin(), edges.end(), Comparator);
@@ -417,8 +616,8 @@
             int w = e[2];
 
             step.highlightedLine = 4;
-            step.nodeHightlight.push_back(vertex[u]);
-            step.nodeHightlight.push_back(vertex[v]);
+            step.nodeHighlight.push_back(vertex[u]);
+            step.nodeHighlight.push_back(vertex[v]);
             stepmanager.step.push_back(step);
 
             if (dsu.find(u) != dsu.find(v)){
@@ -430,7 +629,7 @@
                 count++;
                 {
                     step.highlightedLine = 6;
-                    step.nodeHightlight = {vertex[u], vertex[v]};
+                    step.nodeHighlight = {vertex[u], vertex[v]};
                     for (auto e : edge){
                         if ((e->endPoint1->ID == vertex[u]->ID && e->endPoint2->ID == vertex[v]->ID) || (e->endPoint1->ID == vertex[v]->ID && e->endPoint2->ID == vertex[u]->ID)){
                             step.edgeHighlight.push_back(e);
@@ -444,10 +643,11 @@
                     stepmanager.step.push_back(step);
                     break;
                 }
+            } else {
+                step.nodeHighlight.pop_back();
+                step.nodeHighlight.pop_back();
             }
         }
-        step.nodeHightlight.clear();
-        step.edgeHighlight.clear();
         step.highlightedLine = 8;
         stepmanager.step.push_back(step);
         // trả về kết quả là sum
@@ -469,30 +669,30 @@
         }
     }
 
-    void Graph::ADJmatrixtoEdges(){
+    void Graph::adjMatrixToEdges(){
         edges.clear();
-        int n = box.ADJmatrix.size();
+        int n = box.adjMatrix.size();
 
         for (int i = 0; i < n; i++){
             for (int j = 0; j < n; j++){
-                if (box.ADJmatrix[i][j] > 0){
-                    edges.push_back({i, j, box.ADJmatrix[i][j]});
+                if (box.adjMatrix[i][j] > 0){
+                    edges.push_back({i, j, box.adjMatrix[i][j]});
                 }
             }
         }
     }
 
-    void Graph::EdgestoADJList(){
+    void Graph::edgesToAdjList(){
         if (edges.empty()) return;
-        ADJList.clear();
+        adjList.clear();
 
         for (auto e : edges){
             int u = e[0];
             int v = e[1];
             int w = e[2];
 
-            ADJList[u].push_back({v, w});
-            ADJList[v].push_back({u, w});
+            adjList[u].push_back({v, w});
+            adjList[v].push_back({u, w});
         }
     }
 

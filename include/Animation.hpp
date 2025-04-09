@@ -14,6 +14,8 @@ class Animation {
         std::vector<Edge*> deletedEdge;
         std::vector<Node*> insertedNode;
         std::vector<Edge*> insertedEdge;
+        std::vector<Node*> highlightedNode;
+        std::vector<Edge*> highlightedEdge;
         std::vector<std::pair<Node*,Node*>> movedNode;
         float progress = 0.0f;
         float duration = 0.5f;
@@ -29,6 +31,7 @@ class AnimationQueue {
         void clear();
         void applyAnimation(Animation &anim);
         Vector2 lerp(const Vector2& a, const Vector2& b, float progress);
+        Color lerpColor(Color a, Color b, float progress);
 };
 
 #endif

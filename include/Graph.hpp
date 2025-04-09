@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <random>
+#include <unordered_map>
 #include "Logic.hpp"
 #include "View.hpp"
 class Graph : public Logic, public View {
@@ -12,7 +13,6 @@ class Graph : public Logic, public View {
                 Vector2 fixedPosition;
                 Vector2 velocity;
                 bool isDragging = false;
-                std::vector<GraphNode*> adj;
                 void applySpringForce();
                 void applyDragForce();
                 void updatePosition();
@@ -25,13 +25,12 @@ class Graph : public Logic, public View {
         bool checkValidPos();
         void generatePosition();
         std::vector<GraphNode*> vertex;
-
         std::vector<Edge*> edge;
         std::vector<std::vector<int>> edges;
-        std::vector<std::vector<std::pair<int, int>>> ADJList;
+        std::vector<std::vector<std::pair<int, int>>> adjList;
         
-        void ADJmatrixtoEdges();
-        void EdgestoADJList();
+        void adjMatrixToEdges();
+        void edgesToAdjList();
         struct DSU{
             std::vector<int> parent;
             std::vector<int> size;
@@ -49,9 +48,20 @@ class Graph : public Logic, public View {
             void unite(int a, int b);
         };
 
+        std::chrono::time_point<std::chrono::steady_clock> lastUpdateTime;
+        float accumulatedTime = 0.0f;
+        const float stepDuration = 0.5f;
+        
         void init();
         void draw();
+        void drawNode(std::vector<GraphNode*> vertex);
+        void drawEdge(std::vector<Edge*> edge);
+        void resetColorNode();
+        void resetColorNode(Step step);
+        void resetColorEdge();
+        void resetColorEdge(Step step);
         void run();
+        void prepareTransition();
         void exit();
         void remove();
         void initData();

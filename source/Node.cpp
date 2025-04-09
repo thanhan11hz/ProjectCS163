@@ -1,8 +1,8 @@
 #include "Node.hpp"
 
 void Node::draw() {
-    DrawCircleV(position,25,Fade(GRAY,0.6f * alpha));
-    DrawCircleV(position,20,Fade(GRAY,alpha));
+    DrawCircleV(position,25,Fade(currentColor,0.6f * alpha));
+    DrawCircleV(position,20,Fade(currentColor,alpha));
     DrawCircleLinesV(position,25,Fade(BLACK,alpha * 0.6f));
     DrawCircleLinesV(position,20,Fade(BLACK,alpha));
     int minFontSize = 10;
@@ -18,8 +18,8 @@ void Node::draw() {
 }
 
 void Node::drawHighlight() {
-    DrawCircleV(position,25,Fade(RED,alpha * 0.6f));
-    DrawCircleV(position,20,Fade(GRAY,alpha));
+    DrawCircleV(position,25,Fade(targetColor,alpha * 0.6f));
+    DrawCircleV(position,20,Fade(currentColor,alpha));
     DrawCircleLinesV(position,25,Fade(BLACK,alpha * 0.6f));
     DrawCircleLinesV(position,20,Fade(BLACK,alpha));
     int minFontSize = 10;

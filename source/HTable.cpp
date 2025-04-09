@@ -49,86 +49,6 @@ void HTable::draw() {
         EndMode2D();
         EndScissorMode();
     }
-    // if (!stepmanager.step.empty() && stepmanager.currentStep >= 0) {
-    //     Step currStep = stepmanager.step[stepmanager.currentStep];
-    //     std::vector<Node*> hash = currStep.tempTable;
-    //     log.infor = currStep.description;
-    //     code.lineHighlighted = currStep.highlightedLine;
-    //     int offsetY = 200;
-    //     int cellWidth = 80;
-    //     int cellHeight = 60;
-    //     int gap = 10;
-    
-    //     int whiteAreaX = 400;
-    //     int whiteAreaWidth = 1440 - whiteAreaX;
-    
-    //     int totalWidth = box.primeNumber * cellWidth + (box.primeNumber - 1) * gap;
-    //     int offsetX = whiteAreaX + (whiteAreaWidth - totalWidth) / 2;
-    
-    //     for (int i = 0; i < (int)hash.size(); ++i) {
-    //         DrawRectangle(offsetX + i * (cellWidth + gap), offsetY, cellWidth, cellHeight, LIGHTGRAY);
-    
-    //         Vector2 textPos = {
-    //             (float)(offsetX + i * (cellWidth + gap) + cellWidth / 2 - 10),
-    //             (float)(offsetY + 20)
-    //         };
-    //         DrawTextEx(GetFontDefault(), std::to_string(i).c_str(), textPos, 20, 2, BLACK);
-    
-    //         ListNode* curr = (ListNode*)hash[i];
-    //         ListNode* prev = nullptr;
-    //         int nodeOffsetY = offsetY + cellHeight + 20;
-    
-    //         while (curr) {
-    //             curr->position = {
-    //                 (float)(offsetX + i * (cellWidth + gap) + cellWidth / 2),
-    //                 (float)(nodeOffsetY)
-    //             };
-    //             if (curr->ID == currStep.highlightedNode) curr->drawHighlightNode();
-    //             else curr->drawNode();
-    //             if (prev) prev->drawEdge(curr);
-    //             prev = curr;
-    //             curr = curr->next;
-    //             nodeOffsetY += 70;
-    //         }
-    //     }
-    // } else {
-    //     int offsetY = 200;
-    //     int cellWidth = 80;
-    //     int cellHeight = 60;
-    //     int gap = 10;
-
-    //     int whiteAreaX = 400;
-    //     int whiteAreaWidth = 1440 - whiteAreaX;
-
-    //     int totalWidth = box.primeNumber * cellWidth + (box.primeNumber - 1) * gap;
-    //     int offsetX = whiteAreaX + (whiteAreaWidth - totalWidth) / 2;
-
-    //     for (int i = 0; i < (int)HSvalue.size(); ++i) {
-    //         DrawRectangle(offsetX + i * (cellWidth + gap), offsetY, cellWidth, cellHeight, LIGHTGRAY);
-
-    //         Vector2 textPos = {
-    //             (float)(offsetX + i * (cellWidth + gap) + cellWidth / 2 - 10),
-    //             (float)(offsetY + 20)
-    //         };
-    //         DrawTextEx(GetFontDefault(), std::to_string(i).c_str(), textPos, 20, 2, BLACK);
-
-    //         ListNode* curr = HSvalue[i];
-    //         ListNode* prev = nullptr;
-    //         int nodeOffsetY = offsetY + cellHeight + 20;
-
-    //         while (curr) {
-    //             curr->position = {
-    //                 (float)(offsetX + i * (cellWidth + gap) + cellWidth / 2),
-    //                 (float)(nodeOffsetY)
-    //             };
-    //             curr->drawNode();
-    //             if (prev) prev->drawEdge(curr);
-    //             prev = curr;
-    //             curr = curr->next;
-    //             nodeOffsetY += 70;
-    //         }
-    //     }
-    // }
 }
 
 void HTable::calculatePosition(std::vector<ListNode*> table) {
@@ -231,8 +151,7 @@ void HTable::drawNode(std::vector<Node*> table, int highlight) {
 
 void HTable::drawEdge(std::vector<Edge*> edge) {
     for (int i = 0; i < edge.size(); ++i) {
-        if (edge[i]->endPoint1) edge[i]->draw();
-        else ;
+        edge[i]->draw();
     }
 }
 
@@ -597,13 +516,13 @@ void HTable::insertData() {
     if (box.someList.empty()) return;
     if (box.primeNumber < 0) return;
     code.codeline = {
-        "int index = value % prime;            ",
-        "Node* newNode = new Node(value);      ",                              
-        "if (!HSvalue[index])                  ",
-        "   {HSvalue[index] = newNode; return;}",       
-        "Node *curr = HSvalue[index];          ",                     
-        "while (curr->next) curr = curr->next; ",                    
-        "curr->next = newNode;                 "
+        "index ← value mod prime                    ",
+        "newNode ← new Node(value)                  ",                              
+        "if HSvalue[index] is NULL then             ",
+        "   { HSvalue[index] ← newNode; return }    ",       
+        "curr ← HSvalue[index]                      ",                     
+        "while curr.next ≠ NULL do curr ← curr.next ",                    
+        "curr.next ← newNode                        "
     };
     Step step;
     for (int i = 0; i < box.someList.size(); ++i) {
@@ -641,26 +560,22 @@ void HTable::insertData() {
         copyEdge(edge,step.tempEdge,step.tempTable);
         stepmanager.step.push_back(step);
     }
-    // for (int i = 0; i < stepmanager.step.size(); ++i) {
-    //     printHTable(stepmanager.step[i].tempTable);
-    //     std::cout<<std::endl;
-    // }
     box.someList.clear();
 }
 
 void HTable::deleteData() {
     if (box.someList.empty()) return;
     code.codeline = {
-        "int index = value % prime;                                              ",
-        "if (!HSvalue[index]) return;                                            ",
-        "Node *cur = HSvalue[index];                                             ",
-        "if (HSvalue[index]->val == value)                                       ",
-        "{ HSValue[index] = HSvalue[index]->next; return;                        ",
-        "while (cur->next && cur->next->val != value) cur = cur->next;           ",                            
-        "if (cur->next)                                                          ",
-        "   {Node *del = cur->next;                                              ",
-        "   cur->next = cur->next->next;                                         ",
-        "   delete del;}                                                         "
+        "index ← value mod prime                                         ",
+        "if HSvalue[index] is NULL then return                           ",
+        "cur ← HSvalue[index]                                            ",
+        "if HSvalue[index].val = value then                              ",
+        "{ HSvalue[index] ← HSvalue[index].next; return }                ",
+        "while cur.next ≠ NULL and cur.next.val ≠ value do cur ← cur.next",
+        "if cur.next ≠ NULL then                                         ",
+        "{ del ← cur.next                                                ",
+        "  cur.next ← cur.next.next                                      ",
+        "  delete del }                                                  "           
     };
     Step step;
    printHTable(HSvalue);
@@ -730,11 +645,11 @@ void HTable::deleteData() {
 void HTable::searchData() {
     if (box.someList.empty()) return;
     code.codeline = {
-        "int index = value % prime;                           ",
-        "if (!HSvalue[index]) return false;                   ",
-        "Node *curr = HSvalue[index];                         ",
-        "while (curr && curr->val != value) curr = curr->next;",
-        "return curr ? true : false;                          "
+        "index ← value mod prime                                   ",
+        "if HSvalue[index] is NULL then return false               ",
+        "curr ← HSvalue[index]                                     ",
+        "while curr ≠ NULL and curr.val ≠ value do curr ← curr.next",
+        "return curr ≠ NULL ? true : false                         "
     };
     Step step;
     for (int i = 0; i < box.someList.size(); ++i) {
