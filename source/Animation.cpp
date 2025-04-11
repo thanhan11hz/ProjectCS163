@@ -51,10 +51,10 @@ void AnimationQueue::applyAnimation(Animation &anim) {
             break;
         case AnimateType::HIGHLIGHT:
             for (auto node: anim.highlightedNode) {
-                node->currentColor = lerpColor(node->currentColor,node->targetColor,anim.progress);
+                node->progress = anim.progress;
             }
             for (auto edge: anim.highlightedEdge) {
-                edge->currentColor = lerpColor(edge->currentColor,edge->targetColor,anim.progress);
+                edge->progress = anim.progress;
             }
         default:
             break;
@@ -64,13 +64,4 @@ void AnimationQueue::applyAnimation(Animation &anim) {
 
 Vector2 AnimationQueue::lerp(const Vector2& a, const Vector2& b, float progress) {
     return {a.x + (b.x - a.x) * progress, a.y + (b.y - a.y) * progress};
-}
-
-Color AnimationQueue::lerpColor(Color a, Color b, float progress) {
-    return (Color){
-        (unsigned char)(a.r + (b.r - a.r) * progress),
-        (unsigned char)(a.g + (b.g - a.g) * progress),
-        (unsigned char)(a.b + (b.b - a.b) * progress),
-        (unsigned char)(a.a + (b.a - a.a) * progress)
-    };
 }

@@ -21,10 +21,7 @@ class AVL : public Logic, public View {
             }
         };
         TreeNode* root = nullptr;
-        std::vector<Edge*> edge;
-        std::chrono::time_point<std::chrono::steady_clock> lastUpdateTime;
-        float accumulatedTime = 0.0f;
-        const float stepDuration = 0.5f;         
+        std::vector<Edge*> edge;        
         void init();
         void draw();
         std::unordered_map<TreeNode*, int> subtreeWidth;
@@ -34,6 +31,8 @@ class AVL : public Logic, public View {
         void calculatePositions(TreeNode* node, int x, int y);
         void resetAlphaNode(TreeNode* node);
         void resetAlphaEdge(std::vector<Edge*> edge);
+        void resetColorNode(TreeNode* node);
+        void resetColorEdge(std::vector<Edge*> edge);
         void drawEdge(std::vector<Edge*> edge);
         void drawNode(TreeNode* node, int highlightNode);
         void run();

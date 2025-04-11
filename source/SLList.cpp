@@ -14,27 +14,33 @@ void SLList::draw() {
         Step currStep = stepmanager.step[stepmanager.currentStep];
         log.infor = currStep.description;
         code.lineHighlighted = currStep.highlightedLine;
-        drawView();
         BeginScissorMode(400,80,1040,640);
         BeginMode2D(camera);
         if (stepmanager.isTransitioning) {
             Animation currAnimation = currStep.animQueue.animation.front();
             Step& prevStep = stepmanager.step[stepmanager.currentStep - 1];
             if (currAnimation.type == AnimateType::DELETION) {
+                resetColorNode((ListNode*)prevStep.tempRoot);
+                resetColorEdge(prevStep.tempEdge);
                 drawEdge(prevStep.tempEdge);
                 drawNode((ListNode*)prevStep.tempRoot,currStep.highlightedNode);
             } else if (currAnimation.type == AnimateType::MOVEMENT) {
+                resetColorNode((ListNode*)prevStep.tempRoot);
+                resetColorEdge(prevStep.tempEdge);
                 drawEdge(prevStep.tempEdge);
                 drawNode((ListNode*)prevStep.tempRoot,currStep.highlightedNode);
             } else if (currAnimation.type == AnimateType::INSERTION) {
+                resetColorNode((ListNode*)currStep.tempRoot);
+                resetColorEdge(currStep.tempEdge);
                 drawEdge(currStep.tempEdge);
                 drawNode((ListNode*)currStep.tempRoot,currStep.highlightedNode);
             }
         } else {
-            std::cout<<1;
             calculatePosition((ListNode*)currStep.tempRoot);
             resetAlphaEdge(currStep.tempEdge);
             resetAlphaNode((ListNode*)currStep.tempRoot);
+            resetColorNode((ListNode*)currStep.tempRoot);
+            resetColorEdge(currStep.tempEdge);
             drawEdge(currStep.tempEdge);
             drawNode((ListNode*)currStep.tempRoot,currStep.highlightedNode);
             code.lineHighlighted = -1;
@@ -45,6 +51,8 @@ void SLList::draw() {
         BeginScissorMode(400,80,1040,640);
         BeginMode2D(camera);
         calculatePosition(root);
+        resetColorNode(root);
+        resetColorEdge(edge);
         drawEdge(edge);
         drawNode(root,-1);
         EndMode2D();
@@ -108,6 +116,33 @@ void SLList::resetAlphaNode(ListNode* head) {
 void SLList::resetAlphaEdge(std::vector<Edge*> edge) {
     for (int i = 0; i < edge.size(); ++i) {
         edge[i]->alpha = 1.0f;
+    }
+}
+
+void SLList::resetColorNode(ListNode* head) {
+    if (!head) return;
+    ListNode* curr = head;
+    while (curr) {
+        if (theme == colorType::HOT) {
+            curr->currentColor = myColor1[0];
+            curr->targetColor = myColor1[2];
+        } else {
+            curr->currentColor = myColor2[0];
+            curr->targetColor = myColor2[2];
+        }
+        curr = curr->next;
+    }
+}
+        
+void SLList::resetColorEdge(std::vector<Edge*> edge) {
+    for (int i = 0; i < edge.size(); ++i) {
+        if (theme == colorType::HOT) {
+            edge[i]->currentColor = myColor1[1];
+            edge[i]->targetColor = myColor1[2];
+        } else {
+            edge[i]->currentColor = myColor2[1];
+            edge[i]->targetColor = myColor2[2];
+        }
     }
 }
 
@@ -185,7 +220,6 @@ void SLList::run() {
                 prepareTransition();
             }
         }
-        draw();
     } else {
         stepmanager.isPlaying = false;
         panel.isPlaying = false; 

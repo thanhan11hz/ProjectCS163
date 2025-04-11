@@ -31,7 +31,6 @@ class AnimationQueue {
         void clear();
         void applyAnimation(Animation &anim);
         Vector2 lerp(const Vector2& a, const Vector2& b, float progress);
-        Color lerpColor(Color a, Color b, float progress);
 };
 
 #endif

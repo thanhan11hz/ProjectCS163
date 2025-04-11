@@ -14,19 +14,24 @@ void HTable::draw() {
         Step currStep = stepmanager.step[stepmanager.currentStep];
         log.infor = currStep.description;
         code.lineHighlighted = currStep.highlightedLine;
-        drawView();
         BeginScissorMode(400,80,1040,640);
         BeginMode2D(camera);
         if (stepmanager.isTransitioning) {
             Animation currAnimation = currStep.animQueue.animation.front();
             Step& prevStep = stepmanager.step[stepmanager.currentStep - 1];
             if (currAnimation.type == AnimateType::DELETION) {
+                resetColorNode(prevStep.tempTable);
+                resetColorEdge(prevStep.tempEdge);
                 drawEdge(prevStep.tempEdge);
                 drawNode(prevStep.tempTable,currStep.highlightedNode);
             } else if (currAnimation.type == AnimateType::MOVEMENT) {
+                resetColorNode(prevStep.tempTable);
+                resetColorEdge(prevStep.tempEdge);
                 drawEdge(prevStep.tempEdge);
                 drawNode(prevStep.tempTable,currStep.highlightedNode);
             } else if (currAnimation.type == AnimateType::INSERTION) {
+                resetColorNode(currStep.tempTable);
+                resetColorEdge(currStep.tempEdge);
                 drawEdge(currStep.tempEdge);
                 drawNode(currStep.tempTable,currStep.highlightedNode);
             }
@@ -34,6 +39,8 @@ void HTable::draw() {
             calculatePosition(currStep.tempTable);
             resetAlphaEdge(currStep.tempEdge);
             resetAlphaNode(currStep.tempTable);
+            resetColorNode(currStep.tempTable);
+            resetColorEdge(currStep.tempEdge);
             drawEdge(currStep.tempEdge);
             drawNode(currStep.tempTable,currStep.highlightedNode);
             code.lineHighlighted = -1;
@@ -44,6 +51,8 @@ void HTable::draw() {
         BeginScissorMode(400,80,1040,640);
         BeginMode2D(camera);
         calculatePosition(HSvalue);
+        resetColorNode(HSvalue);
+        resetColorEdge(edge);
         drawEdge(edge);
         drawNode(HSvalue,-1);
         EndMode2D();
@@ -107,7 +116,8 @@ void HTable::drawNode(std::vector<ListNode*> table, int highlight) {
     int totalWidth = box.primeNumber * cellWidth + (box.primeNumber - 1) * gap;
     int offsetX = whiteAreaX + (whiteAreaWidth - totalWidth) / 2;
     for (int i = 0; i < table.size(); ++i) {
-        DrawRectangle(offsetX + i * (cellWidth + gap), offsetY, cellWidth, cellHeight, LIGHTGRAY);
+        if (theme == colorType::HOT) DrawRectangle(offsetX + i * (cellWidth + gap), offsetY, cellWidth, cellHeight, myColor1[0]);
+        else DrawRectangle(offsetX + i * (cellWidth + gap), offsetY, cellWidth, cellHeight, myColor2[0]);
         Vector2 textSize = MeasureTextEx(GetFontDefault(),std::to_string(i).c_str(),20,2);
         Vector2 textPos = {
             (float)(offsetX + i * (cellWidth + gap) + (cellWidth - textSize.x) / 2.0f),
@@ -133,7 +143,8 @@ void HTable::drawNode(std::vector<Node*> table, int highlight) {
     int totalWidth = box.primeNumber * cellWidth + (box.primeNumber - 1) * gap;
     int offsetX = whiteAreaX + (whiteAreaWidth - totalWidth) / 2;
     for (int i = 0; i < table.size(); ++i) {
-        DrawRectangle(offsetX + i * (cellWidth + gap), offsetY, cellWidth, cellHeight, LIGHTGRAY);
+        if (theme == colorType::HOT) DrawRectangle(offsetX + i * (cellWidth + gap), offsetY, cellWidth, cellHeight, myColor1[0]);
+        else DrawRectangle(offsetX + i * (cellWidth + gap), offsetY, cellWidth, cellHeight, myColor2[0]);
         Vector2 textSize = MeasureTextEx(GetFontDefault(),std::to_string(i).c_str(),20,2);
         Vector2 textPos = {
             (float)(offsetX + i * (cellWidth + gap) + (cellWidth - textSize.x) / 2.0f),
@@ -160,6 +171,13 @@ void HTable::resetAlphaNode(std::vector<Node*> table) {
         if (!table[i]) continue;
         ListNode* curr = (ListNode*) table[i];
         while (curr) {
+            if (theme == colorType::HOT) {
+                curr->currentColor = myColor1[0];
+                curr->targetColor = myColor1[2];
+            } else {
+                curr->currentColor = myColor2[0];
+                curr->targetColor = myColor2[2];
+            }
             curr->alpha = 1.0f;
             curr = curr->next;
         }
@@ -169,6 +187,52 @@ void HTable::resetAlphaNode(std::vector<Node*> table) {
 void HTable::resetAlphaEdge(std::vector<Edge*> edge) {
     for (int i = 0; i < edge.size(); ++i) {
         edge[i]->alpha = 1.0f;
+    }
+}
+
+void HTable::resetColorNode(std::vector<Node*> table) {
+    for (int i = 0; i < table.size(); ++i) {
+        if (!table[i]) continue;
+        ListNode* curr = (ListNode*) table[i];
+        while (curr) {
+            if (theme == colorType::HOT) {
+                curr->currentColor = myColor1[0];
+                curr->targetColor = myColor1[2];
+            } else {
+                curr->currentColor = myColor2[0];
+                curr->targetColor = myColor2[2];
+            }
+            curr = curr->next;
+        }
+    }
+}
+
+void HTable::resetColorNode(std::vector<ListNode*> table) {
+    for (int i = 0; i < table.size(); ++i) {
+        if (!table[i]) continue;
+        ListNode* curr = table[i];
+        while (curr) {
+            if (theme == colorType::HOT) {
+                curr->currentColor = myColor1[0];
+                curr->targetColor = myColor1[2];
+            } else {
+                curr->currentColor = myColor2[0];
+                curr->targetColor = myColor2[2];
+            }
+            curr = curr->next;
+        }
+    }
+}
+
+void HTable::resetColorEdge(std::vector<Edge*> edge) {
+    for (int i = 0; i < edge.size(); ++i) {
+        if (theme == colorType::HOT) {
+            edge[i]->currentColor = myColor1[1];
+            edge[i]->targetColor = myColor1[2];
+        } else {
+            edge[i]->currentColor = myColor2[1];
+            edge[i]->targetColor = myColor2[2];
+        }
     }
 }
 
@@ -198,6 +262,7 @@ void HTable::run() {
     if (!box.isOpen && func != Function::NONE) {
         switch (func) {
             case Function::INIT:
+            std::cout<<2;
                 remove();
                 initData();
                 func = Function::NONE;
@@ -261,7 +326,6 @@ void HTable::run() {
                 prepareTransition();
             }
         }
-        draw();
     } else {
         stepmanager.isPlaying = false;
         panel.isPlaying = false; 

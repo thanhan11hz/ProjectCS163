@@ -10,8 +10,8 @@
     }
 
     void Graph::GraphNode::applyDragForce() {
-        velocity.x *= (1-0.1f);
-        velocity.y *= (1-0.1f);
+        velocity.x *= (1-0.01f);
+        velocity.y *= (1-0.01f);
     }
 
     void Graph::GraphNode::updatePosition() {
@@ -24,6 +24,7 @@
             for (int j = i + 1; j < vertex.size(); ++j) {
                 Vector2 diff = {vertex[i]->position.x - vertex[j]->position.x, vertex[i]->position.y - vertex[j]->position.y };
                 float distance = std::sqrt(diff.x * diff.x + diff.y * diff.y);
+                if (distance > 100) continue;
                 if (distance < 1.0f) distance = 1.0f;
                 float force = 5000.0f / (distance * distance);
                 Vector2 electricForce = {force * diff.x / distance, force * diff.y / distance};
@@ -36,10 +37,13 @@
     }
 
     void Graph::updateVertex() {
+        handleMouse();
         applyElectricForce();
         for (int i = 0; i < vertex.size(); ++i) {
-            vertex[i]->applySpringForce();
-            vertex[i]->applyDragForce();
+            if (!vertex[i]->isDragging) {
+                vertex[i]->applySpringForce();
+                vertex[i]->applyDragForce();
+            }
             vertex[i]->updatePosition();
         }
     }
@@ -48,23 +52,30 @@
         Vector2 mousePos = GetMousePosition();
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
             for (int i = 0; i < vertex.size(); ++i) {
-                if (CheckCollisionPointCircle(mousePos,vertex[i]->position,20)) {
+                if (CheckCollisionPointCircle(mousePos, vertex[i]->position, 30)) {
                     dragging = true;
                     selectedNode = vertex[i];
                     vertex[i]->isDragging = true;
+                    std::cout << "Node selected: " << i << std::endl; 
                     break;
                 }
             }
         }
-
+    
         if (dragging && selectedNode) {
             selectedNode->position = mousePos;
+            selectedNode->fixedPosition = mousePos;
+            std::cout << "Dragging node to: " << mousePos.x << ", " << mousePos.y << std::endl; // Debug
         }
-
+    
         if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
+            std::cout << "Mouse released" << std::endl; 
             dragging = false;
+            if (selectedNode) {
+                selectedNode->isDragging = false;
+                std::cout << "Node released" << std::endl; 
+            }
             selectedNode = nullptr;
-            selectedNode->isDragging = false;
         }
     }
 
@@ -86,7 +97,9 @@
         std::uniform_real_distribution<float> disty(80.0f,720.0f);
         for (int i = 0; i < vertex.size(); ++i) {
             vertex[i]->position.x = distx(gen);
+            vertex[i]->fixedPosition.x = vertex[i]->position.x;
             vertex[i]->position.y = disty(gen);
+            vertex[i]->fixedPosition.y = vertex[i]->position.y;
         }
     }
 
@@ -103,19 +116,22 @@
             Step currStep = stepmanager.step[stepmanager.currentStep];
             log.infor = currStep.description;
             code.lineHighlighted = currStep.highlightedLine;
-            drawView();
             BeginScissorMode(400,80,1040,640);
             BeginMode2D(camera);
             if (stepmanager.isTransitioning) {
                 Animation currAnimation = currStep.animQueue.animation.front();
                 Step& prevStep = stepmanager.step[stepmanager.currentStep - 1];
                 if (currAnimation.type == AnimateType::HIGHLIGHT) {
+                    resetColorEdge();
+                    resetColorNode();
                     drawEdge(edge);
                     drawNode(vertex);
                 }
             } else {
-                resetColorEdge(currStep);
-                resetColorNode(currStep);
+                resetProgressNode(currStep);
+                resetProgressEdge(currStep);
+                resetColorEdge();
+                resetColorNode();
                 drawEdge(edge);
                 drawNode(vertex);
             }
@@ -135,49 +151,61 @@
 
     void Graph::drawNode(std::vector<GraphNode*> vertex) {
         for (int i = 0; i < vertex.size(); ++i) {
-            vertex[i]->draw();
+            vertex[i]->drawAnimation();
         }
     }
 
     void Graph::drawEdge(std::vector<Edge*> edge) {
         for (int i = 0; i < edge.size(); ++i) {
-            edge[i]->draw();
+            edge[i]->drawAnimation();
         }
     }
 
     void Graph::resetColorNode() {
         for (int i = 0; i < vertex.size(); ++i) {
-            vertex[i]->currentColor = GRAY;
-        }
-    }
-
-    void Graph::resetColorNode(Step step) {
-        for (int i = 0; i < vertex.size(); ++i) {
-            vertex[i]->currentColor = GRAY;
-        }
-        for (int i = 0; i < step.nodeHighlight.size(); ++i) {
-            step.nodeHighlight[i]->currentColor = RED;
+            if (theme == colorType::HOT) {
+                vertex[i]->currentColor = myColor1[0];
+                vertex[i]->targetColor = myColor1[2];
+            } else {
+                vertex[i]->currentColor = myColor2[0];
+                vertex[i]->targetColor = myColor2[2];
+            }      
         }
     }
 
     void Graph::resetColorEdge() {
         for (int i = 0; i < edge.size(); ++i) {
-            edge[i]->currentColor = BLACK;
+            if (theme == colorType::HOT) {
+                edge[i]->currentColor = myColor1[1];
+                edge[i]->targetColor = myColor1[2];
+            } else {
+                edge[i]->currentColor = myColor2[1];
+                edge[i]->targetColor = myColor2[2];
+            }
         }
-    } 
+    }
+
+    void Graph::resetProgressNode(Step step) {
+        for (int i = 0; i < vertex.size(); ++i) {
+            vertex[i]->progress = 0.0f;
+        }
+
+        for (int i = 0; i < step.nodeHighlight.size(); ++i) {
+            step.nodeHighlight[i]->progress = 1.0f;
+        }
+    }
         
-    void Graph::resetColorEdge(Step step) {
+    void Graph::resetProgressEdge(Step step) {
         for (int i = 0; i < edge.size(); ++i) {
-            edge[i]->currentColor = BLACK;
+            edge[i]->progress = 0.0f;
         }
         for (int i = 0; i < step.edgeHighlight.size(); ++i) {
-            step.edgeHighlight[i]->currentColor = RED;
+            step.edgeHighlight[i]->progress = 1.0f;
         }
     }
 
     void Graph::run() {
         eventView();
-        
         if (option.isInitialize()) func = Function::INIT;
         if (option.isAdd()) func = Function::INSERT;
         if (option.isDelete()) func = Function::DELETE;
@@ -234,6 +262,9 @@
             stepmanager.isPlaying = true;
             panel.isPlaying = true;
         }
+        
+        updateVertex();
+
         auto now = std::chrono::steady_clock::now();
         float deltaTime = std::chrono::duration<float>(now - lastUpdateTime).count();
         lastUpdateTime = now;
@@ -249,7 +280,6 @@
                     prepareTransition();
                 }
             }
-            draw();
         } else {
             stepmanager.isPlaying = false;
             panel.isPlaying = false; 
@@ -315,18 +345,26 @@
     }
 
     void Graph::remove() {
+        for (int i = 0; i < vertex.size(); ++i) {
+            vertex[i]->progress = 0.0f;
+        }
+        for (int i = 0; i < edge.size(); ++i) {
+            edge[i]->progress = 0.0f;
+        }
         code.codeline.clear();
         stepmanager.step.clear();
         stepmanager.currentStep = 0;
     }
 
     void Graph::initData() {
+        if (box.adjMatrix.size() == 0) return;
         vertex.resize(box.adjMatrix.size(),nullptr);
         for (int i = 0; i < vertex.size(); ++i) {
             vertex[i] = new GraphNode;
+            vertex[i]->val = i;
         }
         for (int i = 0; i < box.adjMatrix.size() - 1; ++i) {
-            for (int j = 0; j < box.adjMatrix.size(); ++j) {
+            for (int j = i + 1; j < box.adjMatrix.size(); ++j) {
                 if (box.adjMatrix[i][j]) {
                     Edge* line = new Edge;
                     line->endPoint1 = vertex[i];
@@ -337,7 +375,7 @@
         }
         do {
             generatePosition();
-        } while (checkValidPos());
+        } while (!checkValidPos());
     }
 
     void Graph::dijkstra() {

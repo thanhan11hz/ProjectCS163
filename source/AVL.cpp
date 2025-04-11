@@ -14,22 +14,24 @@ void AVL::draw() {
         Step currStep = stepmanager.step[stepmanager.currentStep];
         log.infor = currStep.description;
         code.lineHighlighted = currStep.highlightedLine;
-        drawView();
         BeginScissorMode(400,80,1040,640);
         BeginMode2D(camera);
         if (stepmanager.isTransitioning) {
             Animation currAnimation = currStep.animQueue.animation.front();
             Step& prevStep = stepmanager.step[stepmanager.currentStep - 1];
             if (currAnimation.type == AnimateType::DELETION) {
-                std::cout<<1;
+                resetColorNode((TreeNode*)prevStep.tempRoot);
+                resetColorEdge(prevStep.tempEdge);
                 drawEdge(prevStep.tempEdge);
                 drawNode((TreeNode*)prevStep.tempRoot,currStep.highlightedNode);
             } else if (currAnimation.type == AnimateType::MOVEMENT) {
-                std::cout<<2;
+                resetColorNode((TreeNode*)prevStep.tempRoot);
+                resetColorEdge(prevStep.tempEdge);
                 drawEdge(prevStep.tempEdge);
                 drawNode((TreeNode*)prevStep.tempRoot,currStep.highlightedNode);
             } else if (currAnimation.type == AnimateType::INSERTION) {
-                std::cout<<3;
+                resetColorNode((TreeNode*)currStep.tempRoot);
+                resetColorEdge(currStep.tempEdge);
                 drawEdge(currStep.tempEdge);
                 drawNode((TreeNode*)currStep.tempRoot,currStep.highlightedNode);
             }
@@ -38,6 +40,8 @@ void AVL::draw() {
             calculatePositions((TreeNode*)currStep.tempRoot,980,120);
             resetAlphaEdge(currStep.tempEdge);
             resetAlphaNode((TreeNode*)currStep.tempRoot);
+            resetColorNode((TreeNode*)currStep.tempRoot);
+            resetColorEdge(currStep.tempEdge);
             drawEdge(currStep.tempEdge);
             drawNode((TreeNode*)currStep.tempRoot,currStep.highlightedNode);
         }
@@ -48,6 +52,8 @@ void AVL::draw() {
         BeginMode2D(camera);
         calculateSubtreeWidth(root);
         calculatePositions(root,980,120);
+        resetColorNode(root);
+        resetColorEdge(edge);
         drawEdge(edge);
         drawNode(root,-1);
         EndMode2D();
@@ -96,6 +102,13 @@ void AVL::drawEdge(std::vector<Edge*> edge) {
 
 void AVL::resetAlphaNode(TreeNode* node) {
     if (!node) return;
+    if (theme == colorType::HOT) {
+        node->currentColor = myColor1[0];
+        node->targetColor = myColor1[2];
+    } else {
+        node->currentColor = myColor2[0];
+        node->targetColor = myColor2[2];
+    }
     node->alpha = 1.0f;
     resetAlphaNode(node->left);
     resetAlphaNode(node->right);
@@ -103,7 +116,39 @@ void AVL::resetAlphaNode(TreeNode* node) {
 
 void AVL::resetAlphaEdge(std::vector<Edge*> edge) {
     for (int i = 0; i < edge.size(); ++i) {
+        if (theme == colorType::HOT) {
+            edge[i]->currentColor = myColor1[1];
+            edge[i]->targetColor = myColor1[2];
+        } else {
+            edge[i]->currentColor = myColor2[1];
+            edge[i]->targetColor = myColor2[2];
+        }
         edge[i]->alpha = 1.0f;
+    }
+}
+
+void AVL::resetColorNode(TreeNode* node) {
+    if (!node) return;
+    if (theme == colorType::HOT) {
+        node->currentColor = myColor1[0];
+        node->targetColor = myColor1[2];
+    } else {
+        node->currentColor = myColor2[0];
+        node->targetColor = myColor2[2];
+    }
+    resetColorNode(node->left);
+    resetColorNode(node->right);
+}
+
+void AVL::resetColorEdge(std::vector<Edge*> edge) {
+    for (int i = 0; i < edge.size(); ++i) {
+        if (theme == colorType::HOT) {
+            edge[i]->currentColor = myColor1[1];
+            edge[i]->targetColor = myColor1[2];
+        } else {
+            edge[i]->currentColor = myColor2[1];
+            edge[i]->targetColor = myColor2[2];
+        }
     }
 }
 
@@ -188,7 +233,6 @@ void AVL::run() {
                 prepareTransition();
             }
         }
-        draw();
     } else {
         stepmanager.isPlaying = false;
         panel.isPlaying = false; 

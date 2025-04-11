@@ -11,7 +11,7 @@ class Graph : public Logic, public View {
         class GraphNode: public Node {
             public:
                 Vector2 fixedPosition;
-                Vector2 velocity;
+                Vector2 velocity = {0,0};
                 bool isDragging = false;
                 void applySpringForce();
                 void applyDragForce();
@@ -48,18 +48,14 @@ class Graph : public Logic, public View {
             void unite(int a, int b);
         };
 
-        std::chrono::time_point<std::chrono::steady_clock> lastUpdateTime;
-        float accumulatedTime = 0.0f;
-        const float stepDuration = 0.5f;
-        
         void init();
         void draw();
         void drawNode(std::vector<GraphNode*> vertex);
         void drawEdge(std::vector<Edge*> edge);
         void resetColorNode();
-        void resetColorNode(Step step);
         void resetColorEdge();
-        void resetColorEdge(Step step);
+        void resetProgressNode(Step step);
+        void resetProgressEdge(Step step);
         void run();
         void prepareTransition();
         void exit();

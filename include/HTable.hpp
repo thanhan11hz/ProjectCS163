@@ -20,9 +20,6 @@ class HTable: public Logic, public View {
         };
         std::vector<ListNode*> HSvalue;
         std::vector<Edge*> edge;
-        std::chrono::time_point<std::chrono::steady_clock> lastUpdateTime;
-        float accumulatedTime = 0.0f;
-        const float stepDuration = 0.5f;
         void init();
         void draw();
         void calculatePosition(std::vector<ListNode*> table);
@@ -32,6 +29,9 @@ class HTable: public Logic, public View {
         void drawEdge(std::vector<Edge*> edge);
         void resetAlphaNode(std::vector<Node*> table);
         void resetAlphaEdge(std::vector<Edge*> edge);
+        void resetColorNode(std::vector<Node*> table);
+        void resetColorNode(std::vector<ListNode*> table);
+        void resetColorEdge(std::vector<Edge*> edge);
         void run();
         void exit();
         void remove();
