@@ -1,36 +1,36 @@
-#include <iostream>
 #include "Program.hpp"
-#include "GlobalVar.hpp"
-
-void initBackGround()
-{
-    font = GetFontDefault();
-}
-
-void drawBackGround()
-{
-    DrawRectangle(0, 0, screenWidth, screenHeight, (Color){144, 12, 63, 255});
-}
 
 Program::Program()
 {
     InitWindow(screenWidth, screenHeight, "My Raylib App");
     SetTargetFPS(60);
-    initBackGround();
     menu.init();
     mode = Mode::MENU;
+    font = GetFontDefault();
+    InitAudioDevice();
+    music = LoadMusicStream("resource\\Music\\VietTiepCauChuyenHoaBinh-NguyenVanChungNguyenDuyenQuynh-12664541.mp3");
+    myFont[0] = GetFontDefault();
+    myFont[1] = LoadFont("resource\\Font\\Roboto-Bold.ttf");
+    myFont[2] = LoadFont("resource\\Font\\Consolas-Bold.ttf");
+    myFont[3] = LoadFont("resource\\Font\\Inter-Bold.ttf");
+    myFont[4] = LoadFont("resource\\Font\\OpenSans-Bold.ttf");
 }
 
 void Program::run()
 {
+    PlayMusicStream(music);
+    SetMusicVolume(music, 0.0f);
     while (!WindowShouldClose())
     {
+        UpdateMusicStream(music);
         BeginDrawing();
         ClearBackground(RAYWHITE);
         eventProcessing();
         drawing();
         EndDrawing();
     }
+    UnloadMusicStream(music);
+    CloseAudioDevice();
     CloseWindow();
 }
 
@@ -38,6 +38,7 @@ void Program::eventProcessing()
 {
     if (mode == Mode::MENU)
     {
+        menu.update();
         int x = menu.modePresson();
         if (x == 0)
         {
@@ -82,7 +83,6 @@ void Program::drawing()
 {
     if (mode == Mode::MENU)
     {
-        drawBackGround();
         menu.draw();
     }
     else if (mode == Mode::SLLIST)

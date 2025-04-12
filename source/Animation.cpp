@@ -40,7 +40,7 @@ void AnimationQueue::applyAnimation(Animation &anim) {
             for (auto node: anim.deletedNode) {
                 node->alpha = 1.0f - anim.progress;
             }
-            for (auto edge: anim.insertedEdge) {
+            for (auto edge: anim.deletedEdge) {
                 edge->alpha = 1.0f - anim.progress;
             }
             break;
@@ -49,6 +49,13 @@ void AnimationQueue::applyAnimation(Animation &anim) {
                 pair.first->position = lerp(pair.first->position,pair.second->position,anim.progress);
             }
             break;
+        case AnimateType::HIGHLIGHT:
+            for (auto node: anim.highlightedNode) {
+                node->progress = anim.progress;
+            }
+            for (auto edge: anim.highlightedEdge) {
+                edge->progress = anim.progress;
+            }
         default:
             break;
     }

@@ -2,18 +2,10 @@
 #include "GlobalVar.hpp"
 
 void Button::draw() {
-    Color colorDraw = isHovered ? Fade(color,0.6f) : color;
-    float roundness = 0.2f; 
-    int segments = 10; 
-    DrawRectangleRounded(rec, roundness, segments, colorDraw);
-    float fontSize = 20;
-    float spacing = 2;
-    Vector2 textSize = MeasureTextEx(font, text.c_str(), fontSize, spacing);
-    Vector2 textPos = {
-        rec.x + rec.width / 2.0f - textSize.x / 2.0f,
-        rec.y + rec.height / 2.0f - textSize.y / 2.0f
-    };
-    DrawTextEx(font, text.c_str(), textPos, fontSize, spacing, (Color){248,222,34,255});
+    Color colorDraw = isHovered ? Fade(WHITE,0.6f) : WHITE;
+    Rectangle sourceRec = {0, 0, (float)picture.width, (float)picture.height};
+    Vector2 origin = {0, 0};
+    DrawTexturePro(picture, sourceRec, rec, origin, 0.0f, colorDraw);
 }
 
 void Button::checkHovered(Vector2 mousePosition) {

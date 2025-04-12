@@ -12,7 +12,7 @@
 class View {
     public:
         struct Panel {
-            Rectangle rec = {0, 720, 1440, 90};
+            Rectangle rec = {0, 720, 1440, 100};
             float buttonSize = 50;
             float spacing = 20;
             float totalWidth = 3 * buttonSize + 2 * spacing;
@@ -41,14 +41,20 @@ class View {
         } log;
         struct CodeBlock {
             Rectangle rec;
-            Rectangle scrollBar = {400,80,10,320};
-            std::vector<std::string> codeline;
-            int lineHighlighted = -1;
-            const int lineHeight = 26;
-            const int visibleLines = 10;  
-            float scrollOffset = 0.0f;
-            void draw();
-            void update();
+        Rectangle scrollBar = {377.5f, 140, 15, 200}; // Scrollbar track
+        Rectangle scrollThumb = {377.5f, 140, 15, 40}; // Scrollbar thumb
+        std::vector<std::string> codeline;
+        int lineHighlighted = -1;
+        const int lineHeight = 26;
+        const int visibleLines = 8;
+        float scrollOffset = 0;
+        float maxScrollOffset = 0;
+        bool isDragging = false;
+        float dragOffsetY = 0;
+        
+        void draw();
+        void update();
+        void calculateMaxScroll();
         } code;
         struct Option {
             Vector2 postion = {400, 545};
@@ -59,7 +65,8 @@ class View {
             void draw();
         } option;
         struct Home {
-            Texture2D icon;
+            Texture2D hot_icon;
+            Texture2D cold_icon;
             void draw();
             bool isReturnMenu();
         } home;
@@ -75,7 +82,7 @@ class View {
             std::vector<int> someList;
 
             // for graph
-            std::vector<std::vector<int>> ADJmatrix;
+            std::vector<std::vector<int>> adjMatrix;
             int startedVertex = 0;
             bool processingGraphMatrix = false;
 
@@ -123,7 +130,7 @@ class View {
             float startX = 40;
             float startY = 574;
 
-            Rectangle panelRec = {0, 500, 400, 220};
+            Rectangle panelRec = {0, 510, 400, 200};
             Rectangle textboxButton = {startX, startY, buttonWidth, buttonHeight};
             Rectangle fileButton = {startX, startY + 62, buttonWidth, buttonHeight};
             Rectangle urlButton = {startX + 200, startY, buttonWidth, buttonHeight};
@@ -139,8 +146,24 @@ class View {
 
         } inputPanel;
 
+
+        struct Setting {
+            bool isOpen = false;
+            bool isMuted = true;
+            int fontType = 0;
+            std::vector<std::string> fontList = {"Default", "Roboto", "Consolas", "Inter", "OpenSans"};
+            bool themeView = true;
+            Texture2D hotSetting;
+            Texture2D coldSetting;
+            Texture2D hotSpeaker;
+            Texture2D coldSpeaker;
+            Texture2D hotMuted;
+            Texture2D coldMuted;
+            void draw();
+            void update();
+        } setting;
+
         virtual ~View() = default;
-    
         void initView();
         void drawView();
         void eventView();

@@ -9,6 +9,9 @@ class Edge {
         Node *endPoint1 = nullptr, *endPoint2 = nullptr;
         int ID = -1;
         int alpha = 1.0f;
+        Color currentColor = BLACK;
+        Color targetColor = RED;
+        float progress = 0.0f;
         Edge(): endPoint1(nullptr), endPoint2(nullptr) {
             ID = globalID;
             globalID++;
@@ -19,6 +22,7 @@ class Edge {
         };
         void draw();
         void drawHighlighted();
+        void drawAnimation();
 };
 
 #endif

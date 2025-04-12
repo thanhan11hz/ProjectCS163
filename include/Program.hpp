@@ -8,9 +8,7 @@
 #include "HTable.hpp"
 #include "AVL.hpp"
 #include "Graph.hpp"
-
-void drawBackGround();
-
+#include "GlobalVar.hpp"
 class Program {
     private:
         Menu menu;

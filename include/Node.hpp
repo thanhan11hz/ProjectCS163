@@ -13,8 +13,12 @@ class Node {
         Vector2 position;
         int ID;
         float alpha = 1.0f;
+        Color currentColor;
+        Color targetColor;
+        float progress = 0.0f;
         void draw();
         void drawHighlight();
+        void drawAnimation();
 };
 
 #endif 

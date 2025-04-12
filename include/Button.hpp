@@ -7,16 +7,13 @@
 class Button {
     public:
         Rectangle rec;
-        Color color;
+        //Color color;
         bool isHovered;
-        std::string text;
+        Texture2D picture;
     public:
-        //Constructor
         Button() {};
-        Button(Rectangle rec, Color color,bool isHovered, std::string text): rec(rec), color(color), isHovered(isHovered), text(text) {};
-        // Draw button
+        Button(Rectangle rec, bool isHovered): rec(rec), isHovered(isHovered){};
         void draw();
-        // Check mouse if they is pressed or hovered
         void checkHovered(Vector2 mousePosition);
         bool checkPress(Vector2 mousePosition, bool mousePressed);
 };

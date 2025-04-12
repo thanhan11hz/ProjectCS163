@@ -10,14 +10,21 @@
 class Menu {
     private:
         std::vector<Button> button;
-        std::string title = "Visualize Data Structures";
+        std::string title = "Data Structure Visualization";
+        std::string logo = "Project CS163 by Group 7";
+        Texture2D hotList;
+        Texture2D hotTable;
+        Texture2D hotTree;
+        Texture2D hotGraph;
+        Texture2D coldList;
+        Texture2D coldTable;
+        Texture2D coldTree;
+        Texture2D coldGraph;
     public:
-        // Initialize the new menu
         void init();
-        // Draw button, logo, ... in the menu
         void draw();
-        // What button of a data structure is pressed
         int modePresson();
+        void update();
 };
 
 #endif 
