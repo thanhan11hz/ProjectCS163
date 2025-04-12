@@ -803,5 +803,6 @@ void View::eventView() {
     if (IsKeyDown(KEY_UP)) camera.target.y += 2;
     if (IsKeyDown(KEY_DOWN)) camera.target.y -=2;
     camera.zoom += GetMouseWheelMove() * 0.1f;
+}
 
 
