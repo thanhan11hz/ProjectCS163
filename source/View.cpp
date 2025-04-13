@@ -188,6 +188,7 @@ void View::Option::draw()
         startX + (buttonWidth - textSize.x)/2.0f,
         startY + (buttonHeight - textSize.y)/2.0f
     };
+
     if (theme == colorType::HOT) {
         DrawRectangleRounded(IniButton, 0.3f, 10, myColor1[1]);
         DrawTextEx(font, "Initialize", textPos, 20, 5, myColor1[0]);    
@@ -195,49 +196,94 @@ void View::Option::draw()
         DrawRectangleRounded(IniButton, 0.3f, 10, myColor2[1]);
         DrawTextEx(font, "Initialize", textPos, 20, 5, myColor2[0]); 
     }
-   
-    Rectangle InsertButton = {startX, startY + 62, buttonWidth, buttonHeight};
-    textSize = MeasureTextEx(font,"Insert",20,5);
-    textPos = {
-        startX + (buttonWidth - textSize.x)/2.0f,
-        startY + 62 + (buttonHeight - textSize.y)/2.0f
-    };
-    if (theme == colorType::HOT) {
-        DrawRectangleRounded(InsertButton, 0.3f, 10, myColor1[1]);
-        DrawTextEx(font, "Insert", textPos, 20, 5, myColor1[0]);
-    } else {
-        DrawRectangleRounded(InsertButton, 0.3f, 10, myColor2[1]);
-        DrawTextEx(font, "Insert", textPos, 20, 5, myColor2[0]);
-    }
+
+    if (mode == Mode::AVL || mode == Mode::SLLIST || mode == Mode::HTABLE){
+        Rectangle InsertButton = {startX, startY + 62, buttonWidth, buttonHeight};
+        textSize = MeasureTextEx(font,"Insert",20,5);
+        textPos = {
+            startX + (buttonWidth - textSize.x)/2.0f,
+            startY + 62 + (buttonHeight - textSize.y)/2.0f
+        };
+        if (theme == colorType::HOT) {
+            DrawRectangleRounded(InsertButton, 0.3f, 10, myColor1[1]);
+            DrawTextEx(font, "Insert", textPos, 20, 5, myColor1[0]);
+        } else {
+            DrawRectangleRounded(InsertButton, 0.3f, 10, myColor2[1]);
+            DrawTextEx(font, "Insert", textPos, 20, 5, myColor2[0]);
+        }
     
-    Rectangle SearchButton = {startX + 200, startY, buttonWidth, buttonHeight};
-    textSize = MeasureTextEx(font,"Search",20,5);
-    textPos = {
-        startX + 200 + (buttonWidth - textSize.x)/2.0f,
-        startY + (buttonHeight - textSize.y)/2.0f
-    };
-    if (theme == colorType::HOT) {
-        DrawRectangleRounded(SearchButton, 0.3f, 10, myColor1[1]);
-        DrawTextEx(font, "Search", textPos, 20, 5, myColor1[0]);
-    } else {
-        DrawRectangleRounded(SearchButton, 0.3f, 10, myColor2[1]);
-        DrawTextEx(font, "Search", textPos, 20, 5, myColor2[0]);
-    }
+        Rectangle SearchButton = {startX + 200, startY, buttonWidth, buttonHeight};
+        textSize = MeasureTextEx(font,"Search",20,5);
+        textPos = {
+            startX + 200 + (buttonWidth - textSize.x)/2.0f,
+            startY + (buttonHeight - textSize.y)/2.0f
+        };
+        if (theme == colorType::HOT) {
+            DrawRectangleRounded(SearchButton, 0.3f, 10, myColor1[1]);
+            DrawTextEx(font, "Search", textPos, 20, 5, myColor1[0]);
+        } else {
+            DrawRectangleRounded(SearchButton, 0.3f, 10, myColor2[1]);
+            DrawTextEx(font, "Search", textPos, 20, 5, myColor2[0]);
+        }
    
-    Rectangle DeleteButton = {startX + 200, startY + 62, buttonWidth, buttonHeight};
-    textSize = MeasureTextEx(font,"Delete",20,5);
-    textPos = {
-        startX + 200 + (buttonWidth - textSize.x)/2.0f,
-        startY + 62 + (buttonHeight - textSize.y)/2.0f
-    };
-    if (theme == colorType::HOT) {
-        DrawRectangleRounded(DeleteButton, 0.3f, 10, myColor1[1]);
-        DrawTextEx(font, "Delete", textPos, 20, 5, myColor1[0]);
-    } else {
-        DrawRectangleRounded(DeleteButton, 0.3f, 10, myColor2[1]);
-        DrawTextEx(font, "Delete", textPos, 20, 5, myColor2[0]);
+        Rectangle DeleteButton = {startX + 200, startY + 62, buttonWidth, buttonHeight};
+        textSize = MeasureTextEx(font,"Delete",20,5);
+        textPos = {
+            startX + 200 + (buttonWidth - textSize.x)/2.0f,
+            startY + 62 + (buttonHeight - textSize.y)/2.0f
+        };
+        if (theme == colorType::HOT) {
+            DrawRectangleRounded(DeleteButton, 0.3f, 10, myColor1[1]);
+            DrawTextEx(font, "Delete", textPos, 20, 5, myColor1[0]);
+        } else {
+            DrawRectangleRounded(DeleteButton, 0.3f, 10, myColor2[1]);
+            DrawTextEx(font, "Delete", textPos, 20, 5, myColor2[0]);
+        }
     }
+
+    else if (mode == Mode::GRAPH){
+        Rectangle InsertButton = {startX, startY + 62, buttonWidth, buttonHeight};
+        textSize = MeasureTextEx(font,"Dijkstra",20,5);
+        textPos = {
+            startX + (buttonWidth - textSize.x)/2.0f,
+            startY + 62 + (buttonHeight - textSize.y)/2.0f
+        };
+        if (theme == colorType::HOT) {
+            DrawRectangleRounded(InsertButton, 0.3f, 10, myColor1[1]);
+            DrawTextEx(font, "Dijsktra", textPos, 20, 5, myColor1[0]);
+        } else {
+            DrawRectangleRounded(InsertButton, 0.3f, 10, myColor2[1]);
+            DrawTextEx(font, "Dijsktra", textPos, 20, 5, myColor2[0]);
+        }
     
+        Rectangle SearchButton = {startX + 200, startY, buttonWidth, buttonHeight};
+        textSize = MeasureTextEx(font,"Prim",20,5);
+        textPos = {
+            startX + 200 + (buttonWidth - textSize.x)/2.0f,
+            startY + (buttonHeight - textSize.y)/2.0f
+        };
+        if (theme == colorType::HOT) {
+            DrawRectangleRounded(SearchButton, 0.3f, 10, myColor1[1]);
+            DrawTextEx(font, "Prim", textPos, 20, 5, myColor1[0]);
+        } else {
+            DrawRectangleRounded(SearchButton, 0.3f, 10, myColor2[1]);
+            DrawTextEx(font, "Prim", textPos, 20, 5, myColor2[0]);
+        }
+   
+        Rectangle DeleteButton = {startX + 200, startY + 62, buttonWidth, buttonHeight};
+        textSize = MeasureTextEx(font,"Kruksal",20,5);
+        textPos = {
+            startX + 200 + (buttonWidth - textSize.x)/2.0f,
+            startY + 62 + (buttonHeight - textSize.y)/2.0f
+        };
+        if (theme == colorType::HOT) {
+            DrawRectangleRounded(DeleteButton, 0.3f, 10, myColor1[1]);
+            DrawTextEx(font, "Kruksal", textPos, 20, 5, myColor1[0]);
+        } else {
+            DrawRectangleRounded(DeleteButton, 0.3f, 10, myColor2[1]);
+            DrawTextEx(font, "Kruksal", textPos, 20, 5, myColor2[0]);
+        }
+    }
 }
 
 bool View::Option::isInitialize()
@@ -417,7 +463,7 @@ bool View::TextBox::processFileData(const std::string& filePath) {
             adjMatrix.push_back(row);
         }
         processingGraphMatrix = false;
-        parent->log.infor.push_back("Loaded adjacency matrix successfully" + std::to_string(adjMatrix.size()) + "x" + std::to_string(adjMatrix.empty() ? 0 : adjMatrix[0].size()));
+        parent->log.infor.push_back("Loaded adjacency matrix successfully: " + std::to_string(adjMatrix.size()) + " x " + std::to_string(adjMatrix.empty() ? 0 : adjMatrix[0].size()));
 
     }
 
@@ -434,7 +480,7 @@ bool View::TextBox::processFileData(const std::string& filePath) {
             }
         }
 
-        if (std::getline(ss, line)) {  // for the prime number
+        if (std::getline(ss, line)) {  
             try {
                 primeNumber = std::stoi(line);
                 enteredPrime = true;
@@ -464,11 +510,13 @@ bool View::TextBox::processFileData(const std::string& filePath) {
 
     // DEBUG
     if (mode == Mode::HTABLE){
-        parent->log.infor.push_back("Prime number: " + std::to_string(primeNumber));
-        parent->log.infor.push_back("Values count: " + std::to_string(someList.size()));
+        
+        std::cout << "Values count: " << someList.size() << std::endl;
+        std::cout << "Prime number: " << someList.size() << std::endl;
     }
     else if (mode == Mode::GRAPH){
         parent->log.infor.push_back("Number of vertices: " + std::to_string(adjMatrix.size()));
+        std::cout << "Number of vertices: " << adjMatrix.size() << std::endl;
     }
     
 
@@ -499,7 +547,7 @@ void View::TextBox::update() {
 
         if (IsKeyPressed(KEY_ENTER)) {
             if (mode == Mode::HTABLE) {
-                if (!enteredValues) {
+                if (!enteredValues){
                     std::vector<int> numbers;
                     std::stringstream ss(value);  
                     std::string token;
@@ -1035,6 +1083,9 @@ void View::initView()
     setting.hotMuted = LoadTexture("resource\\Texture\\hotMuted.png");
     setting.coldSpeaker = LoadTexture("resource\\Texture\\coldSpeaker.png");
     setting.coldMuted = LoadTexture("resource\\Texture\\coldMuted.png");
+    if (!IsMusicStreamPlaying(music)) setting.isMuted = true;
+    else setting.isMuted = false;
+    setting.isOpen = false;
 
     camera = {0};
     camera.offset = (Vector2){0, 0};       
@@ -1163,18 +1214,32 @@ void View::eventView() {
     }
 
     else {
-        if (option.isInitialize()){
-            box.isOpen = false;
-            inputPanel.isOpen = true;
+        if (mode == Mode::SLLIST || mode == Mode::AVL || mode == Mode::HTABLE){
+            if (option.isInitialize()){
+                box.isOpen = false;
+                inputPanel.isOpen = true;
+            }
+            else if (option.isAdd() || option.isDelete() || option.isSearch()){
+                box.isOpen = true;
+                inputPanel.isOpen = false;
+                box.isTextboxMode = true;
+                box.isURLMode = false;
+                box.value.clear();
+                
+            }
         }
-        else if (option.isAdd() || option.isDelete() || option.isSearch()){
-            box.isOpen = true;
-            inputPanel.isOpen = false;
-            box.isTextboxMode = true;
-            box.isURLMode = false;
-            box.value.clear();
-            
+        else if (mode == Mode::GRAPH){
+            if (option.isInitialize()){
+                box.isOpen = false;
+                inputPanel.isOpen = true;
+            }
+            else if (option.isAdd() || option.isDelete() || option.isSearch()){
+                box.isOpen = false;
+                inputPanel.isOpen = false; 
+            }
+
         }
+        
     }
     if (box.isOpen && box.isDragDropMode) {
         box.handleFileDrop(); // Xử lý kéo thả file
@@ -1200,6 +1265,4 @@ void View::eventView() {
     if (IsKeyDown(KEY_UP)) camera.target.y += 2;
     if (IsKeyDown(KEY_DOWN)) camera.target.y -=2;
     camera.zoom += GetMouseWheelMove() * 0.1f;
-
 }
-

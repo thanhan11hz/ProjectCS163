@@ -256,7 +256,7 @@ void HTable::run() {
     }
     if (option.isSearch()) {
         box.enteredValues = false;
-        box.enteredPrime = false;
+        box.enteredPrime = true;
         func = Function::SEARCH;
     }
     if (!box.isOpen && func != Function::NONE) {
