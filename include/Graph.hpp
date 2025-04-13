@@ -13,6 +13,11 @@ class Graph : public Logic, public View {
                 Vector2 fixedPosition;
                 Vector2 velocity = {0,0};
                 bool isDragging = false;
+                GraphNode(int val) {
+                    this->val = val;
+                    ID = globalID;
+                    globalID++;
+                }
                 void applySpringForce();
                 void applyDragForce();
                 void updatePosition();
@@ -62,7 +67,7 @@ class Graph : public Logic, public View {
         void remove();
         void initData();
         void dijkstra();
-        void checkConnected();
+        bool checkConnected();
         void prim();
         void kruskal();
 };

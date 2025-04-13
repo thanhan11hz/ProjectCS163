@@ -271,17 +271,17 @@ void View::Option::draw()
         }
    
         Rectangle DeleteButton = {startX + 200, startY + 62, buttonWidth, buttonHeight};
-        textSize = MeasureTextEx(font,"Kruksal",20,5);
+        textSize = MeasureTextEx(font,"Kruskal",20,5);
         textPos = {
             startX + 200 + (buttonWidth - textSize.x)/2.0f,
             startY + 62 + (buttonHeight - textSize.y)/2.0f
         };
         if (theme == colorType::HOT) {
             DrawRectangleRounded(DeleteButton, 0.3f, 10, myColor1[1]);
-            DrawTextEx(font, "Kruksal", textPos, 20, 5, myColor1[0]);
+            DrawTextEx(font, "Kruskal", textPos, 20, 5, myColor1[0]);
         } else {
             DrawRectangleRounded(DeleteButton, 0.3f, 10, myColor2[1]);
-            DrawTextEx(font, "Kruksal", textPos, 20, 5, myColor2[0]);
+            DrawTextEx(font, "Kruskal", textPos, 20, 5, myColor2[0]);
         }
     }
 }
