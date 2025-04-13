@@ -480,7 +480,49 @@ void View::TextBox::draw(){
         } else {
             inputText = "Enter value: " + value;
         }
-        DrawText(inputText.c_str(), textBoxRec.x + 10, textBoxRec.y + 40, 20, DARKGRAY);
+        float maxWidth = textBoxRec.width - 60; // Chừa lề 40 pixel
+        float lineHeight = 25; // Chiều cao mỗi dòng (có thể điều chỉnh)
+        float currentY = textBoxRec.y + 40; // Vị trí Y bắt đầu vẽ văn bản
+        float fontSize = 20;
+        float spacing = 1;
+
+        // Chia văn bản thành các từ (dựa trên khoảng trắng)
+        std::vector<std::string> words;
+        std::stringstream ss(inputText);
+        std::string word;
+        while (ss >> word) {
+            words.push_back(word);
+        }
+
+        // Tạo các dòng văn bản
+        std::string currentLine = "";
+        for (size_t i = 0; i < words.size(); ++i) {
+            std::string testLine = currentLine.empty() ? words[i] : currentLine + " " + words[i];
+            Vector2 testSize = MeasureTextEx(GetFontDefault(), testLine.c_str(), fontSize, spacing);
+
+            if (testSize.x <= maxWidth) {
+                // Nếu dòng hiện tại vẫn vừa, thêm từ vào
+                currentLine = testLine;
+            } else {
+                // Nếu không vừa, vẽ dòng hiện tại và bắt đầu dòng mới
+                if (!currentLine.empty()) {
+                    DrawText(currentLine.c_str(), textBoxRec.x + 10, currentY, fontSize, DARKGRAY);
+                    currentY += lineHeight; // Xuống dòng
+                }
+                currentLine = words[i]; // Bắt đầu dòng mới với từ hiện tại
+            }
+
+            // Nếu đây là từ cuối cùng, vẽ dòng còn lại
+            if (i == words.size() - 1 && !currentLine.empty()) {
+                DrawText(currentLine.c_str(), textBoxRec.x + 10, currentY, fontSize, DARKGRAY);
+            }
+
+            // Kiểm tra nếu vượt quá chiều cao của TextBox (tùy chọn)
+            if (currentY + lineHeight > textBoxRec.y + textBoxRec.height - 20) {
+                break; // Ngừng vẽ nếu vượt quá chiều cao của TextBox
+            }
+        }
+
     }
 }
 
