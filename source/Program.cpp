@@ -18,8 +18,6 @@ Program::Program()
 
 void Program::run()
 {
-    PlayMusicStream(music);
-    SetMusicVolume(music, 0.0f);
     while (!WindowShouldClose())
     {
         UpdateMusicStream(music);

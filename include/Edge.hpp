@@ -7,6 +7,7 @@
 class Edge {
     public:
         Node *endPoint1 = nullptr, *endPoint2 = nullptr;
+        int weight;
         int ID = -1;
         int alpha = 1.0f;
         Color currentColor = BLACK;
