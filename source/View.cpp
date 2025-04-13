@@ -1035,6 +1035,9 @@ void View::initView()
     setting.hotMuted = LoadTexture("resource\\Texture\\hotMuted.png");
     setting.coldSpeaker = LoadTexture("resource\\Texture\\coldSpeaker.png");
     setting.coldMuted = LoadTexture("resource\\Texture\\coldMuted.png");
+    if (!IsMusicStreamPlaying(music)) setting.isMuted = true;
+    else setting.isMuted = false;
+    setting.isOpen = false;
 
     camera = {0};
     camera.offset = (Vector2){0, 0};       
