@@ -214,7 +214,7 @@
         if (!box.isOpen && func != Function::NONE) {
             switch (func) {
                 case Function::INIT:
-                    remove();
+                    exit();
                     initData();
                     func = Function::NONE;
                     break;
@@ -225,12 +225,12 @@
                     break;
                 case Function::DELETE:
                     remove();
-                    prim();
+                    kruskal();
                     func = Function::NONE;
                     break;
                 case Function::SEARCH:
                     remove();
-                    kruskal();
+                    prim();
                     func = Function::NONE;
                     break;
                 default:
@@ -379,8 +379,16 @@
     }
 
     void Graph::dijkstra() {
+        adjMatrixToEdges();
+        cout << "Thanh cong, number of edges: " << edges.size() << endl;
         if (edges.empty()) return;
+        if (vertex.empty()){
+            cout << "Has no vertex" << endl;
+            return;
+        }
+        cout << "number of edges: " << edges.size() << endl;
         edgesToAdjList();
+        cout << "Run" << endl;
 
         Step step;
         code.codeline = {
@@ -395,7 +403,7 @@
             "pq.push( (dist[v], v) )               ",
             "Complete !                            "
         };
-
+        
         int n = box.adjMatrix.size();
         vector<int> parent(n,0);
         parent[box.startedVertex] = -1;
@@ -418,7 +426,7 @@
             step.nodeHighlight.push_back(vertex[src]);
             stepmanager.step.push_back(step);
         }
-
+        cout << "toi day van dung" << endl;
         while (!pq.empty()){
             {
                 step.highlightedLine = 3;
@@ -431,6 +439,7 @@
                 step.nodeHighlight.push_back(vertex[u]);
                 if (parent[u] != -1) {
                     for (auto e : edge) {
+                        if (!e || !e->endPoint1 || !e->endPoint2) continue;
                         if ((e->endPoint1->ID == vertex[u]->ID && e->endPoint2->ID == vertex[parent[u]]->ID) ||
                             (e->endPoint1->ID == vertex[parent[u]]->ID && e->endPoint2->ID == vertex[u]->ID)) {
                             step.edgeHighlight.push_back(e);
@@ -454,6 +463,7 @@
                     step.highlightedLine = 6;
                     step.nodeHighlight.push_back(vertex[v]);
                     for (auto e : edge) {
+                        if (!e || !e->endPoint1 || !e->endPoint2) continue;
                         if ((e->endPoint1->ID == vertex[u]->ID && e->endPoint2->ID == vertex[v]->ID) ||
                             (e->endPoint1->ID == vertex[v]->ID && e->endPoint2->ID == vertex[u]->ID)) {
                             step.edgeHighlight.push_back(e);
@@ -482,7 +492,7 @@
         }
         step.highlightedLine = 9;
         stepmanager.step.push_back(step);
-        // in ra vector dist
+        cout << "chay het shortest" << endl;
     }
 
     void Graph::checkConnected() {
@@ -496,11 +506,28 @@
     }
 
     void Graph::prim() {
-        if (edges.empty()) return;
+        // Kiểm tra đồ thị rỗng
+        adjMatrixToEdges();
+        if (edges.empty() || vertex.empty()) {
+            cout << "Error: Graph has no edges" << endl;
+            return;
+        }
         edgesToAdjList();
-
+    
+        // Kiểm tra số đỉnh hợp lệ
         int V = vertex.size();
-
+        if (V == 0) {
+            cout << "Error: Graph has no vertices" << endl;
+            return;
+        }
+    
+        // Kiểm tra đỉnh bắt đầu hợp lệ
+        if (box.startedVertex < 0 || box.startedVertex >= V) {
+            cout << "Error: Invalid start vertex (" << box.startedVertex << ")" << endl;
+            return;
+        }
+    
+        // Khởi tạo các bước như ban đầu
         Step step;
         code.codeline = {
             "Initialize min-heap pq                           ",
@@ -514,42 +541,62 @@
             "pq.push({weight, v})                             ",
             "Complete !                                       "
         };
-
+    
         vector<bool> visited(V, false);
         priority_queue<tuple<int, int, int>, vector<tuple<int, int, int>>, greater<tuple<int, int, int>>> pq;
+        
+        // Bước 1: Khởi tạo min-heap
         {
             step.highlightedLine = 0;
             stepmanager.step.push_back(step);
         }
+    
         int sum = 0;
         int src = box.startedVertex;
-
+    
+        // Bước 2: Thêm đỉnh nguồn vào heap
         pq.push({0, src, -1});
         {
             step.highlightedLine = 1;
-            step.nodeHighlight.push_back(vertex[src]);
+            step.nodeHighlight.clear();
+            if (vertex[src]) {  // Kiểm tra null pointer
+                step.nodeHighlight.push_back(vertex[src]);
+            }
             stepmanager.step.push_back(step);
         }
-
-        while (!pq.empty()){
+    
+        while (!pq.empty()) {
+            // Bước 3: Lấy đỉnh từ heap
             {
                 step.highlightedLine = 2;
                 step.nodeHighlight.clear();
                 step.edgeHighlight.clear();
                 stepmanager.step.push_back(step);
             }
+    
             auto top = pq.top();
             pq.pop();
-
+    
             int u = get<1>(top);
             int w = get<0>(top);
             int p = get<2>(top);
+    
+            // Kiểm tra đỉnh u hợp lệ
+            if (u < 0 || u >= V || !vertex[u]) continue;
+    
+            // Bước 4: Hiển thị đỉnh đang xét
             {
                 step.highlightedLine = 3;
+                step.nodeHighlight.clear();
                 step.nodeHighlight.push_back(vertex[u]);
-                if (p != -1) {
-                    for (auto e : edge){
-                        if ((e->endPoint1->ID == vertex[u]->ID && e->endPoint2->ID == vertex[p]->ID) || (e->endPoint1->ID == vertex[p]->ID && e->endPoint2->ID == vertex[u]->ID)){
+                
+                // Hiển thị cạnh nếu có đỉnh cha hợp lệ
+                if (p != -1 && p >= 0 && p < V && vertex[p]) {
+                    for (auto e : edge) {
+                        if (!e || !e->endPoint1 || !e->endPoint2) continue;
+                        
+                        if ((e->endPoint1->ID == vertex[u]->ID && e->endPoint2->ID == vertex[p]->ID) ||
+                            (e->endPoint1->ID == vertex[p]->ID && e->endPoint2->ID == vertex[u]->ID)) {
                             step.edgeHighlight.push_back(e);
                             break;
                         }
@@ -557,51 +604,75 @@
                 }
                 stepmanager.step.push_back(step);
             }
-
-            if (visited[u] == true) continue;
-            {
+    
+            // Bước 5: Bỏ qua nếu đã thăm
+            if (visited[u]) {
                 step.highlightedLine = 4;
                 step.nodeHighlight.pop_back();
                 stepmanager.step.push_back(step);
+                continue;
             }
-
+    
+            // Bước 6: Đánh dấu đã thăm
             sum += w;
             visited[u] = true;
             {
                 step.highlightedLine = 5;
                 stepmanager.step.push_back(step);
             }
-
-            for (auto x : adjList[u]){
-                step.highlightedLine = 6;
-                step.nodeHighlight.push_back(vertex[u]);
-                stepmanager.step.push_back(step);
-
+    
+            // Bước 7: Duyệt các đỉnh kề
+            for (auto x : adjList[u]) {
                 int v = x.first;
                 int weight = x.second;
+    
+                // Kiểm tra đỉnh kề hợp lệ
+                if (v < 0 || v >= V || !vertex[v]) continue;
+    
+                // Bước 7.1: Hiển thị đang xét đỉnh kề
+                {
+                    step.highlightedLine = 6;
+                    step.nodeHighlight.clear();
+                    step.nodeHighlight.push_back(vertex[u]);
+                    stepmanager.step.push_back(step);
+                }
+    
+                // Bước 7.2: Kiểm tra đã thăm
                 {
                     step.highlightedLine = 7;
                     stepmanager.step.push_back(step);
                 }
-
-                if (!visited[v]){
+    
+                // Bước 8: Thêm vào heap nếu chưa thăm
+                if (!visited[v]) {
                     step.highlightedLine = 8;
                     step.nodeHighlight.push_back(vertex[v]);
-                    for (auto e : edge){
-                        if ((e->endPoint1->ID == vertex[u]->ID && e->endPoint2->ID == vertex[v]->ID) || (e->endPoint1->ID == vertex[v]->ID && e->endPoint2->ID == vertex[u]->ID)){
+                    
+                    // Tìm và highlight cạnh
+                    for (auto e : edge) {
+                        if (!e || !e->endPoint1 || !e->endPoint2) continue;
+                        
+                        if ((e->endPoint1->ID == vertex[u]->ID && e->endPoint2->ID == vertex[v]->ID) ||
+                            (e->endPoint1->ID == vertex[v]->ID && e->endPoint2->ID == vertex[u]->ID)) {
                             step.edgeHighlight.push_back(e);
                             break;
                         }
                     }
+                    
                     pq.push({weight, v, u});
                     stepmanager.step.push_back(step);
-                    step.edgeHighlight.pop_back();
+                    
+                    // Reset highlight sau khi thêm vào heap
+                    step.edgeHighlight.clear();
                 }
-                step.nodeHighlight.pop_back();
             }
         }
+    
+        // Bước 9: Hoàn thành
         step.highlightedLine = 9;
         stepmanager.step.push_back(step);
+    
+        cout << "Complete PRIM. Total weight: " << sum << endl;
     }
 
     bool Comparator(std::vector<int> a, std::vector<int> b){
@@ -609,7 +680,11 @@
     }
 
     void Graph::kruskal() {
-        if (edges.empty()) return;
+        adjMatrixToEdges();
+        if (edges.empty()) {
+            cout << "HAS NO EDGES" << endl;
+            return;
+        }
 
         Step step;
         code.codeline = {
@@ -687,8 +762,10 @@
             }
         }
         step.highlightedLine = 8;
+        step.description.push_back(std::to_string(sum));
         stepmanager.step.push_back(step);
-        // trả về kết quả là sum
+
+        cout << "Complete Kruksal, total weight: " << sum << endl;
     }
 
     int Graph::DSU::find(int a){
@@ -707,22 +784,24 @@
         }
     }
 
-    void Graph::adjMatrixToEdges(){
+    void Graph::adjMatrixToEdges() {
         edges.clear();
         int n = box.adjMatrix.size();
-
-        for (int i = 0; i < n; i++){
-            for (int j = 0; j < n; j++){
-                if (box.adjMatrix[i][j] > 0){
+    
+        for (int i = 0; i < n; ++i) {
+            for (int j = i + 1; j < n; ++j) {  // chỉ duyệt tam giác trên
+                if (box.adjMatrix[i][j] > 0) {
                     edges.push_back({i, j, box.adjMatrix[i][j]});
                 }
             }
         }
     }
+    
 
     void Graph::edgesToAdjList(){
         if (edges.empty()) return;
         adjList.clear();
+        adjList.resize(box.adjMatrix.size());
 
         for (auto e : edges){
             int u = e[0];
