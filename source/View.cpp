@@ -106,24 +106,32 @@ void View::Panel::draw()
 {
     float roundness = 0.3f;                
     int segments = 10;
+    
     if (theme == colorType::HOT) DrawRectangleRounded(rec, roundness, segments, myColor1[3]);
     else DrawRectangleRounded(rec, roundness, segments, myColor2[3]);
 
     // Draw Rewind button
     Rectangle rewindButton = {startX, startY, buttonSize, buttonSize};
-    DrawTexturePro(Rewind, {0, 0, (float)Rewind.width, (float)Rewind.height}, rewindButton, {0, 0}, 0.0f, LIGHTGRAY);
-
     // Draw Play/Pause button
     Rectangle playPauseButton = {startX + buttonSize + spacing, startY, buttonSize, buttonSize};
-    if (isPlaying) {
-        DrawTexturePro(Pause, {0, 0, (float)Pause.width, (float)Pause.height}, playPauseButton, {0, 0}, 0.0f, LIGHTGRAY);
-    } else {
-        DrawTexturePro(Play, {0, 0, (float)Play.width, (float)Play.height}, playPauseButton, {0, 0}, 0.0f, LIGHTGRAY);
-    }
-
     // Draw Forward button
     Rectangle forwardButton = {startX + 2 * (buttonSize + spacing), startY, buttonSize, buttonSize};
-    DrawTexturePro(Forward, {0, 0, (float)Forward.width, (float)Forward.height}, forwardButton, {0, 0}, 0.0f, LIGHTGRAY); 
+
+    bool hoverRewind = CheckCollisionPointRec(GetMousePosition(), rewindButton);
+    bool hoverPlayPause = CheckCollisionPointRec(GetMousePosition(), playPauseButton);
+    bool hoverForward = CheckCollisionPointRec(GetMousePosition(), forwardButton);
+    float defaultAlpha = 1.0f;
+    float hoverAlpha = 0.3f;
+
+    DrawTexturePro(Rewind, {0, 0, (float)Rewind.width, (float)Rewind.height}, rewindButton, {0, 0}, 0.0f, Fade(LIGHTGRAY, hoverRewind ? hoverAlpha : defaultAlpha));
+
+    if (isPlaying) {
+        DrawTexturePro(Pause, {0, 0, (float)Pause.width, (float)Pause.height}, playPauseButton, {0, 0}, 0.0f,Fade(LIGHTGRAY, hoverPlayPause ? hoverAlpha : defaultAlpha));
+    } else {
+        DrawTexturePro(Play, {0, 0, (float)Play.width, (float)Play.height}, playPauseButton, {0, 0}, 0.0f, Fade(LIGHTGRAY, hoverPlayPause ? hoverAlpha : defaultAlpha));
+    }
+
+    DrawTexturePro(Forward, {0, 0, (float)Forward.width, (float)Forward.height}, forwardButton, {0, 0}, 0.0f, Fade(LIGHTGRAY, hoverForward ? hoverAlpha : defaultAlpha)); 
 }
 
 void View::Panel::update() {
@@ -162,7 +170,8 @@ void View::Option::draw()
     float buttonHeight = 40;
     float startX = 40;
     float startY = 574;
-                    
+    float alpha = 0.0f;
+
     if (theme == colorType::HOT) {
         DrawRectangleRounded({0,510,400,200}, 0.3f, 10, myColor1[2]);
         DrawRectangleRoundedLinesEx({0,510,400,200}, 0.3f, 10, 3, myColor1[0]);
@@ -181,8 +190,17 @@ void View::Option::draw()
     };
     if (theme == colorType::HOT) DrawTextEx(font,"Option",textPos,20,5,myColor1[0]);
     else DrawTextEx(font,"Option",textPos,20,5,myColor2[0]);
-
+// ******************* INI BUTTON ************************
     Rectangle IniButton = {startX, startY, buttonWidth, buttonHeight};
+    if (CheckCollisionPointRec(GetMousePosition(), IniButton)){
+        if (theme == colorType::HOT){
+            DrawRectangleRoundedLinesEx(IniButton, 0.3f, 10, 3, myColor1[0]);
+        }
+        else {
+            DrawRectangleRoundedLinesEx(IniButton, 0.3f, 10, 3, myColor2[0]);
+        }
+    }
+    
     textSize = MeasureTextEx(font,"Initialize",20,5);
     textPos = {
         startX + (buttonWidth - textSize.x)/2.0f,
@@ -198,7 +216,17 @@ void View::Option::draw()
     }
 
     if (mode == Mode::AVL || mode == Mode::SLLIST || mode == Mode::HTABLE){
+// *************** INSERT BUTTON
         Rectangle InsertButton = {startX, startY + 62, buttonWidth, buttonHeight};
+        if (CheckCollisionPointRec(GetMousePosition(), InsertButton)){
+            if (theme == colorType::HOT){
+                DrawRectangleRoundedLinesEx(InsertButton, 0.3f, 10, 3, myColor1[0]);
+            }
+            else {
+                DrawRectangleRoundedLinesEx(InsertButton, 0.3f, 10, 3, myColor2[0]);
+            }
+        }
+
         textSize = MeasureTextEx(font,"Insert",20,5);
         textPos = {
             startX + (buttonWidth - textSize.x)/2.0f,
@@ -211,8 +239,18 @@ void View::Option::draw()
             DrawRectangleRounded(InsertButton, 0.3f, 10, myColor2[1]);
             DrawTextEx(font, "Insert", textPos, 20, 5, myColor2[0]);
         }
-    
+// ***************** SEARCH BUTTON **************************
         Rectangle SearchButton = {startX + 200, startY, buttonWidth, buttonHeight};
+
+        if (CheckCollisionPointRec(GetMousePosition(), SearchButton)){
+            if (theme == colorType::HOT){
+                DrawRectangleRoundedLinesEx(SearchButton, 0.3f, 10, 3, myColor1[0]);
+            }
+            else {
+                DrawRectangleRoundedLinesEx(SearchButton, 0.3f, 10, 3, myColor2[0]);
+            }
+        }
+
         textSize = MeasureTextEx(font,"Search",20,5);
         textPos = {
             startX + 200 + (buttonWidth - textSize.x)/2.0f,
@@ -225,8 +263,18 @@ void View::Option::draw()
             DrawRectangleRounded(SearchButton, 0.3f, 10, myColor2[1]);
             DrawTextEx(font, "Search", textPos, 20, 5, myColor2[0]);
         }
-   
+// ***************** DELETE BUTTON ******************************   
         Rectangle DeleteButton = {startX + 200, startY + 62, buttonWidth, buttonHeight};
+
+        if (CheckCollisionPointRec(GetMousePosition(), DeleteButton)){
+            if (theme == colorType::HOT){
+                DrawRectangleRoundedLinesEx(DeleteButton, 0.3f, 10, 3, myColor1[0]);
+            }
+            else {
+                DrawRectangleRoundedLinesEx(DeleteButton, 0.3f, 10, 3, myColor2[0]);
+            }
+        }
+
         textSize = MeasureTextEx(font,"Delete",20,5);
         textPos = {
             startX + 200 + (buttonWidth - textSize.x)/2.0f,
@@ -242,7 +290,18 @@ void View::Option::draw()
     }
 
     else if (mode == Mode::GRAPH){
+// **************** DIJKSTRA BUTTON ******************************
         Rectangle InsertButton = {startX, startY + 62, buttonWidth, buttonHeight};
+
+        if (CheckCollisionPointRec(GetMousePosition(), InsertButton)){
+            if (theme == colorType::HOT){
+                DrawRectangleRoundedLinesEx(InsertButton, 0.3f, 10, 3, myColor1[0]);
+            }
+            else {
+                DrawRectangleRoundedLinesEx(InsertButton, 0.3f, 10, 3, myColor2[0]);
+            }
+        }
+
         textSize = MeasureTextEx(font,"Dijkstra",20,5);
         textPos = {
             startX + (buttonWidth - textSize.x)/2.0f,
@@ -255,8 +314,18 @@ void View::Option::draw()
             DrawRectangleRounded(InsertButton, 0.3f, 10, myColor2[1]);
             DrawTextEx(font, "Dijsktra", textPos, 20, 5, myColor2[0]);
         }
-    
+// ****************** PRIM BUTTON ****************************
         Rectangle SearchButton = {startX + 200, startY, buttonWidth, buttonHeight};
+
+        if (CheckCollisionPointRec(GetMousePosition(), SearchButton)){
+            if (theme == colorType::HOT){
+                DrawRectangleRoundedLinesEx(SearchButton, 0.3f, 10, 3, myColor1[0]);
+            }
+            else {
+                DrawRectangleRoundedLinesEx(SearchButton, 0.3f, 10, 3, myColor2[0]);
+            }
+        }
+
         textSize = MeasureTextEx(font,"Prim",20,5);
         textPos = {
             startX + 200 + (buttonWidth - textSize.x)/2.0f,
@@ -269,8 +338,18 @@ void View::Option::draw()
             DrawRectangleRounded(SearchButton, 0.3f, 10, myColor2[1]);
             DrawTextEx(font, "Prim", textPos, 20, 5, myColor2[0]);
         }
-   
+// ********************** KRUKSAL BUTTON ***********************
         Rectangle DeleteButton = {startX + 200, startY + 62, buttonWidth, buttonHeight};
+
+        if (CheckCollisionPointRec(GetMousePosition(), DeleteButton)){
+            if (theme == colorType::HOT){
+                DrawRectangleRoundedLinesEx(DeleteButton, 0.3f, 10, 3, myColor1[0]);
+            }
+            else {
+                DrawRectangleRoundedLinesEx(DeleteButton, 0.3f, 10, 3, myColor2[0]);
+            }
+        }
+
         textSize = MeasureTextEx(font,"Kruksal",20,5);
         textPos = {
             startX + 200 + (buttonWidth - textSize.x)/2.0f,
@@ -789,15 +868,34 @@ void View::InputPanel::draw() {
         textColor = myColor2[0];
     }
 
-    DrawRectangleRounded(fileButton, 0.3f, 10, buttonColor);
-    textSize = MeasureTextEx(font, "File", 20, 5);
+    DrawRectangleRounded(randomButton, 0.3f, 10, buttonColor);
+// ***************** RANDOM BUTTON ***************************
+    if (CheckCollisionPointRec(GetMousePosition(), randomButton)){
+        if (theme == colorType::HOT){
+            DrawRectangleRoundedLinesEx(randomButton, 0.3f, 10, 3, myColor1[0]);
+        }
+        else {
+            DrawRectangleRoundedLinesEx(randomButton, 0.3f, 10, 3, myColor2[0]);
+        }
+    
+    }
+    textSize = MeasureTextEx(font, "Random", 20, 5);
     textPos = {
-        fileButton.x + (fileButton.width - textSize.x) / 2.0f,
-        fileButton.y + (fileButton.height - textSize.y) / 2.0f
+        randomButton.x + (randomButton.width - textSize.x) / 2.0f,
+        randomButton.y + (randomButton.height - textSize.y) / 2.0f
     };
-    DrawTextEx(font, "File", textPos, 20, 5, textColor);
+    DrawTextEx(font, "Random", textPos, 20, 5, textColor);
 
+// ******************** URL BUTTON *******************
     DrawRectangleRounded(urlButton, 0.3f, 10, buttonColor);
+    if (CheckCollisionPointRec(GetMousePosition(), urlButton)){
+        if (theme == colorType::HOT){
+            DrawRectangleRoundedLinesEx(urlButton, 0.3f, 10, 3, myColor1[0]);
+        }
+        else {
+            DrawRectangleRoundedLinesEx(urlButton, 0.3f, 10, 3, myColor2[0]);
+        }
+    }
     textSize = MeasureTextEx(font, "URL", 20, 5);
     textPos = {
         urlButton.x + (urlButton.width - textSize.x) / 2.0f,
@@ -805,7 +903,16 @@ void View::InputPanel::draw() {
     };
     DrawTextEx(font, "URL", textPos, 20, 5, textColor);
 
+// ****************** CLOSE BUTTON ************************
     DrawRectangleRounded(closeButton, 0.3f, 10, buttonColor);
+    if (CheckCollisionPointRec(GetMousePosition(), closeButton)){
+        if (theme == colorType::HOT){
+            DrawRectangleRoundedLinesEx(closeButton, 0.3f, 10, 3, myColor1[0]);
+        }
+        else {
+            DrawRectangleRoundedLinesEx(closeButton, 0.3f, 10, 3, myColor2[0]);
+        }
+    }
     textSize = MeasureTextEx(font, "Close", 20, 5);
     textPos = {
         closeButton.x + (closeButton.width - textSize.x) / 2.0f,
@@ -814,17 +921,35 @@ void View::InputPanel::draw() {
     DrawTextEx(font, "Close", textPos, 20, 5, textColor);
 
     if (mode == Mode::GRAPH){
-        DrawRectangleRounded(randomButton, 0.3f, 10, buttonColor);
-        textSize = MeasureTextEx(font, "Random", 20, 5);
+// ********************** FILE BUTTON *************************
+        DrawRectangleRounded(fileButton, 0.3f, 10, buttonColor);
+        if (CheckCollisionPointRec(GetMousePosition(), fileButton)){
+            if (theme == colorType::HOT){
+                DrawRectangleRoundedLinesEx(fileButton, 0.3f, 10, 3, myColor1[0]);
+            }
+            else {
+                DrawRectangleRoundedLinesEx(fileButton, 0.3f, 10, 3, myColor2[0]);
+            }
+        }
+        textSize = MeasureTextEx(font, "File", 20, 5);
         textPos = {
-            randomButton.x + (randomButton.width - textSize.x) / 2.0f,
-            randomButton.y + (randomButton.height - textSize.y) / 2.0f
+            fileButton.x + (fileButton.width - textSize.x) / 2.0f,
+            fileButton.y + (fileButton.height - textSize.y) / 2.0f
         };
-        DrawTextEx(font, "Random", textPos, 20, 5, textColor);
+        DrawTextEx(font, "File", textPos, 20, 5, textColor);
     }
 
     else {
+// ************************* TEXTBOX BUTTON **********************
         DrawRectangleRounded(textboxButton, 0.3f, 10, buttonColor);
+        if (CheckCollisionPointRec(GetMousePosition(), textboxButton)){
+            if (theme == colorType::HOT){
+                DrawRectangleRoundedLinesEx(textboxButton, 0.3f, 10, 3, myColor1[0]);
+            }
+            else {
+                DrawRectangleRoundedLinesEx(textboxButton, 0.3f, 10, 3, myColor2[0]);
+            }
+        }
         textSize = MeasureTextEx(font, "Text box", 20, 5);
         textPos = {
             textboxButton.x + (textboxButton.width - textSize.x) / 2.0f,
@@ -840,6 +965,7 @@ bool View::InputPanel::isTextboxPressed() {
 }
 
 bool View::InputPanel::isFilePressed() {
+    if (mode != Mode::GRAPH) return false;
     return CheckCollisionPointRec(GetMousePosition(), fileButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
 }
 
@@ -852,7 +978,6 @@ bool View::InputPanel::isClosePressed() {
 }
 
 bool View::InputPanel::isRandomPressed(){
-    if (mode != Mode::GRAPH) return false;
     return CheckCollisionPointRec(GetMousePosition(), randomButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
 }
 

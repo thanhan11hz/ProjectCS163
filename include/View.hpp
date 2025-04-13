@@ -131,11 +131,11 @@ class View {
             float startY = 574;
 
             Rectangle panelRec = {0, 510, 400, 200};
-            Rectangle textboxButton = {startX, startY, buttonWidth, buttonHeight};
-            Rectangle fileButton = {startX, startY + 62, buttonWidth, buttonHeight};
-            Rectangle urlButton = {startX + 200, startY, buttonWidth, buttonHeight};
-            Rectangle randomButton = {startX, startY, buttonWidth, buttonHeight};
-            Rectangle closeButton = {startX + 200, startY + 62, buttonWidth, buttonHeight};
+            Rectangle textboxButton = {startX, startY, buttonWidth, buttonHeight};   // keep
+            Rectangle randomButton = {startX, startY + 62, buttonWidth, buttonHeight};
+            Rectangle urlButton = {startX + 200, startY, buttonWidth, buttonHeight};  // keep
+            Rectangle fileButton = {startX, startY, buttonWidth, buttonHeight};
+            Rectangle closeButton = {startX + 200, startY + 62, buttonWidth, buttonHeight}; // keep
 
             void draw();
             bool isTextboxPressed();
