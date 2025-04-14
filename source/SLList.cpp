@@ -149,10 +149,17 @@ void SLList::resetColorEdge(std::vector<Edge*> edge) {
 void SLList::run() {
     eventView();
 
-    if (option.isInitialize()) func = Function::INIT;
-    if (option.isAdd()) func = Function::INSERT;
-    if (option.isDelete()) func = Function::DELETE;
-    if (option.isSearch()) func = Function::SEARCH;
+
+    if (option.isInitialize()){
+        func = Function::INIT;
+        box.IniFunction = true;
+    } 
+    if (!box.IniFunction){
+        if (option.isAdd()) func = Function::INSERT;
+        if (option.isDelete()) func = Function::DELETE;
+        if (option.isSearch()) func = Function::SEARCH;
+    }
+    
 
     if (!box.isOpen && func != Function::NONE) {
         switch (func) {
@@ -160,6 +167,7 @@ void SLList::run() {
                 remove();
                 initData();
                 func = Function::NONE;
+                box.IniFunction = false;
                 break;
             case Function::INSERT:
                 remove();

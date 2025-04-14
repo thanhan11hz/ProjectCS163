@@ -102,6 +102,11 @@ class View {
             bool isDragDropMode = false;
             bool readFileData(const std::string &filePath);
 
+            // For random MODE
+            void generateRandomValues();
+            void generateRandomGraphMatrix();
+            bool IniFunction = false;
+
             void update();
             void draw();
 

@@ -243,22 +243,26 @@ void HTable::run() {
         box.enteredValues = false;
         box.enteredPrime = false;
         func = Function::INIT;
+        box.IniFunction = true;
     }
-    if (option.isAdd()) {
-        box.enteredValues = false;
-        box.enteredPrime = true;
-        func = Function::INSERT;
+    if (!box.IniFunction){
+        if (option.isAdd()) {
+            box.enteredValues = false;
+            box.enteredPrime = true;
+            func = Function::INSERT;
+        }
+        if (option.isDelete()) {
+            box.enteredValues = false;
+            box.enteredPrime = true;
+            func = Function::DELETE;
+        }
+        if (option.isSearch()) {
+            box.enteredValues = false;
+            box.enteredPrime = true;
+            func = Function::SEARCH;
+        }
     }
-    if (option.isDelete()) {
-        box.enteredValues = false;
-        box.enteredPrime = true;
-        func = Function::DELETE;
-    }
-    if (option.isSearch()) {
-        box.enteredValues = false;
-        box.enteredPrime = true;
-        func = Function::SEARCH;
-    }
+    
     if (!box.isOpen && func != Function::NONE) {
         switch (func) {
             case Function::INIT:
@@ -266,6 +270,7 @@ void HTable::run() {
                 remove();
                 initData();
                 func = Function::NONE;
+                box.IniFunction = false;
                 break;
             case Function::INSERT:
                 remove();
