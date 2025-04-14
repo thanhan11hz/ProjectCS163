@@ -1,6 +1,6 @@
 # Project Name
 
-A brief description of your project and its purpose.
+Project CS163 - Data Structure Visualization Group 7
 
 ---
 
@@ -33,7 +33,7 @@ pacman -Su
   
   Make sure to select **"Add CMake to the system PATH"** during installation
 
-4. **Install Raylib**
+3. **Install Raylib**
    
    Open the link: [https://github.com/raysan5/raylib/releases/tag/5.5](https://github.com/raysan5/raylib/releases/tag/5.5)
    
