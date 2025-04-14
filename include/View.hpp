@@ -121,7 +121,7 @@ class View {
 
         struct Slider {
             Rectangle bound = {50,780,300,15};
-            float min = 0.25f, max = 4.0f, speed = 1.0f;
+            float min = 0.25f, max = 7.0f, speed = 1.0f;
             bool isDragging = false;
             void update();
             void draw();

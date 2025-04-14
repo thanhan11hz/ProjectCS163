@@ -18,7 +18,7 @@ class Animation {
         std::vector<Edge*> highlightedEdge;
         std::vector<std::pair<Node*,Node*>> movedNode;
         float progress = 0.0f;
-        float duration = 0.5f;
+        float duration = 0.2f;  // giam
         Animation() {}
 };
 
