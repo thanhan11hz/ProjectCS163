@@ -983,7 +983,25 @@ void View::TextBox::generateRandomValues()
     }
 }
 
+void View::TextBox::generateRandomGraphMatrix(){
+    const int minVertices = 10;
+    const int maxVertices = 20;
+    const int maxWeight = 10;
+    const float edgeDensity = 0.2f;
 
+    int n = GetRandomValue(minVertices, maxVertices);
+    adjMatrix.clear();
+    adjMatrix.resize(n, std::vector<int>(n, 0));
+    for (int i = 0; i < n; ++i) {
+        for (int j = i + 1; j < n; ++j) {
+            if (GetRandomValue(0, 100) < static_cast<int>(edgeDensity * 100)) {
+                int weight = GetRandomValue(1, maxWeight);
+                adjMatrix[i][j] = weight;
+                adjMatrix[j][i] = weight; 
+            }
+        }
+    }
+}
 // =================================== LOG ==============================================
 void View::Log::draw()
 {
