@@ -77,7 +77,6 @@ int AVL::calculateSubtreeWidth(TreeNode* node) {
     int rightWidth = calculateSubtreeWidth(node->right);
     subtreeWidth[node] = subtreeWidth[node->left] + subtreeWidth[node->right];
     if (node->left || node->left) subtreeWidth[node] += 60; 
-    //std::cout<<node->val<<" "<<subtreeWidth[node]<<std::endl;
     return subtreeWidth[node];
 }
 
@@ -89,7 +88,6 @@ void AVL::calculatePositions(TreeNode* node, int x, int y) {
 
     int leftWidth = (node->left) ? subtreeWidth[node->left] + 30 : 0;
     int rightWidth = (node->right) ? subtreeWidth[node->right] + 30 : 0;
-    //std::cout<<node->val<<" "<<leftWidth<<" "<<rightWidth<<std::endl;
     if (node->left) calculatePositions(node->left, x - leftWidth, y + 80);
     if (node->right) calculatePositions(node->right, x + rightWidth, y + 80);
 }
@@ -403,6 +401,7 @@ void AVL::safeRemoveEdge(int nodeID) {
         auto it = find(edge.begin(), edge.end(), edgeToRemove);
         if (it != edge.end()) {
             delete *it;
+            std::cout<<"Delete parent edge";
             edge.erase(it);
         }
     }
@@ -426,19 +425,22 @@ int AVL::getHeight(TreeNode* node) {
 void AVL::leftRotate(TreeNode* &node) {
     TreeNode* x = node->right;
     TreeNode* z = x->left;
-    x->left=node;
-    Edge* line = findEdgebyEndPoint(edge,x->ID);
-    std::swap(line->endPoint1,line->endPoint2);
     TreeNode* parent = findParent(root,node->ID);
     if (parent) {
         safeRemoveEdge(node->ID);
+        Edge* line = findEdgebyEndPoint(edge,x->ID);
+        std::swap(line->endPoint1,line->endPoint2);
         line = new Edge(parent,x);
         edge.push_back(line);
+    } else {
+        Edge* line = findEdgebyEndPoint(edge,x->ID);
+        std::swap(line->endPoint1,line->endPoint2);
     }
+    x->left=node;
     node->right=z;
     if (z) {
         safeRemoveEdge(z->ID);
-        line = new Edge(node,z);
+        Edge* line = new Edge(node,z);
         edge.push_back(line);
     }
     node->height=1+std::max(getHeight(node->left),getHeight(node->right));
@@ -449,19 +451,22 @@ void AVL::leftRotate(TreeNode* &node) {
 void AVL::rightRotate(TreeNode* &node) {
     TreeNode* x = node->left;
     TreeNode* z = x->right;
-    x->right=node;
-    Edge* line = findEdgebyEndPoint(edge,x->ID);
-    std::swap(line->endPoint1,line->endPoint2);
     TreeNode* parent = findParent(root,node->ID);
     if (parent) {
         safeRemoveEdge(node->ID);
+        Edge* line = findEdgebyEndPoint(edge,x->ID);
+        std::swap(line->endPoint1,line->endPoint2);
         line = new Edge(parent,x);
         edge.push_back(line);
+    } else {
+        Edge* line = findEdgebyEndPoint(edge,x->ID);
+        std::swap(line->endPoint1,line->endPoint2);
     }
+    x->right=node;
     node->left=z;
     if (z) {
         safeRemoveEdge(z->ID);
-        line = new Edge(node,z);
+        Edge* line = new Edge(node,z);
         edge.push_back(line);
     }
     node->height=1+std::max(getHeight(node->left),getHeight(node->right));
@@ -485,6 +490,9 @@ int AVL::balanceFactor(TreeNode* node) {
 
 void AVL::initData() {
     if (box.someList.empty()) return;
+    for (int i = 0; i < box.someList.size(); ++i) {
+        std::cout<<box.someList[i]<<" ";
+    }
     Step step;
     for (int i = 0; i < box.someList.size(); ++i) {
         insertNode(root,box.someList[i],step);
@@ -512,12 +520,6 @@ void AVL::insertData() {
     Step step;
     for (int i = 0; i < box.someList.size(); ++i) {
         insertNode(root,box.someList[i],step);
-    }
-    for (int i = 0; i < stepmanager.step.size(); ++i) {
-        for (int j = 0; j < stepmanager.step[i].tempEdge.size(); ++j) {
-            std::cout<<stepmanager.step[i].tempEdge[j]->ID<<" ";
-        }
-        std::cout<<std::endl;
     }
     box.someList.clear();
 }
@@ -886,6 +888,7 @@ void AVL::searchNode(TreeNode* node, int key, Step step) {
         step.tempRoot = tmp;
         tmp = nullptr;
         copyEdge(edge,step.tempEdge,(TreeNode*)step.tempRoot);
+        stepmanager.step.push_back(step);
         return;
     }                                
     if (node->val == key) {
