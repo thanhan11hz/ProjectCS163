@@ -953,6 +953,36 @@ bool View::TextBox::readFileData(const std::string &filePath)
     }
 }
 
+void View::TextBox::generateRandomValues()
+{
+    someList.clear();
+    int count = GetRandomValue(15, 20);
+
+    for (int i = 0; i < count; i++)
+    {
+        someList.push_back(GetRandomValue(1, 99));
+    }
+    enteredValues = true;
+
+    if (mode == Mode::HTABLE)
+    {
+        std::vector<int> primes = {3, 5, 7, 11, 13};
+        if (!primes.empty())
+        {
+            primeNumber = primes[GetRandomValue(0, primes.size() - 1)];
+            enteredPrime = true;
+        }
+        else
+        {
+            primeNumber = 7;
+            enteredPrime = true;
+        }
+        std::cout << "Generate succesfully" << std::endl;
+        std::cout << "The amount: " << someList.size() << std::endl;
+        std::cout << "Prime number: " << primeNumber << std::endl;
+    }
+}
+
 
 // =================================== LOG ==============================================
 void View::Log::draw()
