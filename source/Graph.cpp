@@ -242,6 +242,7 @@ void Graph::run() {
                 break;
         }
     }
+    stepmanager.speed = slider.speed; 
 
     if (stepmanager.isTransitioning) {
         stepmanager.updateTransitionProgress();

@@ -291,6 +291,8 @@ void HTable::run() {
                 break;
         }
     }
+    stepmanager.speed = slider.speed; // speed increament
+
 
     if (stepmanager.isTransitioning) {
         stepmanager.updateTransitionProgress();
