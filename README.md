@@ -16,11 +16,12 @@ A brief description of your project and its purpose.
 
 ## Installation
 
-1. **Install MinGW via MSYS2**  
-   Download and install **MSYS2** from [MSYS2 Official](https://www.msys2.org/). Open the MSYS2 shell and update the system by running:
-   ```bash
-   pacman -Syu
-   pacman -Su
+## 1. Install MinGW via MSYS2
+Download and install **MSYS2** from [MSYS2 Official](https://www.msys2.org/). Open the MSYS2 shell and update the system by running:
+```terminal
+pacman -Syu
+pacman -Su
+```
 
 2. **Install CMake**
   Download **CMake** from the official website:** [https://cmake.org/download/](https://cmake.org/download/)
@@ -32,7 +33,8 @@ A brief description of your project and its purpose.
    Dowload the version: **raylib-5.5_win64_mingw-w64.zip* and store in C:\
 
 ## Build and run
-
   Run on the terminal:
+  ```terminal
   .\run.bat
+  ```
    
