@@ -5,6 +5,7 @@ void HTable::init() {
     initView();
     HSvalue.clear();
     stepmanager.currentStep = 0;
+    box.someList.clear();
 }
 
 void HTable::draw() {
@@ -266,8 +267,7 @@ void HTable::run() {
     if (!box.isOpen && func != Function::NONE) {
         switch (func) {
             case Function::INIT:
-            std::cout<<2;
-                remove();
+                exit();
                 initData();
                 func = Function::NONE;
                 box.IniFunction = false;
@@ -341,7 +341,6 @@ void HTable::run() {
 
 void HTable::exit() {
     code.codeline.clear();
-    box.someList.clear();
     log.infor.clear();
     for (auto x : HSvalue){
         if (x == nullptr) continue;
@@ -372,6 +371,7 @@ void HTable::exit() {
             delete stepmanager.step[i].tempEdge[j];
         }
     }
+    HSvalue.clear();
     stepmanager.step.clear();
     stepmanager.currentStep = 0;
     edge.clear();

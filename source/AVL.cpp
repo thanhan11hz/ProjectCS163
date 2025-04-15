@@ -5,6 +5,7 @@ void AVL::init() {
     root = nullptr;
     stepmanager.currentStep = 0;
     SetMousePosition(780,400);
+    box.someList.clear();
 }
 
 void AVL::draw() {
@@ -174,7 +175,7 @@ void AVL::run() {
     if (!box.isOpen && func != Function::NONE) {
         switch (func) {
             case Function::INIT:
-                remove();
+                exit();
                 initData();
                 func = Function::NONE;
                 box.IniFunction = false;
@@ -198,7 +199,7 @@ void AVL::run() {
                 break;
         }
     }
-    stepmanager.speed = slider.speed; // speed increament
+    stepmanager.speed = slider.speed; // speed increment
 
     if (stepmanager.isTransitioning) {
         stepmanager.updateTransitionProgress();
@@ -260,7 +261,6 @@ void AVL::remove() {
 
 void AVL::exit() {
     code.codeline.clear();
-    box.someList.clear();
     log.infor.clear();
     deleteTree(root);
     root = nullptr;
@@ -401,7 +401,6 @@ void AVL::safeRemoveEdge(int nodeID) {
         auto it = find(edge.begin(), edge.end(), edgeToRemove);
         if (it != edge.end()) {
             delete *it;
-            std::cout<<"Delete parent edge";
             edge.erase(it);
         }
     }
@@ -490,9 +489,6 @@ int AVL::balanceFactor(TreeNode* node) {
 
 void AVL::initData() {
     if (box.someList.empty()) return;
-    for (int i = 0; i < box.someList.size(); ++i) {
-        std::cout<<box.someList[i]<<" ";
-    }
     Step step;
     for (int i = 0; i < box.someList.size(); ++i) {
         insertNode(root,box.someList[i],step);

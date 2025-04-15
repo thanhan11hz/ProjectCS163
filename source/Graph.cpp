@@ -123,6 +123,9 @@ void Graph::draw() {
                 resetColorNode();
                 drawEdge(edge);
                 drawNode(vertex);
+            } else {
+                drawEdge(edge);
+                drawNode(vertex);
             }
         } else {
             resetProgressNode(currStep);
@@ -293,40 +296,73 @@ void Graph::run() {
 }
 
 void Graph::prepareTransition() {
-    Step& currStep = stepmanager.step[stepmanager.currentStep];
     if (stepmanager.currentStep <= 0) return;
+    stepmanager.step[stepmanager.currentStep].animQueue.clear();
+    
+    Step& currStep = stepmanager.step[stepmanager.currentStep];
     Step& prevStep = stepmanager.step[stepmanager.currentStep - 1];
-    std::unordered_map<int,GraphNode*> currNode;
-    std::unordered_map<int,GraphNode*> prevNode;
-    std::unordered_map<int,Edge*> currEdge;
-    std::unordered_map<int,Edge*> prevEdge;
-    for (int i = 0; i < currStep.nodeHighlight.size(); ++i) {
-        currNode[currStep.nodeHighlight[i]->ID] = (GraphNode*)currStep.nodeHighlight[i];
-    }
-    for (int i = 0; i < prevStep.nodeHighlight.size(); ++i) {
-        prevNode[prevStep.nodeHighlight[i]->ID] = (GraphNode*)prevStep.nodeHighlight[i];
-    }
-    for (int i = 0; i < currStep.edgeHighlight.size(); ++i) {
-        currEdge[currStep.edgeHighlight[i]->ID] = currStep.edgeHighlight[i];
-    }
-    for (int i = 0; i < prevStep.edgeHighlight.size(); ++i) {
-        prevEdge[prevStep.edgeHighlight[i]->ID] = prevStep.edgeHighlight[i];
-    }
+    
     Animation anim;
     anim.type = AnimateType::HIGHLIGHT;
-    for (auto it : currNode) {
-        if (prevNode.find(it.first) == prevNode.end()) {
-            anim.highlightedNode.push_back(it.second);
+    
+    for (auto node : currStep.nodeHighlight) {
+        if (std::find(prevStep.nodeHighlight.begin(), prevStep.nodeHighlight.end(), node) == prevStep.nodeHighlight.end()) {
+            anim.highlightedNode.push_back(node);
+            node->progress = 0.0f; 
         }
     }
-    if (anim.highlightedNode.size()) currStep.animQueue.addAnimation(anim);
-    anim.highlightedNode.clear();
-    for (auto it : currEdge) {
-        if (prevEdge.find(it.first) == prevEdge.end()) {
-            anim.highlightedEdge.push_back(it.second);
+
+    if (!anim.highlightedNode.empty()) {
+        currStep.animQueue.addAnimation(anim);
+        anim.highlightedNode.clear();
+    }
+    
+    for (auto edge : currStep.edgeHighlight) {
+        if (std::find(prevStep.edgeHighlight.begin(), 
+                      prevStep.edgeHighlight.end(), edge) == prevStep.edgeHighlight.end()) {
+            anim.highlightedEdge.push_back(edge);
+            edge->progress = 0.0f;
         }
     }
-    if (anim.highlightedEdge.size()) currStep.animQueue.addAnimation(anim);
+
+    if (!anim.highlightedEdge.empty()) {
+        currStep.animQueue.addAnimation(anim);
+    }
+    
+    // Step& currStep = stepmanager.step[stepmanager.currentStep];
+    // if (stepmanager.currentStep <= 0) return;
+    // Step& prevStep = stepmanager.step[stepmanager.currentStep - 1];
+    // std::unordered_map<int,GraphNode*> currNode;
+    // std::unordered_map<int,GraphNode*> prevNode;
+    // std::unordered_map<int,Edge*> currEdge;
+    // std::unordered_map<int,Edge*> prevEdge;
+    // for (int i = 0; i < currStep.nodeHighlight.size(); ++i) {
+    //     currNode[currStep.nodeHighlight[i]->ID] = (GraphNode*)currStep.nodeHighlight[i];
+    // }
+    // for (int i = 0; i < prevStep.nodeHighlight.size(); ++i) {
+    //     prevNode[prevStep.nodeHighlight[i]->ID] = (GraphNode*)prevStep.nodeHighlight[i];
+    // }
+    // for (int i = 0; i < currStep.edgeHighlight.size(); ++i) {
+    //     currEdge[currStep.edgeHighlight[i]->ID] = currStep.edgeHighlight[i];
+    // }
+    // for (int i = 0; i < prevStep.edgeHighlight.size(); ++i) {
+    //     prevEdge[prevStep.edgeHighlight[i]->ID] = prevStep.edgeHighlight[i];
+    // }
+    // Animation anim;
+    // anim.type = AnimateType::HIGHLIGHT;
+    // for (auto it : currNode) {
+    //     if (prevNode.find(it.first) == prevNode.end()) {
+    //         anim.highlightedNode.push_back(it.second);
+    //     }
+    // }
+    // if (anim.highlightedNode.size()) currStep.animQueue.addAnimation(anim);
+    // anim.highlightedNode.clear();
+    // for (auto it : currEdge) {
+    //     if (prevEdge.find(it.first) == prevEdge.end()) {
+    //         anim.highlightedEdge.push_back(it.second);
+    //     }
+    // }
+    // if (anim.highlightedEdge.size()) currStep.animQueue.addAnimation(anim);
 }
 
 void Graph::exit() {
@@ -341,6 +377,8 @@ void Graph::exit() {
         delete edge[i];
         edge[i] = nullptr;
     }
+    edges.clear();
+    adjList.clear();
     vertex.clear();
     edge.clear();
     selectedNode = nullptr;
@@ -355,6 +393,8 @@ void Graph::remove() {
     for (int i = 0; i < edge.size(); ++i) {
         edge[i]->progress = 0.0f;
     }
+    edges.clear();
+    adjList.clear();
     code.codeline.clear();
     stepmanager.step.clear();
     stepmanager.currentStep = 0;
@@ -378,6 +418,7 @@ void Graph::initData() {
     do {
         generatePosition();
     } while (!checkValidPos());
+    box.adjMatrix.clear();
 }
 
 void Graph::dijkstra() {
@@ -410,7 +451,7 @@ void Graph::dijkstra() {
         "Complete !                            "
     };
     
-    int n = box.adjMatrix.size();
+    int n = vertex.size();
     vector<int> parent(n,0);
     parent[box.startedVertex] = -1;
     priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
@@ -443,7 +484,6 @@ void Graph::dijkstra() {
         {
             step.highlightedLine = 4;
             step.description.push_back("The shortest path from " + to_string(src) + " -> " + to_string(u) + " : " + to_string(dist[u]));
-            std::cout<< "The shortest path from " + to_string(src) + " -> " + to_string(u) + " : " + to_string(dist[u])<<endl;
             step.nodeHighlight.push_back(vertex[u]);
             if (parent[u] != -1) {
                 for (auto &e : edge) {
@@ -493,24 +533,23 @@ void Graph::dijkstra() {
 }
 
 bool Graph::checkConnected() {
-    if (box.adjMatrix.empty() || box.adjMatrix.size() == 0) return false;
+    if (vertex.empty() || vertex.size() == 0) return false;
     
-    DSU dsu(box.adjMatrix.size());
+    DSU dsu(vertex.size());
     
-    for (int i = 0; i < box.adjMatrix.size(); ++i) {
-        for (int j = i + 1; j < box.adjMatrix.size(); ++j) {
-            if (box.adjMatrix[i][j] > 0) { 
-                dsu.unite(i, j);
-            }
+    for (int i = 0; i < edge.size(); ++i) {
+        if (edge[i] && edge[i]->endPoint1 && edge[i]->endPoint2) {
+            dsu.unite(edge[i]->endPoint1->val,edge[i]->endPoint2->val);
         }
     }
 
     int root = dsu.find(0);
-    for (int i = 1; i < box.adjMatrix.size(); ++i) {
+    for (int i = 1; i < vertex.size(); ++i) {
         if (dsu.find(i) != root) {
             return false; 
         }
     }
+
     return true;
 }
 
@@ -776,27 +815,21 @@ void Graph::DSU::unite(int a, int b){
 
 void Graph::adjMatrixToEdges() {
     edges.clear();
-    int n = box.adjMatrix.size();
-
-    for (int i = 0; i < n; ++i) {
-        for (int j = i + 1; j < n; ++j) {  // chỉ duyệt tam giác trên
-            if (box.adjMatrix[i][j] > 0) {
-                edges.push_back({i, j, box.adjMatrix[i][j]});
-            }
-        }
+    for (int i = 0; i < edge.size(); ++i) {
+        edges.push_back({edge[i]->endPoint1->val,edge[i]->endPoint2->val,edge[i]->weight});
     }
 }
 
 
 void Graph::edgesToAdjList(){
-    if (edges.empty()) return;
+    if (edge.empty()) return;
     adjList.clear();
-    adjList.resize(box.adjMatrix.size());
+    adjList.resize(vertex.size());
 
-    for (auto e : edges){
-        int u = e[0];
-        int v = e[1];
-        int w = e[2];
+    for (auto e : edge){
+        int u = e->endPoint1->val;
+        int v = e->endPoint2->val;
+        int w = e->weight;
 
         adjList[u].push_back({v, w});
         adjList[v].push_back({u, w});
