@@ -241,14 +241,14 @@ void View::Option::draw()
         }
     }
 
-    textSize = MeasureTextEx(font, "Initialize", 20, 5);
+    textSize = MeasureTextEx(font, "Init", 20, 5);
     textPos = {
         startX + (buttonWidth - textSize.x) / 2.0f,
         startY + (buttonHeight - textSize.y) / 2.0f};
     if (theme == colorType::HOT)
     {
         DrawRectangleRounded(IniButton, 0.3f, 10, myColor1[1]);
-        DrawTextEx(font, "Initialize", textPos, 20, 5, myColor1[0]);
+        DrawTextEx(font, "Init", textPos, 20, 5, myColor1[0]);
     }
     else
     {
@@ -390,19 +390,19 @@ void View::Option::draw()
             }
         }
 
-        textSize = MeasureTextEx(font, "Dijkstra", 20, 5);
+        textSize = MeasureTextEx(font, "Dijkstra", 16, 5);
         textPos = {
             85 + (buttonWidth - textSize.x) / 2.0f, 
             startY + 62 + (buttonHeight - textSize.y) / 2.0f};
         if (theme == colorType::HOT)
         {
             DrawRectangleRounded(InsertButton, 0.3f, 10, myColor1[1]);
-            DrawTextEx(font, "Dijkstra", textPos, 20, 5, myColor1[0]);
+            DrawTextEx(font, "Dijkstra", textPos, 16, 5, myColor1[0]);
         }
         else
         {
             DrawRectangleRounded(InsertButton, 0.3f, 10, myColor2[1]);
-            DrawTextEx(font, "Dijkstra", textPos, 20, 5, myColor2[0]);
+            DrawTextEx(font, "Dijkstra", textPos, 16, 5, myColor2[0]);
         }
 
         // ****************** PRIM BUTTON ****************************
@@ -448,19 +448,19 @@ void View::Option::draw()
             }
         }
 
-        textSize = MeasureTextEx(font, "Kruskal", 20, 5);
+        textSize = MeasureTextEx(font, "Kruskal", 18, 5);
         textPos = {
             215 + (buttonWidth - textSize.x) / 2.0f, // Căn giữa theo tọa độ x của nút
             startY + 62 + (buttonHeight - textSize.y) / 2.0f};
         if (theme == colorType::HOT)
         {
             DrawRectangleRounded(DeleteButton, 0.3f, 10, myColor1[1]);
-            DrawTextEx(font, "Kruskal", textPos, 20, 5, myColor1[0]);
+            DrawTextEx(font, "Kruskal", textPos, 18, 5, myColor1[0]);
         }
         else
         {
             DrawRectangleRounded(DeleteButton, 0.3f, 10, myColor2[1]);
-            DrawTextEx(font, "Kruskal", textPos, 20, 5, myColor2[0]);
+            DrawTextEx(font, "Kruskal", textPos, 18, 5, myColor2[0]);
         }
     }
 }

@@ -40,6 +40,7 @@ class HTable: public Logic, public View {
         void deleteData();
         void searchData();
         void updateData();
+        bool deleteSuccess;
         void copyNode(std::vector<ListNode*> source, std::vector<Node*> &des); 
         void copyEdge(std::vector<Edge*> source, std::vector<Edge*> &des, std::vector<Node*> table);
         ListNode* findNodebyID(std::vector<Node*> table, int ID);

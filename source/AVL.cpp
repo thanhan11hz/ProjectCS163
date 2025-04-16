@@ -572,7 +572,55 @@ void AVL::searchData() {
 }
 
 void AVL::updateData(){
-
+    if (box.someList.size() != 2) {
+        log.infor.push_back("Please enter exactly two numbers!");
+        box.someList.clear();
+        return;
+    }
+    code.codeline = {
+        "if !n: return                                      ",
+        "if k < n.val: delete(n.left, k)                    ",
+        "else if k > n.val: delete(n.right, k)              ",
+        "else:                                              ",
+        "  if !n.left: n = n.right                          ",
+        "  else if !n.right: n = n.left                     ",
+        "  else:                                            ",
+        "    s = getSuccessor(n)                            ",
+        "    n.val = s.val                                  ",
+        "    delete(n.right, s.val)                         ",
+        "if !n: return                                      ",
+        "n.height = 1 + max(height(n.left), height(n.right))",
+        "bf = balance(n)                                    ",
+        "if bf > 1:                                         ",
+        "  if balance(n.left) >= 0: rightRot(n)             ",
+        "  else: leftRot(n.left), rightRot(n)               ",
+        "if bf < -1:                                        ",
+        "  if balance(n.right) <= 0: leftRot(n)             ",
+        " else: rightRot(n.right), leftRot(n)               ",
+        "if !n: return new Node(k)                          ",
+        "if k == n.val: return n                            ",
+        "k < n.val ? insert(n.left,k) : insert(n.right,k)   ",
+        "n.height = 1 + max(height(n.left), height(n.right))",
+        "b = balance(n)                                     ",
+        "if b > 1:                                          ",
+        "  if k < n.left.val: rightRot(n)                   ",
+        "  else: leftRot(n.left), rightRot(n)               ",
+        "if b < -1:                                         ",
+        "  if k > n.right.val: leftRot(n)                   ",
+        "  else: rightRot(n.right), leftRot(n)              ",
+        "return n                                           "
+    };
+    Step step;
+    deleteSuccess = false;
+    deleteNode(root,box.someList[0],step);
+    if (deleteSuccess) {
+        int count = stepmanager.step.size();
+        insertNode(root,box.someList[1],step);
+        for (int i = count + 1; i < stepmanager.step.size(); ++i) {
+            stepmanager.step[i].highlightedLine += 19;
+        }
+    }
+    box.someList.clear();
 }
 
 void AVL::insertNode(TreeNode* &node, int key, Step step) {
@@ -742,6 +790,7 @@ void AVL::deleteNode(TreeNode* &node, int key, Step step) {
         stepmanager.step.push_back(step);
         deleteNode(node->right,key,step);
     } else {
+        deleteSuccess = true;
         if (!node->left) {
             step.highlightedLine = 4;
             step.highlightedNode = node->ID;

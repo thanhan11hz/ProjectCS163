@@ -18,6 +18,7 @@ void HTable::draw() {
         BeginScissorMode(400,80,1040,640);
         BeginMode2D(camera);
         if (stepmanager.isTransitioning) {
+            std::cout << "CurrStep: " << stepmanager.currentStep << std::endl;
             Animation currAnimation = currStep.animQueue.animation.front();
             Step& prevStep = stepmanager.step[stepmanager.currentStep - 1];
             if (currAnimation.type == AnimateType::DELETION) {
@@ -108,17 +109,18 @@ void HTable::calculatePosition(std::vector<Node*> table) {
 }
 
 void HTable::drawNode(std::vector<ListNode*> table, int highlight) {
-    int offsetY = 200;
-    int cellWidth = 60;
-    int cellHeight = 40;
+    float offsetY = 200;
+    float cellWidth = 60;
+    float cellHeight = 40;
     int gap = 10;
     int whiteAreaX = 400;
     int whiteAreaWidth = 1440 - whiteAreaX;
     int totalWidth = box.primeNumber * cellWidth + (box.primeNumber - 1) * gap;
     int offsetX = whiteAreaX + (whiteAreaWidth - totalWidth) / 2;
     for (int i = 0; i < table.size(); ++i) {
-        if (theme == colorType::HOT) DrawRectangle(offsetX + i * (cellWidth + gap), offsetY, cellWidth, cellHeight, myColor1[0]);
-        else DrawRectangle(offsetX + i * (cellWidth + gap), offsetY, cellWidth, cellHeight, myColor2[0]);
+        if (theme == colorType::HOT) DrawRectangleRounded({offsetX + i * (cellWidth + gap), offsetY, cellWidth, cellHeight}, 0.3f, 10, myColor1[0]);
+        else DrawRectangleRounded({offsetX + i * (cellWidth + gap), offsetY, cellWidth, cellHeight}, 0.3f, 10, myColor2[0]);
+        DrawRectangleRoundedLinesEx({offsetX + i * (cellWidth + gap), offsetY, cellWidth, cellHeight}, 0.3f, 10, 1, BLACK);
         Vector2 textSize = MeasureTextEx(GetFontDefault(),std::to_string(i).c_str(),20,2);
         Vector2 textPos = {
             (float)(offsetX + i * (cellWidth + gap) + (cellWidth - textSize.x) / 2.0f),
@@ -135,17 +137,18 @@ void HTable::drawNode(std::vector<ListNode*> table, int highlight) {
 }
 
 void HTable::drawNode(std::vector<Node*> table, int highlight) {
-    int offsetY = 200;
-    int cellWidth = 60;
-    int cellHeight = 40;
+    float offsetY = 200;
+    float cellWidth = 60;
+    float cellHeight = 40;
     int gap = 10;
     int whiteAreaX = 400;
     int whiteAreaWidth = 1440 - whiteAreaX;
     int totalWidth = box.primeNumber * cellWidth + (box.primeNumber - 1) * gap;
     int offsetX = whiteAreaX + (whiteAreaWidth - totalWidth) / 2;
     for (int i = 0; i < table.size(); ++i) {
-        if (theme == colorType::HOT) DrawRectangle(offsetX + i * (cellWidth + gap), offsetY, cellWidth, cellHeight, myColor1[0]);
-        else DrawRectangle(offsetX + i * (cellWidth + gap), offsetY, cellWidth, cellHeight, myColor2[0]);
+        if (theme == colorType::HOT) DrawRectangleRounded({offsetX + i * (cellWidth + gap), offsetY, cellWidth, cellHeight}, 0.3f, 10, myColor1[0]);
+        else DrawRectangleRounded({offsetX + i * (cellWidth + gap), offsetY, cellWidth, cellHeight}, 0.3f, 10, myColor2[0]);
+        DrawRectangleRoundedLinesEx({offsetX + i * (cellWidth + gap), offsetY, cellWidth, cellHeight}, 0.3f, 10, 1, BLACK);
         Vector2 textSize = MeasureTextEx(GetFontDefault(),std::to_string(i).c_str(),20,2);
         Vector2 textPos = {
             (float)(offsetX + i * (cellWidth + gap) + (cellWidth - textSize.x) / 2.0f),
@@ -664,6 +667,7 @@ void HTable::deleteData() {
         step.highlightedNode = -1;
         step.highlightedLine = 0;
         copyNode(HSvalue,step.tempTable);
+        copyEdge(edge,step.tempEdge,step.tempTable);
         stepmanager.step.push_back(step);
         int index = box.someList[i] % box.primeNumber;
         if (!HSvalue[index]) {
@@ -703,6 +707,11 @@ void HTable::deleteData() {
             if (curr->next) safeRemoveEdge(curr->next->ID);
             curr->next = curr->next->next;
             delete tmp;
+            if (curr->next) {
+                safeRemoveEdge(curr->next->ID);
+                Edge* line = new Edge(curr,curr->next);
+                edge.push_back(line);
+            }
             tmp = nullptr;
             step.highlightedNode = curr->ID;
             step.highlightedLine = 9;
@@ -720,6 +729,7 @@ void HTable::deleteData() {
         }
     }
     printHTable(HSvalue);
+    std::cout<< "Size: " << stepmanager.step.size() << std::endl;
     box.someList.clear();
 }
 
@@ -776,6 +786,135 @@ void HTable::searchData() {
     box.someList.clear();
 }
 
-void HTable::updateData(){
+void HTable::updateData() { 
+    if (box.someList.size() != 2) {
+        log.infor.push_back("Please enter exactly two numbers!");
+        box.someList.clear();
+        return;
+    }
+    code.codeline = {
+        "index ← value mod prime                                         ",
+        "if HSvalue[index] is NULL then return                           ",
+        "cur ← HSvalue[index]                                            ",
+        "if HSvalue[index].val = value then                              ",
+        "{ HSvalue[index] ← HSvalue[index].next; return }                ",
+        "while cur.next ≠ NULL and cur.next.val ≠ value do cur ← cur.next",
+        "if cur.next ≠ NULL then                                         ",
+        "{ del ← cur.next                                                ",
+        "  cur.next ← cur.next.next                                      ",
+        "  delete del }                                                  ",
+        "index ← value mod prime                                         ",
+        "newNode ← new Node(value)                                       ",                              
+        "if HSvalue[index] is NULL then                                  ",
+        "   { HSvalue[index] ← newNode; return }                         ",       
+        "curr ← HSvalue[index]                                           ",                     
+        "while curr.next ≠ NULL do curr ← curr.next                      ",                    
+        "curr.next ← newNode                                             "
+    };
+    Step step;
+    deleteSuccess = false;
 
+    step.highlightedNode = -1;
+    step.highlightedLine = 0;
+    copyNode(HSvalue,step.tempTable);
+    copyEdge(edge,step.tempEdge,step.tempTable);
+    stepmanager.step.push_back(step);
+    int index = box.someList[0] % box.primeNumber;
+    if (!HSvalue[index]) {
+        step.highlightedLine = 1;
+        step.description.push_back("Index " + std::to_string(index) + " does not has value");
+        copyNode(HSvalue,step.tempTable);
+        copyEdge(edge,step.tempEdge,step.tempTable);
+        stepmanager.step.push_back(step);
+        return;
+    }
+
+    if (HSvalue[index]->val == box.someList[0]) {
+        ListNode* tmp = HSvalue[index];
+        if (HSvalue[index]->next) safeRemoveEdge(HSvalue[index]->next->ID);
+        HSvalue[index] = HSvalue[index]->next;
+        delete tmp;
+        step.highlightedLine = 3;
+        step.description.push_back("Delete " + to_string(box.someList[0]) + " successfully");
+        copyNode(HSvalue,step.tempTable);
+        copyEdge(edge,step.tempEdge,step.tempTable);
+        stepmanager.step.push_back(step);
+        deleteSuccess = true;
+    }
+    
+    if (!deleteSuccess) {
+        ListNode* curr = HSvalue[index];
+        while (curr->next && curr->next->val != box.someList[0]) {
+            step.highlightedNode = curr->ID;
+            step.highlightedLine = 5;
+            copyNode(HSvalue,step.tempTable);
+            copyEdge(edge,step.tempEdge,step.tempTable);
+            stepmanager.step.push_back(step);
+            curr = curr->next;
+        }
+    
+        if (curr->next) {
+            ListNode* tmp = curr->next;
+            if (curr->next) safeRemoveEdge(curr->next->ID);
+            curr->next = curr->next->next;
+            delete tmp;
+            if (curr->next) {
+                safeRemoveEdge(curr->next->ID);
+                Edge* line = new Edge(curr,curr->next);
+                edge.push_back(line);
+            }
+            tmp = nullptr;
+            step.highlightedNode = curr->ID;
+            step.highlightedLine = 9;
+            step.description.push_back("Delete " + to_string(box.someList[0]) + " successfully");
+            copyNode(HSvalue,step.tempTable);
+            copyEdge(edge,step.tempEdge,step.tempTable);
+            stepmanager.step.push_back(step);
+            deleteSuccess = true;
+        } else {
+            step.highlightedNode = curr->ID;
+            step.highlightedLine = 9;
+            step.description.push_back(to_string(box.someList[0]) + " has not been inserted yet.");
+            copyNode(HSvalue,step.tempTable);
+            copyEdge(edge,step.tempEdge,step.tempTable);
+            stepmanager.step.push_back(step);
+        }
+    }
+
+    if (deleteSuccess) {
+        step.highlightedNode = -1;
+        step.highlightedLine = 0;
+        copyNode(HSvalue,step.tempTable);
+        copyEdge(edge,step.tempEdge,step.tempTable);
+        stepmanager.step.push_back(step);
+        int index = box.someList[1] % box.primeNumber;
+        ListNode* newNode = new ListNode(box.someList[1]);
+        if (!HSvalue[index]) {
+            HSvalue[index] = newNode;
+            step.highlightedNode = HSvalue[index]->ID;
+            step.highlightedLine = 2;
+            copyNode(HSvalue,step.tempTable);
+            copyEdge(edge,step.tempEdge,step.tempTable);
+            stepmanager.step.push_back(step);
+        } else {
+            ListNode* curr = HSvalue[index];
+            while (curr->next) {
+                step.highlightedNode = curr->ID;
+                step.highlightedLine = 5;
+                copyNode(HSvalue,step.tempTable);
+                copyEdge(edge,step.tempEdge,step.tempTable);
+                stepmanager.step.push_back(step);
+                curr = curr->next;
+            }
+            curr->next = newNode;
+            Edge* line = new Edge(curr,curr->next);
+            edge.push_back(line);
+            step.highlightedNode = curr->next->ID;
+            step.highlightedLine = 6;
+            copyNode(HSvalue,step.tempTable);
+            copyEdge(edge,step.tempEdge,step.tempTable);
+            stepmanager.step.push_back(step);
+        }
+    }
+    box.someList.clear();
 }

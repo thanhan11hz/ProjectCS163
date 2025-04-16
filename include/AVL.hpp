@@ -60,6 +60,7 @@ class AVL : public Logic, public View {
         void insertNode(TreeNode* &node, int key, Step step);
         void deleteNode(TreeNode* &node, int key, Step step);
         void searchNode(TreeNode* node, int key, Step step);
+        bool deleteSuccess;
         void printInorder(TreeNode* node);
 };
 
