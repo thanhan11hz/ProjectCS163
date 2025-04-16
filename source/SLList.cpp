@@ -208,6 +208,9 @@ void SLList::run()
             func = Function::DELETE;
         if (option.isSearch())
             func = Function::SEARCH;
+        if (option.isUpdate())
+            func = Function::UPDATE;
+        
     }
 
     if (!box.isOpen && func != Function::NONE)
@@ -233,6 +236,11 @@ void SLList::run()
         case Function::SEARCH:
             remove();
             searchData();
+            func = Function::NONE;
+            break;
+        case Function::UPDATE:
+            remove();
+            updateData();
             func = Function::NONE;
             break;
         default:

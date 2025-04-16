@@ -170,6 +170,7 @@ void AVL::run() {
         if (option.isAdd()) func = Function::INSERT;
         if (option.isDelete()) func = Function::DELETE;
         if (option.isSearch()) func = Function::SEARCH;
+        if (option.isUpdate()) func = Function::UPDATE;
     }
 
     if (!box.isOpen && func != Function::NONE) {
@@ -193,6 +194,11 @@ void AVL::run() {
             case Function::SEARCH:
                 remove();
                 searchData();
+                func = Function::NONE;
+                break;
+            case Function::UPDATE:
+                remove();
+                updateData();
                 func = Function::NONE;
                 break;
             default:
@@ -566,7 +572,7 @@ void AVL::searchData() {
 }
 
 void AVL::updateData(){
-    
+
 }
 
 void AVL::insertNode(TreeNode* &node, int key, Step step) {

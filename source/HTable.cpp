@@ -262,6 +262,11 @@ void HTable::run() {
             box.enteredPrime = true;
             func = Function::SEARCH;
         }
+        if (option.isUpdate()){
+            box.enteredValues = false;
+            box.enteredPrime = true;
+            func = Function::UPDATE;
+        }
     }
     
     if (!box.isOpen && func != Function::NONE) {
@@ -285,6 +290,11 @@ void HTable::run() {
             case Function::SEARCH:
                 remove();
                 searchData();
+                func = Function::NONE;
+                break;
+            case Function::UPDATE:
+                remove();
+                updateData();
                 func = Function::NONE;
                 break;
             default:
