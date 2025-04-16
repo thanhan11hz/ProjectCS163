@@ -6,6 +6,7 @@ void SLList::init()
     root = nullptr;
     stepmanager.currentStep = 0;
     SetMousePosition(780, 400);
+    box.someList.clear();
 }
 
 void SLList::draw()
@@ -214,7 +215,7 @@ void SLList::run()
         switch (func)
         {
         case Function::INIT:
-            remove();
+            exit();
             initData();
             func = Function::NONE;
             box.IniFunction = false;
@@ -328,7 +329,6 @@ void SLList::remove()
 void SLList::exit()
 {
     code.codeline.clear();
-    box.someList.clear();
     log.infor.clear();
     ListNode *curr = root;
     while (curr)
