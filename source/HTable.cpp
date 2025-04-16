@@ -765,3 +765,7 @@ void HTable::searchData() {
     }
     box.someList.clear();
 }
+
+void HTable::updateData(){
+
+}

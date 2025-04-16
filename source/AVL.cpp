@@ -565,6 +565,10 @@ void AVL::searchData() {
     box.someList.clear();
 }
 
+void AVL::updateData(){
+    
+}
+
 void AVL::insertNode(TreeNode* &node, int key, Step step) {
     TreeNode* tmp;
     if (node == nullptr) {

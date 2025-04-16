@@ -662,7 +662,7 @@ void SLList::deleteData()
             copyNode(root, step.tempRoot);
             copyEdge(edge, step.tempEdge, (ListNode *)step.tempRoot);
             step.highlightedLine = 5;
-            step.description.push_back("Number " + std::to_string(box.someList[i]) + " isn't in the list");
+            step.description.push_back("Number " + std::to_string(box.someList[i]) + " is not in the list");
             stepmanager.step.push_back(step);
             continue;
         }
@@ -763,4 +763,8 @@ void SLList::searchData()
         stepmanager.step.push_back(step);
     }
     box.someList.clear();
+}
+
+void SLList::updateData(){
+
 }

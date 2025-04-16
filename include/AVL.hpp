@@ -56,6 +56,7 @@ class AVL : public Logic, public View {
         void insertData();
         void deleteData();
         void searchData();
+        void updateData();
         void insertNode(TreeNode* &node, int key, Step step);
         void deleteNode(TreeNode* &node, int key, Step step);
         void searchNode(TreeNode* node, int key, Step step);
