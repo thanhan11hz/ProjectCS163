@@ -62,6 +62,7 @@ class View {
             bool isAdd();
             bool isDelete();
             bool isSearch();
+            bool isUpdate();
             void draw();
         } option;
         struct Home {

@@ -21,7 +21,8 @@ enum class Function {
     INIT,
     INSERT,
     DELETE,
-    SEARCH
+    SEARCH,
+    UPDATE,
 };
 
 enum class AnimateType {

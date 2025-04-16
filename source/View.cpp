@@ -200,11 +200,10 @@ bool View::Panel::isForwardPressed()
 
 void View::Option::draw()
 {
-    float buttonWidth = 120;
+    float buttonWidth = 100;
     float buttonHeight = 40;
-    float startX = 40;
+    float startX = 20;  // Đẩy Initialize sát biên trái hơn
     float startY = 574;
-    float alpha = 0.0f;
 
     if (theme == colorType::HOT)
     {
@@ -227,6 +226,7 @@ void View::Option::draw()
         DrawTextEx(font, "Option", textPos, 20, 5, myColor1[0]);
     else
         DrawTextEx(font, "Option", textPos, 20, 5, myColor2[0]);
+
     // ******************* INI BUTTON ************************
     Rectangle IniButton = {startX, startY, buttonWidth, buttonHeight};
     if (CheckCollisionPointRec(GetMousePosition(), IniButton))
@@ -245,7 +245,6 @@ void View::Option::draw()
     textPos = {
         startX + (buttonWidth - textSize.x) / 2.0f,
         startY + (buttonHeight - textSize.y) / 2.0f};
-
     if (theme == colorType::HOT)
     {
         DrawRectangleRounded(IniButton, 0.3f, 10, myColor1[1]);
@@ -259,37 +258,37 @@ void View::Option::draw()
 
     if (mode == Mode::AVL || mode == Mode::SLLIST || mode == Mode::HTABLE)
     {
-        // *************** INSERT BUTTON
-        Rectangle InsertButton = {startX, startY + 62, buttonWidth, buttonHeight};
-        if (CheckCollisionPointRec(GetMousePosition(), InsertButton))
+        // ******************* UPDATE BUTTON ************************
+        Rectangle UpdateButton = {150, startY, buttonWidth, buttonHeight};
+        if (CheckCollisionPointRec(GetMousePosition(), UpdateButton))
         {
             if (theme == colorType::HOT)
             {
-                DrawRectangleRoundedLinesEx(InsertButton, 0.3f, 10, 3, myColor1[0]);
+                DrawRectangleRoundedLinesEx(UpdateButton, 0.3f, 10, 3, myColor1[0]);
             }
             else
             {
-                DrawRectangleRoundedLinesEx(InsertButton, 0.3f, 10, 3, myColor2[0]);
+                DrawRectangleRoundedLinesEx(UpdateButton, 0.3f, 10, 3, myColor2[0]);
             }
         }
 
-        textSize = MeasureTextEx(font, "Insert", 20, 5);
+        textSize = MeasureTextEx(font, "Update", 20, 5);
         textPos = {
-            startX + (buttonWidth - textSize.x) / 2.0f,
-            startY + 62 + (buttonHeight - textSize.y) / 2.0f};
+            150 + (buttonWidth - textSize.x) / 2.0f,
+            startY + (buttonHeight - textSize.y) / 2.0f};
         if (theme == colorType::HOT)
         {
-            DrawRectangleRounded(InsertButton, 0.3f, 10, myColor1[1]);
-            DrawTextEx(font, "Insert", textPos, 20, 5, myColor1[0]);
+            DrawRectangleRounded(UpdateButton, 0.3f, 10, myColor1[1]);
+            DrawTextEx(font, "Update", textPos, 20, 5, myColor1[0]);
         }
         else
         {
-            DrawRectangleRounded(InsertButton, 0.3f, 10, myColor2[1]);
-            DrawTextEx(font, "Insert", textPos, 20, 5, myColor2[0]);
+            DrawRectangleRounded(UpdateButton, 0.3f, 10, myColor2[1]);
+            DrawTextEx(font, "Update", textPos, 20, 5, myColor2[0]);
         }
-        // ***************** SEARCH BUTTON **************************
-        Rectangle SearchButton = {startX + 200, startY, buttonWidth, buttonHeight};
 
+        // ***************** SEARCH BUTTON **************************
+        Rectangle SearchButton = {280, startY, buttonWidth, buttonHeight}; 
         if (CheckCollisionPointRec(GetMousePosition(), SearchButton))
         {
             if (theme == colorType::HOT)
@@ -304,7 +303,7 @@ void View::Option::draw()
 
         textSize = MeasureTextEx(font, "Search", 20, 5);
         textPos = {
-            startX + 200 + (buttonWidth - textSize.x) / 2.0f,
+            280 + (buttonWidth - textSize.x) / 2.0f,
             startY + (buttonHeight - textSize.y) / 2.0f};
         if (theme == colorType::HOT)
         {
@@ -316,9 +315,38 @@ void View::Option::draw()
             DrawRectangleRounded(SearchButton, 0.3f, 10, myColor2[1]);
             DrawTextEx(font, "Search", textPos, 20, 5, myColor2[0]);
         }
-        // ***************** DELETE BUTTON ******************************
-        Rectangle DeleteButton = {startX + 200, startY + 62, buttonWidth, buttonHeight};
 
+        // *************** INSERT BUTTON ****************************
+        Rectangle InsertButton = {85, startY + 62, buttonWidth, buttonHeight}; 
+        if (CheckCollisionPointRec(GetMousePosition(), InsertButton))
+        {
+            if (theme == colorType::HOT)
+            {
+                DrawRectangleRoundedLinesEx(InsertButton, 0.3f, 10, 3, myColor1[0]);
+            }
+            else
+            {
+                DrawRectangleRoundedLinesEx(InsertButton, 0.3f, 10, 3, myColor2[0]);
+            }
+        }
+
+        textSize = MeasureTextEx(font, "Insert", 20, 5);
+        textPos = {
+            85 + (buttonWidth - textSize.x) / 2.0f,
+            startY + 62 + (buttonHeight - textSize.y) / 2.0f};
+        if (theme == colorType::HOT)
+        {
+            DrawRectangleRounded(InsertButton, 0.3f, 10, myColor1[1]);
+            DrawTextEx(font, "Insert", textPos, 20, 5, myColor1[0]);
+        }
+        else
+        {
+            DrawRectangleRounded(InsertButton, 0.3f, 10, myColor2[1]);
+            DrawTextEx(font, "Insert", textPos, 20, 5, myColor2[0]);
+        }
+
+        // ***************** DELETE BUTTON ******************************
+        Rectangle DeleteButton = {215, startY + 62, buttonWidth, buttonHeight}; 
         if (CheckCollisionPointRec(GetMousePosition(), DeleteButton))
         {
             if (theme == colorType::HOT)
@@ -333,7 +361,7 @@ void View::Option::draw()
 
         textSize = MeasureTextEx(font, "Delete", 20, 5);
         textPos = {
-            startX + 200 + (buttonWidth - textSize.x) / 2.0f,
+            215 + (buttonWidth - textSize.x) / 2.0f,
             startY + 62 + (buttonHeight - textSize.y) / 2.0f};
         if (theme == colorType::HOT)
         {
@@ -346,12 +374,10 @@ void View::Option::draw()
             DrawTextEx(font, "Delete", textPos, 20, 5, myColor2[0]);
         }
     }
-
     else if (mode == Mode::GRAPH)
     {
-        // **************** DIJKSTRA BUTTON ******************************
-        Rectangle InsertButton = {startX, startY + 62, buttonWidth, buttonHeight};
-
+        
+        Rectangle InsertButton = {85, startY + 62, buttonWidth, buttonHeight};
         if (CheckCollisionPointRec(GetMousePosition(), InsertButton))
         {
             if (theme == colorType::HOT)
@@ -366,21 +392,21 @@ void View::Option::draw()
 
         textSize = MeasureTextEx(font, "Dijkstra", 20, 5);
         textPos = {
-            startX + (buttonWidth - textSize.x) / 2.0f,
+            85 + (buttonWidth - textSize.x) / 2.0f, 
             startY + 62 + (buttonHeight - textSize.y) / 2.0f};
         if (theme == colorType::HOT)
         {
             DrawRectangleRounded(InsertButton, 0.3f, 10, myColor1[1]);
-            DrawTextEx(font, "Dijsktra", textPos, 20, 5, myColor1[0]);
+            DrawTextEx(font, "Dijkstra", textPos, 20, 5, myColor1[0]);
         }
         else
         {
             DrawRectangleRounded(InsertButton, 0.3f, 10, myColor2[1]);
-            DrawTextEx(font, "Dijsktra", textPos, 20, 5, myColor2[0]);
+            DrawTextEx(font, "Dijkstra", textPos, 20, 5, myColor2[0]);
         }
-        // ****************** PRIM BUTTON ****************************
-        Rectangle SearchButton = {startX + 200, startY, buttonWidth, buttonHeight};
 
+        // ****************** PRIM BUTTON ****************************
+        Rectangle SearchButton = {280, startY, buttonWidth, buttonHeight};
         if (CheckCollisionPointRec(GetMousePosition(), SearchButton))
         {
             if (theme == colorType::HOT)
@@ -395,7 +421,7 @@ void View::Option::draw()
 
         textSize = MeasureTextEx(font, "Prim", 20, 5);
         textPos = {
-            startX + 200 + (buttonWidth - textSize.x) / 2.0f,
+            280 + (buttonWidth - textSize.x) / 2.0f, 
             startY + (buttonHeight - textSize.y) / 2.0f};
         if (theme == colorType::HOT)
         {
@@ -407,9 +433,9 @@ void View::Option::draw()
             DrawRectangleRounded(SearchButton, 0.3f, 10, myColor2[1]);
             DrawTextEx(font, "Prim", textPos, 20, 5, myColor2[0]);
         }
-        // ********************** KRUKSAL BUTTON ***********************
-        Rectangle DeleteButton = {startX + 200, startY + 62, buttonWidth, buttonHeight};
 
+        // ********************** KRUSKAL BUTTON ***********************
+        Rectangle DeleteButton = {215, startY + 62, buttonWidth, buttonHeight};
         if (CheckCollisionPointRec(GetMousePosition(), DeleteButton))
         {
             if (theme == colorType::HOT)
@@ -422,11 +448,9 @@ void View::Option::draw()
             }
         }
 
-        textSize = MeasureTextEx(font, "Kruksal", 20, 5);
         textSize = MeasureTextEx(font, "Kruskal", 20, 5);
-
         textPos = {
-            startX + 200 + (buttonWidth - textSize.x) / 2.0f,
+            215 + (buttonWidth - textSize.x) / 2.0f, // Căn giữa theo tọa độ x của nút
             startY + 62 + (buttonHeight - textSize.y) / 2.0f};
         if (theme == colorType::HOT)
         {
@@ -443,9 +467,9 @@ void View::Option::draw()
 
 bool View::Option::isInitialize()
 {
-    float buttonWidth = 120;
+    float buttonWidth = 100;
     float buttonHeight = 40;
-    float startX = 40;
+    float startX = 20;  // Sát biên trái
     float startY = 574;
     Rectangle IniButton = {startX, startY, buttonWidth, buttonHeight};
     if (CheckCollisionPointRec(GetMousePosition(), IniButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
@@ -457,12 +481,11 @@ bool View::Option::isInitialize()
 
 bool View::Option::isAdd()
 {
-    float buttonWidth = 120;
+    float buttonWidth = 100;
     float buttonHeight = 40;
-    float startX = 40;
+    float startX = 20;
     float startY = 574;
-    Rectangle InsertButton = {startX, startY + 62, buttonWidth, buttonHeight};
-
+    Rectangle InsertButton = {85, startY + 62, buttonWidth, buttonHeight}; 
     if (CheckCollisionPointRec(GetMousePosition(), InsertButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
     {
         return true;
@@ -472,12 +495,10 @@ bool View::Option::isAdd()
 
 bool View::Option::isDelete()
 {
-    float buttonWidth = 120;
+    float buttonWidth = 100;
     float buttonHeight = 40;
-    float startX = 40;
     float startY = 574;
-    Rectangle DeleteButton = {startX + 200, startY + 62, buttonWidth, buttonHeight};
-
+    Rectangle DeleteButton = {215, startY + 62, buttonWidth, buttonHeight}; 
     if (CheckCollisionPointRec(GetMousePosition(), DeleteButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
     {
         return true;
@@ -487,12 +508,10 @@ bool View::Option::isDelete()
 
 bool View::Option::isSearch()
 {
-    float buttonWidth = 120;
+    float buttonWidth = 100;
     float buttonHeight = 40;
-    float startX = 40;
     float startY = 574;
-    Rectangle SearchButton = {startX + 200, startY, buttonWidth, buttonHeight};
-
+    Rectangle SearchButton = {280, startY, buttonWidth, buttonHeight}; 
     if (CheckCollisionPointRec(GetMousePosition(), SearchButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
     {
         return true;
@@ -500,6 +519,18 @@ bool View::Option::isSearch()
     return false;
 }
 
+bool View::Option::isUpdate()
+{
+    float buttonWidth = 100;
+    float buttonHeight = 40;
+    float startY = 574;
+    Rectangle UpdateButton = {150, startY, buttonWidth, buttonHeight}; 
+    if (CheckCollisionPointRec(GetMousePosition(), UpdateButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+    {
+        return true;
+    }
+    return false;
+}
 // ========================= TEXTBOX ========================================
 
 void View::TextBox::draw()
@@ -1729,7 +1760,7 @@ void View::eventView()
                 box.isOpen = false;
                 inputPanel.isOpen = true;
             }
-            else if (!box.IniFunction && (option.isAdd() || option.isDelete() || option.isSearch()))
+            else if (!box.IniFunction && (option.isAdd() || option.isDelete() || option.isSearch() || option.isUpdate()))
             {
                 box.isOpen = true;
                 inputPanel.isOpen = false;
