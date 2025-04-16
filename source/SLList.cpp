@@ -530,7 +530,7 @@ void SLList::safeRemoveEdge(int nodeID)
         }
     }
 }
-
+// *************************** FUNCTIONAL ****************************
 void SLList::initData()
 {
     if (box.someList.empty())

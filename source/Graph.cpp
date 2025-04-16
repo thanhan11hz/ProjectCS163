@@ -400,6 +400,7 @@ void Graph::remove() {
     stepmanager.currentStep = 0;
 }
 
+// *************************** FUNCTIONAL ****************************
 void Graph::initData() {
     if (box.adjMatrix.size() == 0) return;
     vertex.resize(box.adjMatrix.size(),nullptr);
@@ -423,14 +424,14 @@ void Graph::initData() {
 
 void Graph::dijkstra() {
     if (!checkConnected()) {
-        log.infor.push_back("The graph must be connected to implement this function");
+        log.infor.push_back("The graph must be connected to run this function");
         return;
     } 
     adjMatrixToEdges();
     cout << "Thanh cong, number of edges: " << edges.size() << endl;
     if (edges.empty()) return;
     if (vertex.empty()){
-        cout << "Has no vertex" << endl;
+        cout << "Has no vertices" << endl;
         return;
     }
     cout << "number of edges: " << edges.size() << endl;
@@ -712,7 +713,7 @@ bool Comparator(std::vector<int> a, std::vector<int> b){
 
 void Graph::kruskal() {
     if (!checkConnected()) {
-        log.infor.push_back("The graph must be connected to implement this function");
+        log.infor.push_back("The graph must be connected to run this function");
         return;
     } 
     adjMatrixToEdges();
@@ -813,6 +814,7 @@ void Graph::DSU::unite(int a, int b){
     }
 }
 
+// Use two function to run.
 void Graph::adjMatrixToEdges() {
     edges.clear();
     for (int i = 0; i < edge.size(); ++i) {

@@ -571,6 +571,7 @@ void HTable::printHTable(std::vector<ListNode*> table) {
     }
 }
 
+// *************************** FUNCTIONAL ****************************
 void HTable::initData() {
     if (box.someList.empty()) return;
     if (HSvalue.size() != box.primeNumber) {

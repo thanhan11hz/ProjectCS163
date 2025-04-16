@@ -493,6 +493,7 @@ int AVL::balanceFactor(TreeNode* node) {
     return getHeight(node->left) - getHeight(node->right);
 }
 
+// *************************** FUNCTIONAL ****************************
 void AVL::initData() {
     if (box.someList.empty()) return;
     Step step;
