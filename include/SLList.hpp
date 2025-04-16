@@ -42,6 +42,8 @@ class SLList: public Logic, public View {
         void deleteData();
         void searchData();
         void updateData();
+
+        bool Found;
 };
 
 #endif

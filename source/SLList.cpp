@@ -773,6 +773,78 @@ void SLList::searchData()
     box.someList.clear();
 }
 
-void SLList::updateData(){
+void SLList::updateData() {
+    if (box.someList.size() != 2) {
+        log.infor.push_back("Please enter exactly two numbers!");
+        box.someList.clear();
+        return;
+    }
 
+    code.codeline = {
+        "if list empty: return                   ",
+        "curr = root                             ",
+        "while curr exists and curr.val ≠ value: ",
+        "    curr = curr.next                    ",
+        "if curr not found: return               ",
+        "curr.val = new                          "
+    };
+
+    Step step;
+    step.highlightedLine = 0;
+    step.highlightedNode = -1;
+    copyNode(root, step.tempRoot);
+    copyEdge(edge, step.tempEdge, (ListNode *)step.tempRoot);
+    stepmanager.step.push_back(step);
+
+    if (!root){
+        step.highlightedLine = 0;
+        copyNode(root, step.tempRoot);
+        copyEdge(edge, step.tempEdge, (ListNode *)step.tempRoot);
+        step.description.push_back("List is empty, cannot update");
+        stepmanager.step.push_back(step);
+        box.someList.clear();
+        return;
+    }
+
+    ListNode *curr = root;
+    step.highlightedLine = 1;
+    step.highlightedNode = root->ID;
+    copyNode(root, step.tempRoot);
+    copyEdge(edge, step.tempEdge, (ListNode *)step.tempRoot);
+    stepmanager.step.push_back(step);
+
+    while (curr && curr->val != box.someList[0]){
+        step.highlightedLine = 2;
+        step.highlightedNode = curr->ID;
+        copyNode(root, step.tempRoot);
+        copyEdge(edge, step.tempEdge, (ListNode *)step.tempRoot);
+        stepmanager.step.push_back(step);
+
+        step.highlightedLine = 3;
+        step.highlightedNode = curr->ID;
+        copyNode(root, step.tempRoot);
+        copyEdge(edge, step.tempEdge, (ListNode *)step.tempRoot);
+        stepmanager.step.push_back(step);
+
+        curr = curr->next;
+    }
+
+    if (!curr){
+        step.highlightedLine = 4;
+        step.highlightedNode = -1;
+        copyNode(root, step.tempRoot);
+        copyEdge(edge, step.tempEdge, (ListNode *)step.tempRoot);
+        step.description.push_back("Number " + std::to_string(box.someList[0]) + " not found");
+        stepmanager.step.push_back(step);
+    }
+    else {
+        curr->val = box.someList[1];
+        step.highlightedLine = 5;
+        step.highlightedNode = curr->ID;
+        copyNode(root, step.tempRoot);
+        copyEdge(edge, step.tempEdge, (ListNode *)step.tempRoot);
+        step.description.push_back("Updated value from " + std::to_string(box.someList[0]) + " to " + std::to_string(box.someList[1]));
+        stepmanager.step.push_back(step);
+    }
+    box.someList.clear();
 }

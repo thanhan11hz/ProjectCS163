@@ -253,7 +253,7 @@ void View::Option::draw()
     else
     {
         DrawRectangleRounded(IniButton, 0.3f, 10, myColor2[1]);
-        DrawTextEx(font, "Initialize", textPos, 20, 5, myColor2[0]);
+        DrawTextEx(font, "Init", textPos, 20, 5, myColor2[0]);
     }
 
     if (mode == Mode::AVL || mode == Mode::SLLIST || mode == Mode::HTABLE)
