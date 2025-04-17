@@ -28,13 +28,14 @@ void Menu::draw() {
             (300 - textSize.y) / 2.0f
         };
         DrawTextEx(font, title.c_str(), textPos, fontSize, spacing, myColor1[0]);
-        fontSize = 50; //to match with cold
-        spacing = 8; // as well
+        fontSize = 25;
+        spacing = 5;
         textSize = MeasureTextEx(font, logo.c_str(), fontSize, spacing);
         textPos = {
-            (screenWidth - textSize.x) / 2.0f,
-            668 + (142 - textSize.y) / 2.0f
+            (screenWidth - textSize.x - 38) / 1.0f,
+            704 + (142 - textSize.y) / 2.0f
         };
+        //change logo position to right side of the screen
         DrawTextEx(font, logo.c_str(), textPos, fontSize, spacing, myColor1[0]);
     } else {
         DrawRectangle(0, 0, screenWidth, screenHeight, myColor2[3]);
@@ -46,13 +47,14 @@ void Menu::draw() {
             (300 - textSize.y) / 2.0f
         };
         DrawTextEx(font, title.c_str(), textPos, fontSize, spacing, myColor2[0]);
-        fontSize = 50;
-        spacing = 8;
+        fontSize = 25;
+        spacing = 5;
         textSize = MeasureTextEx(font, logo.c_str(), fontSize, spacing);
         textPos = {
-            (screenWidth - textSize.x) / 2.0f,
-            668 + (142 - textSize.y) / 2.0f
+            (screenWidth - textSize.x - 38) / 1.0f,
+            704 + (142 - textSize.y) / 2.0f
         };
+        //change logo position to right side of the screen
         DrawTextEx(font, logo.c_str(), textPos, fontSize, spacing, myColor2[0]);
     }
 
