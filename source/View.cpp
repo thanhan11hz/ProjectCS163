@@ -693,6 +693,8 @@ void View::TextBox::handleFileDrop()
     UnloadDroppedFiles(droppedFiles);
 }
 
+
+
 bool View::TextBox::processFileData(const std::string &filePath)
 {
     if (filePath.empty())
@@ -1372,10 +1374,10 @@ void View::Setting::draw()
             DrawLineEx({30, 150}, {430, 150}, 3, myColor1[0]);
             DrawLineEx({190, 30}, {190, 210}, 3, myColor1[0]);
 
-            DrawTriangle({410, 60}, {400, 50}, {400, 70}, myColor1[1]);
-            DrawTriangle({210, 60}, {220, 70}, {220, 50}, myColor1[1]);
-            DrawTriangle({410, 180}, {400, 170}, {400, 190}, myColor1[1]);
-            DrawTriangle({210, 180}, {220, 190}, {220, 170}, myColor1[1]);
+            DrawTriangle({415, 60}, {400, 40}, {400, 80}, myColor1[1]);  // Tam giác phải (Font)
+            DrawTriangle({205, 60}, {220, 80}, {220, 40}, myColor1[1]);  // Tam giác trái (Font)
+            DrawTriangle({415, 180}, {400, 160}, {400, 200}, myColor1[1]); // Tam giác phải (Theme)
+            DrawTriangle({205, 180}, {220, 200}, {220, 160}, myColor1[1]); // Tam giác trái (Them
 
             Vector2 textSize = MeasureTextEx(font, "Font", 20, 5);
             Vector2 textPos = {
@@ -1439,10 +1441,10 @@ void View::Setting::draw()
             DrawLineEx({30, 150}, {430, 150}, 3, myColor2[0]);
             DrawLineEx({190, 30}, {190, 210}, 3, myColor2[0]);
 
-            DrawTriangle({410, 60}, {400, 50}, {400, 70}, myColor2[1]);
-            DrawTriangle({210, 60}, {220, 70}, {220, 50}, myColor2[1]);
-            DrawTriangle({410, 180}, {400, 170}, {400, 190}, myColor2[1]);
-            DrawTriangle({210, 180}, {220, 190}, {220, 170}, myColor2[1]);
+            DrawTriangle({415, 60}, {400, 40}, {400, 80}, myColor2[1]);  
+            DrawTriangle({205, 60}, {220, 80}, {220, 40}, myColor2[1]);  
+            DrawTriangle({415, 180}, {400, 160}, {400, 200}, myColor2[1]); 
+            DrawTriangle({205, 180}, {220, 200}, {220, 160}, myColor2[1]); 
 
             Vector2 textSize = MeasureTextEx(font, "Font", 20, 5);
             Vector2 textPos = {
@@ -1521,7 +1523,8 @@ void View::Setting::update()
             }
             else
             {
-                if (CheckCollisionPointTriangle(mousePos, {210, 180}, {220, 190}, {220, 170}) || CheckCollisionPointTriangle(mousePos, {410, 180}, {400, 170}, {400, 190}))
+                if (CheckCollisionPointTriangle(mousePos, {205, 180}, {220, 200}, {220, 160}) || 
+                    CheckCollisionPointTriangle(mousePos, {415, 180}, {400, 160}, {400, 200}))
                 {
                     themeView = !themeView;
                     if (themeView)
@@ -1530,12 +1533,12 @@ void View::Setting::update()
                         theme = colorType::COLD;
                 }
 
-                if (CheckCollisionPointTriangle(mousePos, {210, 60}, {220, 70}, {220, 50}))
+                if (CheckCollisionPointTriangle(mousePos, {205, 60}, {220, 80}, {220, 40}))
                 {
                     fontType = (fontType + fontList.size() - 1) % fontList.size();
                 }
 
-                if (CheckCollisionPointTriangle(mousePos, {410, 60}, {400, 50}, {400, 70}))
+                if (CheckCollisionPointTriangle(mousePos, {415, 60}, {400, 40}, {400, 80}))
                 {
                     fontType = (fontType + 1) % fontList.size();
                 }
