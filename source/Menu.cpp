@@ -28,8 +28,8 @@ void Menu::draw() {
             (300 - textSize.y) / 2.0f
         };
         DrawTextEx(font, title.c_str(), textPos, fontSize, spacing, myColor1[0]);
-        fontSize = 30;
-        spacing = 5;
+        fontSize = 50; //to match with cold
+        spacing = 8; // as well
         textSize = MeasureTextEx(font, logo.c_str(), fontSize, spacing);
         textPos = {
             (screenWidth - textSize.x) / 2.0f,
