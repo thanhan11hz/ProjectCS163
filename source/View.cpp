@@ -603,6 +603,9 @@ void View::TextBox::draw()
                 inputText = "Enter prime number: " + value;
             }
         }
+        else if (mode == Mode::GRAPH && isFileMode){
+            inputText = "Enter the file path: " + value;
+        }
         else
         {
             inputText = "Enter value: " + value;
@@ -826,7 +829,10 @@ void View::TextBox::update()
         int key = GetCharPressed();
         while (key > 0)
         {
-            if ((key >= '0' && key <= '9') || key == ' ')
+            if (mode == Mode::GRAPH && isFileMode){
+                value += static_cast<char>(key);
+            }
+            else if ((key >= '0' && key <= '9') || key == ' ')
             { // allow numbers and space only
                 value += static_cast<char>(key);
             }
@@ -840,7 +846,13 @@ void View::TextBox::update()
 
         if (IsKeyPressed(KEY_ENTER))
         {
-            if (mode == Mode::HTABLE)
+            if (mode == Mode::GRAPH && isFileMode){
+                if (processFileData(value)){
+                    isOpen = false;
+                    isFileMode = false;
+                }
+            }
+            else if (mode == Mode::HTABLE)
             {
                 if (!enteredValues)
                 {
@@ -1673,7 +1685,7 @@ void View::eventView()
             if (inputPanel.isRandomPressed())
             {
                 inputPanel.isOpen = false;
-                
+                box.isFileMode = false;
                 box.generateRandomGraphMatrix();
                 box.IniFunction = true;
                 func = Function::INIT;
@@ -1684,7 +1696,7 @@ void View::eventView()
                 inputPanel.isOpen = false;
                 box.isOpen = true;
                 box.isFileMode = true;
-                box.isDragDropMode = true;
+                box.isDragDropMode = false;    // có sửa lại true
                 box.isURLMode = false; // Rõ ràng tắt URL mode
                 box.value.clear();
                 box.adjMatrix.clear();
@@ -1707,6 +1719,7 @@ void View::eventView()
             {
                 inputPanel.isOpen = false;
                 box.IniFunction = false;
+                box.isFileMode = false;
             }
         }
         else
