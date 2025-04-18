@@ -6,14 +6,10 @@ void Menu::init() {
     button[1] = Button({445,300,222,368},false);
     button[2] = Button({777,300,222,368},false);
     button[3] = Button({1109,300,222,368},false);
-    hotList = LoadTexture("resource\\Texture\\hotList.png");
-    hotTable = LoadTexture("resource\\Texture\\hotTable.png");
-    hotTree = LoadTexture("resource\\Texture\\hotTree.png");
-    hotGraph = LoadTexture("resource\\Texture\\hotGraph.png");
-    coldList = LoadTexture("resource\\Texture\\coldList.png");
-    coldTable = LoadTexture("resource\\Texture\\coldTable.png");
-    coldTree = LoadTexture("resource\\Texture\\coldTree.png");
-    coldGraph = LoadTexture("resource\\Texture\\coldGraph.png");
+    hotList = LoadTexture("resource\\Texture\\1List.png");
+    hotTable = LoadTexture("resource\\Texture\\1Table.png");
+    hotTree = LoadTexture("resource\\Texture\\1Tree.png");
+    hotGraph = LoadTexture("resource\\Texture\\1Graph.png");
 }
 
 void Menu::draw() {
@@ -85,10 +81,5 @@ void Menu::update() {
         button[1].picture = hotTable;
         button[2].picture = hotTree;
         button[3].picture = hotGraph;
-    } else {
-        button[0].picture = coldList;
-        button[1].picture = coldTable;
-        button[2].picture = coldTree;
-        button[3].picture = coldGraph;
     }
 }
