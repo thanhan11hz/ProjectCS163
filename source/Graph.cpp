@@ -329,40 +329,6 @@ void Graph::prepareTransition() {
         currStep.animQueue.addAnimation(anim);
     }
     
-    // Step& currStep = stepmanager.step[stepmanager.currentStep];
-    // if (stepmanager.currentStep <= 0) return;
-    // Step& prevStep = stepmanager.step[stepmanager.currentStep - 1];
-    // std::unordered_map<int,GraphNode*> currNode;
-    // std::unordered_map<int,GraphNode*> prevNode;
-    // std::unordered_map<int,Edge*> currEdge;
-    // std::unordered_map<int,Edge*> prevEdge;
-    // for (int i = 0; i < currStep.nodeHighlight.size(); ++i) {
-    //     currNode[currStep.nodeHighlight[i]->ID] = (GraphNode*)currStep.nodeHighlight[i];
-    // }
-    // for (int i = 0; i < prevStep.nodeHighlight.size(); ++i) {
-    //     prevNode[prevStep.nodeHighlight[i]->ID] = (GraphNode*)prevStep.nodeHighlight[i];
-    // }
-    // for (int i = 0; i < currStep.edgeHighlight.size(); ++i) {
-    //     currEdge[currStep.edgeHighlight[i]->ID] = currStep.edgeHighlight[i];
-    // }
-    // for (int i = 0; i < prevStep.edgeHighlight.size(); ++i) {
-    //     prevEdge[prevStep.edgeHighlight[i]->ID] = prevStep.edgeHighlight[i];
-    // }
-    // Animation anim;
-    // anim.type = AnimateType::HIGHLIGHT;
-    // for (auto it : currNode) {
-    //     if (prevNode.find(it.first) == prevNode.end()) {
-    //         anim.highlightedNode.push_back(it.second);
-    //     }
-    // }
-    // if (anim.highlightedNode.size()) currStep.animQueue.addAnimation(anim);
-    // anim.highlightedNode.clear();
-    // for (auto it : currEdge) {
-    //     if (prevEdge.find(it.first) == prevEdge.end()) {
-    //         anim.highlightedEdge.push_back(it.second);
-    //     }
-    // }
-    // if (anim.highlightedEdge.size()) currStep.animQueue.addAnimation(anim);
 }
 
 void Graph::exit() {
@@ -561,7 +527,7 @@ void Graph::prim() {
     } 
     adjMatrixToEdges();
     if (edges.empty() || vertex.empty()) {
-        cout << "Error: Graph has no edges" << endl;
+        cout << "Error: Graph has no edges!" << endl;
         return;
     }
     edgesToAdjList();
@@ -569,7 +535,7 @@ void Graph::prim() {
     // Kiểm tra số đỉnh hợp lệ
     int V = vertex.size();
     if (V == 0) {
-        cout << "Error: Graph has no vertices" << endl;
+        cout << "Error: Graph has no vertices!" << endl;
         return;
     }
 
@@ -579,7 +545,7 @@ void Graph::prim() {
         return;
     }
 
-    // Khởi tạo các bước như ban đầu
+
     Step step;
     code.codeline = {
         "Initialize min-heap pq                           ",
@@ -814,7 +780,7 @@ void Graph::DSU::unite(int a, int b){
     }
 }
 
-// Use two function to run.
+// Convert from input to edges list
 void Graph::adjMatrixToEdges() {
     edges.clear();
     for (int i = 0; i < edge.size(); ++i) {
@@ -822,7 +788,7 @@ void Graph::adjMatrixToEdges() {
     }
 }
 
-
+// Convert to edges list to adj list
 void Graph::edgesToAdjList(){
     if (edge.empty()) return;
     adjList.clear();

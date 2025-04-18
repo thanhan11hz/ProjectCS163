@@ -1699,8 +1699,8 @@ void View::eventView()
                 inputPanel.isOpen = false;
                 box.isOpen = true;
                 box.isFileMode = true;
-                box.isDragDropMode = false;    // có sửa lại true
-                box.isURLMode = false; // Rõ ràng tắt URL mode
+                box.isDragDropMode = false;    
+                box.isURLMode = false; 
                 box.value.clear();
                 box.adjMatrix.clear();
                 box.IniFunction = true;
@@ -1712,7 +1712,7 @@ void View::eventView()
                 box.isOpen = true;
                 box.isURLMode = true;
                 box.isDragDropMode = true;
-                box.isFileMode = false; // Rõ ràng tắt File mode
+                box.isFileMode = false; 
                 box.value.clear();
                 box.adjMatrix.clear();
                 box.IniFunction = true;
@@ -1745,8 +1745,6 @@ void View::eventView()
                 box.IniFunction = true;
                 func = Function::INIT;
 
-                std::cout << "The amount at eventView: " << box.someList.size() << std::endl;
-                std::cout << "Prime number at eventView: " << box.primeNumber << std::endl;
                 box.value.clear();
             }
             else if (inputPanel.isURLPressed())
