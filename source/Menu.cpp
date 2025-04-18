@@ -20,7 +20,7 @@ void Menu::draw() {
 
     if (theme == colorType::HOT) {
         DrawRectangle(0, 0, screenWidth, screenHeight, myColor1[3]);
-        int fontSize = 60;
+        int fontSize = 80;
         int spacing = 10;
         Vector2 textSize = MeasureTextEx(font, title.c_str(), fontSize, spacing);
         Vector2 textPos = {
@@ -28,17 +28,18 @@ void Menu::draw() {
             (300 - textSize.y) / 2.0f
         };
         DrawTextEx(font, title.c_str(), textPos, fontSize, spacing, myColor1[0]);
-        fontSize = 30;
+        fontSize = 25;
         spacing = 5;
         textSize = MeasureTextEx(font, logo.c_str(), fontSize, spacing);
         textPos = {
-            (screenWidth - textSize.x) / 2.0f,
-            668 + (142 - textSize.y) / 2.0f
+            (screenWidth - textSize.x - 38) / 1.0f,
+            704 + (142 - textSize.y) / 2.0f
         };
+        //change logo position to right side of the screen
         DrawTextEx(font, logo.c_str(), textPos, fontSize, spacing, myColor1[0]);
     } else {
         DrawRectangle(0, 0, screenWidth, screenHeight, myColor2[3]);
-        int fontSize = 60;
+        int fontSize = 80;
         int spacing = 10;
         Vector2 textSize = MeasureTextEx(font, title.c_str(), fontSize, spacing);
         Vector2 textPos = {
@@ -46,13 +47,14 @@ void Menu::draw() {
             (300 - textSize.y) / 2.0f
         };
         DrawTextEx(font, title.c_str(), textPos, fontSize, spacing, myColor2[0]);
-        fontSize = 50;
-        spacing = 8;
+        fontSize = 25;
+        spacing = 5;
         textSize = MeasureTextEx(font, logo.c_str(), fontSize, spacing);
         textPos = {
-            (screenWidth - textSize.x) / 2.0f,
-            668 + (142 - textSize.y) / 2.0f
+            (screenWidth - textSize.x - 38) / 1.0f,
+            704 + (142 - textSize.y) / 2.0f
         };
+        //change logo position to right side of the screen
         DrawTextEx(font, logo.c_str(), textPos, fontSize, spacing, myColor2[0]);
     }
 
@@ -67,9 +69,9 @@ int Menu::modePresson() {
     bool mousePress = false;
     if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) mousePress = true;
     Vector2 mousePosition = GetMousePosition();
-    int d = 0;
+    int d = 0; //check if one of the button is pressed, return the index of the button for processing
     for (auto v: button) {
-        if (v.checkPress(mousePosition,mousePress)) {
+        if (v.checkPress(mousePosition, mousePress)) {
             return d;
         }
         d++;

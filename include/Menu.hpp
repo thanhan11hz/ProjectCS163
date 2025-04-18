@@ -21,9 +21,9 @@ class Menu {
         Texture2D coldTree;
         Texture2D coldGraph;
     public:
-        void init();
-        void draw();
-        int modePresson();
+        void init(); //Initialize the menu
+        void draw(); //Draw the menu
+        int modePresson(); //Check if mouse is pressed and where does it press
         void update();
 };
 
