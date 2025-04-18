@@ -71,19 +71,12 @@ int Menu::modePresson() {
     Vector2 mousePosition = GetMousePosition();
     int d = 0; //check if one of the button is pressed, return the index of the button for processing
     for (auto v: button) {
-        if (v.checkHovered(mousePosition)) {
-            v.checkPress(mousePosition, mousePress);
+        if (v.checkPress(mousePosition, mousePress)) {
             return d;
         }
         d++;
     }
-    // for (auto v: button) {
-    //     if (v.checkPress(mousePosition, mousePress)) {
-    //         return d;
-    //     }
-    //     d++;
-    // }
-    // return -1;
+    return -1;
 }
 
 void Menu::update() {
