@@ -2,18 +2,18 @@
 
 void Menu::init() {
     button.resize(4);
-    button[0] = Button({113,300,300,200},false);
-    button[1] = Button({445,300,300,200},false);
-    button[2] = Button({777,300,300,200},false);
-    button[3] = Button({1109,300,300,200},false);
-    hotList = LoadTexture("resource\\Texture\\1List.png");
-    hotTable = LoadTexture("resource\\Texture\\1Table.png");
-    hotTree = LoadTexture("resource\\Texture\\1Tree.png");
-    hotGraph = LoadTexture("resource\\Texture\\1Graph.png");
-    coldList = LoadTexture("resource\\Texture\\2List.png");
-    coldTable = LoadTexture("resource\\Texture\\2Table.png");
-    coldTree = LoadTexture("resource\\Texture\\2Tree.png");
-    coldGraph = LoadTexture("resource\\Texture\\2Graph.png");
+    button[0] = Button({113,300,222,368},false);
+    button[1] = Button({445,300,222,368},false);
+    button[2] = Button({777,300,222,368},false);
+    button[3] = Button({1109,300,222,368},false);
+    hotList = LoadTexture("resource\\Texture\\hotList.png");
+    hotTable = LoadTexture("resource\\Texture\\hotTable.png");
+    hotTree = LoadTexture("resource\\Texture\\hotTree.png");
+    hotGraph = LoadTexture("resource\\Texture\\hotGraph.png");
+    coldList = LoadTexture("resource\\Texture\\coldList.png");
+    coldTable = LoadTexture("resource\\Texture\\coldTable.png");
+    coldTree = LoadTexture("resource\\Texture\\coldTree.png");
+    coldGraph = LoadTexture("resource\\Texture\\coldGraph.png");
 }
 
 void Menu::draw() {
@@ -37,7 +37,9 @@ void Menu::draw() {
         };
         //change logo position to right side of the screen
         DrawTextEx(font, logo.c_str(), textPos, fontSize, spacing, myColor1[0]);
-    } else {
+    }
+    //add cold theme
+    else {
         DrawRectangle(0, 0, screenWidth, screenHeight, myColor2[3]);
         int fontSize = 80;
         int spacing = 10;
@@ -57,6 +59,7 @@ void Menu::draw() {
         //change logo position to right side of the screen
         DrawTextEx(font, logo.c_str(), textPos, fontSize, spacing, myColor2[0]);
     }
+
 
     for (auto v: button) {
         Vector2 mousePosition = GetMousePosition();
@@ -94,8 +97,3 @@ void Menu::update() {
         button[3].picture = coldGraph;
     }
 }
-
-// button[0] = Button({113,300,222,368},false);
-// button[1] = Button({445,300,222,368},false);
-// button[2] = Button({777,300,222,368},false);
-// button[3] = Button({1109,300,222,368},false);
