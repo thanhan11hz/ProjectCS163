@@ -20,7 +20,7 @@ void Menu::draw() {
 
     if (theme == colorType::HOT) {
         DrawRectangle(0, 0, screenWidth, screenHeight, myColor1[3]);
-        int fontSize = 60;
+        int fontSize = 80;
         int spacing = 10;
         Vector2 textSize = MeasureTextEx(font, title.c_str(), fontSize, spacing);
         Vector2 textPos = {
@@ -39,7 +39,7 @@ void Menu::draw() {
         DrawTextEx(font, logo.c_str(), textPos, fontSize, spacing, myColor1[0]);
     } else {
         DrawRectangle(0, 0, screenWidth, screenHeight, myColor2[3]);
-        int fontSize = 60;
+        int fontSize = 80;
         int spacing = 10;
         Vector2 textSize = MeasureTextEx(font, title.c_str(), fontSize, spacing);
         Vector2 textPos = {

@@ -1436,7 +1436,7 @@ void View::Setting::draw()
             Vector2 textPos = {
                 30 + (160 - textSize.x) / 2.0f,
                 30 + (60 - textSize.y) / 2.0f};
-            DrawTextEx(font, "Music", textPos, 20, 5, myColor2[0]);
+            DrawTextEx(font, "Font", textPos, 20, 5, myColor2[0]);
             textSize = MeasureTextEx(font, "Music", 20, 5);
             textPos = {
                 30 + (160 - textSize.x) / 2.0f,
