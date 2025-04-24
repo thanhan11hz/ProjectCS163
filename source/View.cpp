@@ -540,7 +540,7 @@ void View::TextBox::draw()
 
     Rectangle textBoxRec = {0, 510, 400, 200};
     if (theme == colorType::HOT)
-    {
+    {   
         DrawRectangleRounded(textBoxRec, 0.3f, 10, LIGHTGRAY);
         DrawRectangleRoundedLinesEx(textBoxRec, 0.3f, 10, 3, myColor1[0]);
     }
@@ -602,6 +602,11 @@ void View::TextBox::draw()
             {
                 inputText = "Enter prime number: " + value;
             }
+        }
+        else if (func == Function::UPDATE){
+            inputText = "Enter exactly two numbers: " + value;
+            DrawText("First: value to replace", textBoxRec.x + 10, textBoxRec.y + 70, 16, GRAY);
+            DrawText("Second: new value", textBoxRec.x + 10, textBoxRec.y + 90, 16, GRAY);
         }
         else if (mode == Mode::GRAPH && isFileMode){
             inputText = "Enter the file path: " + value;
