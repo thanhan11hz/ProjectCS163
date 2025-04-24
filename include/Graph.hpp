@@ -18,7 +18,6 @@ class Graph : public Logic, public View {
                     ID = globalID;
                     globalID++;
                 }
-                void applySpringForce();
                 void applyDragForce();
                 void updatePosition();
         };

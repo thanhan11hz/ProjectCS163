@@ -1029,21 +1029,50 @@ void View::TextBox::generateRandomValues()
 }
 
 void View::TextBox::generateRandomGraphMatrix(){
-    const int minVertices = 10;
-    const int maxVertices = 20;
+    const int minVertices = 5;
+    const int maxVertices = 15;
     const int maxWeight = 10;
     const float edgeDensity = 0.2f;
 
-    int n = GetRandomValue(minVertices, maxVertices);
+    // int n = GetRandomValue(minVertices, maxVertices);
+    // adjMatrix.clear();
+    // adjMatrix.resize(n, std::vector<int>(n, 0));
+    // for (int i = 0; i < n; ++i) {
+    //     for (int j = i + 1; j < n; ++j) {
+    //         if (GetRandomValue(0, 100) < static_cast<int>(edgeDensity * 100)) {
+    //             int weight = GetRandomValue(1, maxWeight);
+    //             adjMatrix[i][j] = weight;
+    //             adjMatrix[j][i] = weight; 
+    //         }
+    //     }
+    // }
+    int n = minVertices + rand() % (maxVertices - minVertices + 1);
     adjMatrix.clear();
     adjMatrix.resize(n, std::vector<int>(n, 0));
-    for (int i = 0; i < n; ++i) {
-        for (int j = i + 1; j < n; ++j) {
-            if (GetRandomValue(0, 100) < static_cast<int>(edgeDensity * 100)) {
-                int weight = GetRandomValue(1, maxWeight);
-                adjMatrix[i][j] = weight;
-                adjMatrix[j][i] = weight; 
-            }
+    std::vector<int> nodes(n);
+    for (int i = 0; i < n; ++i) nodes[i] = i;
+    std::random_shuffle(nodes.begin(), nodes.end());
+
+    for (int i = 1; i < n; ++i) {
+        int u = nodes[i];
+        int v = nodes[rand() % i]; 
+        int weight = 1 + rand() % maxWeight;
+        adjMatrix[u][v] = weight;
+        adjMatrix[v][u] = weight;
+    }
+
+    int totalPossibleEdges = n * (n - 1) / 2;
+    int targetEdges = static_cast<int>(edgeDensity * totalPossibleEdges);
+    int currentEdges = n - 1;
+
+    while (currentEdges < targetEdges) {
+        int i = rand() % n;
+        int j = rand() % n;
+        if (i != j && adjMatrix[i][j] == 0) {
+            int weight = 1 + rand() % maxWeight;
+            adjMatrix[i][j] = weight;
+            adjMatrix[j][i] = weight;
+            ++currentEdges;
         }
     }
 }
@@ -1128,11 +1157,13 @@ void View::Slider::draw()
 
     char buffer[32];
     sprintf(buffer, "%g", roundedSpeed);
+    std::string speedIndex = buffer;
+    speedIndex += ".x";
 
     if (theme == colorType::HOT)
-        DrawTextEx(font, buffer, textPos, 20, 5, myColor1[0]);
+        DrawTextEx(font, speedIndex.c_str(), textPos, 20, 5, myColor1[0]);
     else
-        DrawTextEx(font, buffer, textPos, 20, 5, myColor2[0]);
+        DrawTextEx(font, speedIndex.c_str(), textPos, 20, 5, myColor2[0]);
 }
 
 //=========================================== HOME =======================================
