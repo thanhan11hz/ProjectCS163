@@ -17,7 +17,7 @@ void HTable::draw() {
         code.lineHighlighted = currStep.highlightedLine;
         BeginScissorMode(400,80,1040,640);
         BeginMode2D(camera);
-        if (stepmanager.isTransitioning) {
+        if (stepmanager.isTransitioning && !currStep.animQueue.animation.empty()) {
             std::cout << "CurrStep: " << stepmanager.currentStep << std::endl;
             Animation currAnimation = currStep.animQueue.animation.front();
             Step& prevStep = stepmanager.step[stepmanager.currentStep - 1];
@@ -304,7 +304,7 @@ void HTable::run() {
                 break;
         }
     }
-    stepmanager.speed = slider.speed; // speed increament
+    stepmanager.speed = slider.speed; // speed increment
 
 
     if (stepmanager.isTransitioning) {
@@ -313,7 +313,7 @@ void HTable::run() {
     } else if (panel.isForwardPressed()) {
         stepmanager.isPlaying = false;
         panel.isPlaying = false;
-        if (stepmanager.currentStep < stepmanager.step.size() - 1) {
+        if (!stepmanager.step.empty() && stepmanager.currentStep < stepmanager.step.size() - 1) {
             stepmanager.nextStep();
             prepareTransition();
         }
@@ -326,15 +326,14 @@ void HTable::run() {
         stepmanager.isPlaying = false;
         panel.isPlaying = false;
         accumulatedTime = 0.0f; 
-    }
-    if (panel.isPlayPressed()) {
+    } else if (panel.isPlayPressed()) {
         stepmanager.isPlaying = true;
         panel.isPlaying = true;
     }
     auto now = std::chrono::steady_clock::now();
     float deltaTime = std::chrono::duration<float>(now - lastUpdateTime).count();
     lastUpdateTime = now;
-    if (stepmanager.isPlaying && stepmanager.currentStep < stepmanager.step.size() - 1) {
+    if (stepmanager.isPlaying && !stepmanager.step.empty() && stepmanager.currentStep < stepmanager.step.size() - 1) {
         accumulatedTime += deltaTime * stepmanager.speed;
         while (accumulatedTime >= stepDuration && stepmanager.isPlaying) {
             accumulatedTime -= stepDuration;

@@ -17,7 +17,7 @@ void AVL::draw() {
         code.lineHighlighted = currStep.highlightedLine;
         BeginScissorMode(400,80,1040,640);
         BeginMode2D(camera);
-        if (stepmanager.isTransitioning) {
+        if (stepmanager.isTransitioning && !currStep.animQueue.animation.empty()) {
             Animation currAnimation = currStep.animQueue.animation.front();
             Step& prevStep = stepmanager.step[stepmanager.currentStep - 1];
             if (currAnimation.type == AnimateType::DELETION) {
@@ -76,8 +76,10 @@ int AVL::calculateSubtreeWidth(TreeNode* node) {
     if (!node) return 0;
     int leftWidth = calculateSubtreeWidth(node->left);
     int rightWidth = calculateSubtreeWidth(node->right);
-    subtreeWidth[node] = subtreeWidth[node->left] + subtreeWidth[node->right];
-    if (node->left || node->left) subtreeWidth[node] += 60; 
+    subtreeWidth[node] = leftWidth + rightWidth;
+    if (node->left && node->right) subtreeWidth[node] += 40;
+    else if (node->left || node->right) subtreeWidth[node] += 80;
+    else subtreeWidth[node] += 40;
     return subtreeWidth[node];
 }
 
@@ -86,9 +88,8 @@ void AVL::calculatePositions(TreeNode* node, int x, int y) {
 
     node->position.x = x;
     node->position.y = y;
-
-    int leftWidth = (node->left) ? subtreeWidth[node->left] + 30 : 0;
-    int rightWidth = (node->right) ? subtreeWidth[node->right] + 30 : 0;
+    int leftWidth = (node->left && node->left->right) ? subtreeWidth[node->left->right] + 40 : 40;
+    int rightWidth = (node->right && node->right->left) ? subtreeWidth[node->right->left] + 40 : 40;
     if (node->left) calculatePositions(node->left, x - leftWidth, y + 80);
     if (node->right) calculatePositions(node->right, x + rightWidth, y + 80);
 }
@@ -213,7 +214,7 @@ void AVL::run() {
     } else if (panel.isForwardPressed()) {
         stepmanager.isPlaying = false;
         panel.isPlaying = false;
-        if (stepmanager.currentStep < stepmanager.step.size() - 1) {
+        if (!stepmanager.step.empty() && stepmanager.currentStep < stepmanager.step.size() - 1) {
             stepmanager.nextStep();
             prepareTransition();
         }
@@ -225,15 +226,14 @@ void AVL::run() {
     if (panel.isPausePressed()) {
         stepmanager.isPlaying = false;
         panel.isPlaying = false;
-    }
-    if (panel.isPlayPressed()) {
+    } else if (panel.isPlayPressed()) {
         stepmanager.isPlaying = true;
         panel.isPlaying = true;
     }
     auto now = std::chrono::steady_clock::now();
     float deltaTime = std::chrono::duration<float>(now - lastUpdateTime).count();
     lastUpdateTime = now;
-    if (stepmanager.isPlaying && stepmanager.currentStep < stepmanager.step.size() - 1) {
+    if (stepmanager.isPlaying && !stepmanager.step.empty() && stepmanager.currentStep < stepmanager.step.size() - 1) {
         accumulatedTime += deltaTime * stepmanager.speed;
         while (accumulatedTime >= stepDuration && stepmanager.isPlaying) {
             accumulatedTime -= stepDuration;

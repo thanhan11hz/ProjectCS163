@@ -1,14 +1,6 @@
 #include "Graph.hpp"
 using namespace std;
 
-void Graph::GraphNode::applySpringForce() {
-    if (!isDragging) {
-        Vector2 diff = {fixedPosition.x - position.x, fixedPosition.y - position.y};
-        velocity.x += diff.x * 0.01f;
-        velocity.y += diff.y * 0.01f;
-    }
-}
-
 void Graph::GraphNode::applyDragForce() {
     velocity.x *= (1- 0.01f);
     velocity.y *= (1- 0.01f);
@@ -16,7 +8,11 @@ void Graph::GraphNode::applyDragForce() {
 
 void Graph::GraphNode::updatePosition() {
     position.x += velocity.x;
+    if (position.x < 430) position.x = 430;
+    if (position.x > 1410) position.x = 1410;
     position.y += velocity.y;
+    if (position.y < 110) position.y = 110;
+    if (position.y > 690) position.y = 690;
 }
 
 void Graph::applyElectricForce() {
@@ -26,12 +22,18 @@ void Graph::applyElectricForce() {
             float distance = std::sqrt(diff.x * diff.x + diff.y * diff.y);
             if (distance > 100) continue;
             if (distance < 1.0f) distance = 1.0f;
-            float force = 50000.0f / (distance * distance);
+            float force = 100000.0f / (distance * distance);
             Vector2 electricForce = {force * diff.x / distance, force * diff.y / distance};
-            vertex[i]->position.x += electricForce.x;
-            vertex[i]->position.y += electricForce.y;
-            vertex[j]->position.x -= electricForce.x;
-            vertex[j]->position.y -= electricForce.y;
+
+            if (selectedNode != vertex[i]) {
+                vertex[i]->position.x += electricForce.x;
+                vertex[i]->position.y += electricForce.y;
+            }
+
+            if (selectedNode != vertex[j]) {
+                vertex[j]->position.x -= electricForce.x;
+                vertex[j]->position.y -= electricForce.y;
+            }
         }
     }
 }
@@ -41,7 +43,6 @@ void Graph::updateVertex() {
     applyElectricForce();
     for (int i = 0; i < vertex.size(); ++i) {
         if (!vertex[i]->isDragging) {
-            vertex[i]->applySpringForce();
             vertex[i]->applyDragForce();
         }
         vertex[i]->updatePosition();
@@ -115,7 +116,7 @@ void Graph::draw() {
         code.lineHighlighted = currStep.highlightedLine;
         BeginScissorMode(400,80,1040,640);
         BeginMode2D(camera);
-        if (stepmanager.isTransitioning) {
+        if (stepmanager.isTransitioning && !currStep.animQueue.animation.empty()) {
             Animation currAnimation = currStep.animQueue.animation.front();
             Step& prevStep = stepmanager.step[stepmanager.currentStep - 1];
             if (currAnimation.type == AnimateType::HIGHLIGHT) {
@@ -253,7 +254,7 @@ void Graph::run() {
     } else if (panel.isForwardPressed()) {
         stepmanager.isPlaying = false;
         panel.isPlaying = false;
-        if (stepmanager.currentStep < stepmanager.step.size() - 1) {
+        if (!stepmanager.step.empty() && stepmanager.currentStep < stepmanager.step.size() - 1) {
             stepmanager.nextStep();
             prepareTransition();
         }
@@ -266,8 +267,7 @@ void Graph::run() {
         stepmanager.isPlaying = false;
         panel.isPlaying = false;
         accumulatedTime = 0.0f; 
-    }
-    if (panel.isPlayPressed()) {
+    } else if (panel.isPlayPressed()) {
         stepmanager.isPlaying = true;
         panel.isPlaying = true;
     }
@@ -277,7 +277,7 @@ void Graph::run() {
     auto now = std::chrono::steady_clock::now();
     float deltaTime = std::chrono::duration<float>(now - lastUpdateTime).count();
     lastUpdateTime = now;
-    if (stepmanager.isPlaying && stepmanager.currentStep < stepmanager.step.size() - 1) {
+    if (!stepmanager.step.empty() && stepmanager.isPlaying && stepmanager.currentStep < stepmanager.step.size() - 1) {
         accumulatedTime += deltaTime * stepmanager.speed;
         while (accumulatedTime >= stepDuration && stepmanager.isPlaying) {
             accumulatedTime -= stepDuration;
@@ -304,7 +304,7 @@ void Graph::prepareTransition() {
     
     Animation anim;
     anim.type = AnimateType::HIGHLIGHT;
-    
+
     for (auto node : currStep.nodeHighlight) {
         if (std::find(prevStep.nodeHighlight.begin(), prevStep.nodeHighlight.end(), node) == prevStep.nodeHighlight.end()) {
             anim.highlightedNode.push_back(node);
@@ -318,8 +318,7 @@ void Graph::prepareTransition() {
     }
     
     for (auto edge : currStep.edgeHighlight) {
-        if (std::find(prevStep.edgeHighlight.begin(), 
-                      prevStep.edgeHighlight.end(), edge) == prevStep.edgeHighlight.end()) {
+        if (std::find(prevStep.edgeHighlight.begin(), prevStep.edgeHighlight.end(), edge) == prevStep.edgeHighlight.end()) {
             anim.highlightedEdge.push_back(edge);
             edge->progress = 0.0f;
         }
@@ -328,7 +327,6 @@ void Graph::prepareTransition() {
     if (!anim.highlightedEdge.empty()) {
         currStep.animQueue.addAnimation(anim);
     }
-    
 }
 
 void Graph::exit() {

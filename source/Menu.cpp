@@ -37,7 +37,9 @@ void Menu::draw() {
         };
         //change logo position to right side of the screen
         DrawTextEx(font, logo.c_str(), textPos, fontSize, spacing, myColor1[0]);
-    } else {
+    }
+    //add cold theme
+    else {
         DrawRectangle(0, 0, screenWidth, screenHeight, myColor2[3]);
         int fontSize = 80;
         int spacing = 10;
@@ -57,6 +59,7 @@ void Menu::draw() {
         //change logo position to right side of the screen
         DrawTextEx(font, logo.c_str(), textPos, fontSize, spacing, myColor2[0]);
     }
+
 
     for (auto v: button) {
         Vector2 mousePosition = GetMousePosition();
@@ -85,7 +88,9 @@ void Menu::update() {
         button[1].picture = hotTable;
         button[2].picture = hotTree;
         button[3].picture = hotGraph;
-    } else {
+    }
+    //add cold theme button
+    else {
         button[0].picture = coldList;
         button[1].picture = coldTable;
         button[2].picture = coldTree;

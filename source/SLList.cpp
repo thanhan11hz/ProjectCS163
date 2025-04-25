@@ -21,7 +21,7 @@ void SLList::draw()
         code.lineHighlighted = currStep.highlightedLine;
         BeginScissorMode(400, 80, 1040, 640);
         BeginMode2D(camera);
-        if (stepmanager.isTransitioning)
+        if (stepmanager.isTransitioning && !currStep.animQueue.animation.empty())
         {
             Animation currAnimation = currStep.animQueue.animation.front();
             Step &prevStep = stepmanager.step[stepmanager.currentStep - 1];
@@ -260,7 +260,7 @@ void SLList::run()
     {
         stepmanager.isPlaying = false;
         panel.isPlaying = false;
-        if (stepmanager.currentStep < stepmanager.step.size() - 1)
+        if (!stepmanager.step.empty() && stepmanager.currentStep < stepmanager.step.size() - 1)
         {
             stepmanager.nextStep();
             prepareTransition();
@@ -277,8 +277,7 @@ void SLList::run()
         stepmanager.isPlaying = false;
         panel.isPlaying = false;
         accumulatedTime = 0.0f;
-    }
-    if (panel.isPlayPressed())
+    } else if (panel.isPlayPressed())
     {
         stepmanager.isPlaying = true;
         panel.isPlaying = true;
@@ -286,7 +285,7 @@ void SLList::run()
     auto now = std::chrono::steady_clock::now();
     float deltaTime = std::chrono::duration<float>(now - lastUpdateTime).count();
     lastUpdateTime = now;
-    if (stepmanager.isPlaying && stepmanager.currentStep < stepmanager.step.size() - 1)
+    if (stepmanager.isPlaying && !stepmanager.step.empty() && stepmanager.currentStep < stepmanager.step.size() - 1)
     {
         accumulatedTime += deltaTime * stepmanager.speed * 2; // x2 speed
         while (accumulatedTime >= stepDuration && stepmanager.isPlaying)
